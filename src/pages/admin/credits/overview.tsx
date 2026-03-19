@@ -1,19 +1,31 @@
 import { Link } from "react-router-dom";
-import { LucideCoins, LucidePlus, LucideFileText, LucideArrowRight } from "lucide-react";
+import { LucideCoins, LucidePlus, LucideFileText, LucideArrowRight, LucideLoader2 } from "lucide-react";
+import { useMyCompanies, usePurchaseCredits, useCredits } from "../../../api/hooks";
 
 const Credits = () => {
-    const balance = {
-        total: 142,
-        used: 58,
-        remaining: 84,
-    };
+    const { data: companiesData } = useMyCompanies();
+    const company = companiesData?.[0];
+    const companyId = company?.id;
 
-    const recentTransactions = [
-        { id: 1, type: "Purchase", amount: 100, date: "2026-03-15", status: "Completed" },
-        { id: 2, type: "Usage", amount: -1, date: "2026-03-14", status: "Completed", user: "Sarah Chen" },
-        { id: 3, type: "Usage", amount: -1, date: "2026-03-13", status: "Completed", user: "John Doe" },
-        { id: 4, type: "Purchase", amount: 50, date: "2026-03-10", status: "Completed" },
+    const { data: creditsData, isLoading } = useCredits(companyId ? { companyId, per_page: 10 } : undefined);
+    const purchaseCredits = usePurchaseCredits();
+
+    const totalCredits = company?.total_credits ?? 0;
+    const usedCredits = company?.used_credits ?? 0;
+    const remainingCredits = totalCredits - usedCredits;
+
+    const transactions = creditsData?.data || [];
+
+    const creditPackages = [
+        { credits: 50, price: 450, popular: false },
+        { credits: 100, price: 850, popular: true },
+        { credits: 200, price: 1600, popular: false },
     ];
+
+    const handlePurchase = (amount: number) => {
+        if (!companyId) return;
+        purchaseCredits.mutate({ id: companyId, data: { amount } });
+    };
 
     return (
         <div className="space-y-6">
@@ -40,7 +52,7 @@ const Credits = () => {
                         </span>
                         <LucideCoins className="w-5 h-5 text-muted" />
                     </div>
-                    <p className="text-4xl font-serif text-heading">{balance.total}</p>
+                    <p className="text-4xl font-serif text-heading">{isLoading ? "-" : totalCredits}</p>
                 </div>
 
                 <div className="bg-white rounded-2xl border border-border-light/50 p-6">
@@ -50,7 +62,7 @@ const Credits = () => {
                         </span>
                         <LucideCoins className="w-5 h-5 text-muted" />
                     </div>
-                    <p className="text-4xl font-serif text-heading">{balance.used}</p>
+                    <p className="text-4xl font-serif text-heading">{isLoading ? "-" : usedCredits}</p>
                 </div>
 
                 <div className="bg-accent/5 border border-accent/20 rounded-2xl p-6">
@@ -60,7 +72,7 @@ const Credits = () => {
                         </span>
                         <LucideCoins className="w-5 h-5 text-accent" />
                     </div>
-                    <p className="text-4xl font-serif text-accent">{balance.remaining}</p>
+                    <p className="text-4xl font-serif text-accent">{isLoading ? "-" : remainingCredits}</p>
                 </div>
             </div>
 
@@ -68,11 +80,7 @@ const Credits = () => {
             <div className="bg-white rounded-2xl border border-border-light/50 p-6">
                 <h2 className="text-lg font-semibold text-heading mb-4">Purchase Credits</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[
-                        { credits: 50, price: "$450", popular: false },
-                        { credits: 100, price: "$850", popular: true },
-                        { credits: 200, price: "$1,600", popular: false },
-                    ].map((tier) => (
+                    {creditPackages.map((tier) => (
                         <div
                             key={tier.credits}
                             className={`relative p-6 rounded-xl border-2 transition-colors ${
@@ -88,9 +96,13 @@ const Credits = () => {
                             )}
                             <div className="text-3xl font-serif text-heading mb-2">{tier.credits}</div>
                             <div className="text-sm text-muted mb-4">credits</div>
-                            <div className="text-2xl font-semibold text-heading mb-4">{tier.price}</div>
-                            <button className="w-full py-2.5 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors flex items-center justify-center gap-2">
-                                <LucidePlus className="w-4 h-4" />
+                            <div className="text-2xl font-semibold text-heading mb-4">${tier.price}</div>
+                            <button 
+                                onClick={() => handlePurchase(tier.credits)}
+                                disabled={purchaseCredits.isPending}
+                                className="w-full py-2.5 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                            >
+                                {purchaseCredits.isPending ? <LucideLoader2 className="w-4 h-4 animate-spin" /> : <LucidePlus className="w-4 h-4" />}
                                 Purchase
                             </button>
                         </div>
@@ -107,59 +119,72 @@ const Credits = () => {
                         <LucideArrowRight className="w-4 h-4" />
                     </button>
                 </div>
-                <table className="w-full">
-                    <thead className="bg-background-primary border-b border-border-light/50">
-                        <tr>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-                                Type
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-                                Amount
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-                                Date
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-                                Details
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
-                                Status
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border-light/50">
-                        {recentTransactions.map((tx) => (
-                            <tr key={tx.id} className="hover:bg-background-primary/50 transition-colors">
-                                <td className="px-6 py-4">
-                                    <span className="text-sm font-medium text-heading">{tx.type}</span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span
-                                        className={`text-sm font-semibold ${
-                                            tx.amount > 0 ? "text-green-600" : "text-heading"
-                                        }`}
-                                    >
-                                        {tx.amount > 0 ? "+" : ""}
-                                        {tx.amount}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className="text-sm text-muted">{tx.date}</span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className="text-sm text-muted">
-                                        {tx.user ? `Used by ${tx.user}` : "Credit purchase"}
-                                    </span>
-                                </td>
-                                <td className="px-6 py-4">
-                                    <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
-                                        {tx.status}
-                                    </span>
-                                </td>
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                        <LucideLoader2 className="w-6 h-6 text-accent animate-spin" />
+                    </div>
+                ) : (
+                    <table className="w-full">
+                        <thead className="bg-background-primary border-b border-border-light/50">
+                            <tr>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                                    Type
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                                    Amount
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                                    Date
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                                    Details
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">
+                                    Status
+                                </th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-border-light/50">
+                            {transactions.map((tx) => (
+                                <tr key={tx.id} className="hover:bg-background-primary/50 transition-colors">
+                                    <td className="px-6 py-4">
+                                        <span className="text-sm font-medium text-heading">{tx.type}</span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span
+                                            className={`text-sm font-semibold ${
+                                                tx.amount > 0 ? "text-green-600" : "text-heading"
+                                            }`}
+                                        >
+                                            {tx.amount > 0 ? "+" : ""}
+                                            {tx.amount}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className="text-sm text-muted">{new Date(tx.createdAt).toLocaleDateString()}</span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className="text-sm text-muted">
+                                            {tx.reference || "Credit transaction"}
+                                        </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        <span className="inline-flex px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700">
+                                            Completed
+                                        </span>
+                                    </td>
+                                </tr>
+                            ))}
+                            {transactions.length === 0 && (
+                                <tr>
+                                    <td colSpan={5} className="px-6 py-12 text-center">
+                                        <p className="text-sm text-muted">No transactions yet.</p>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     );

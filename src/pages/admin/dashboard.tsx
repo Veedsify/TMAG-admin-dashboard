@@ -1,12 +1,34 @@
-import { LucideUsers, LucideCoins, LucideFileText, LucideClipboardCheck, LucideArrowRight } from "lucide-react";
+import { LucideUsers, LucideCoins, LucideFileText, LucideClipboardCheck, LucideArrowRight, LucideLoader2 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useMyCompanies, useEmployees, useTravelPlans, useTravelRequests } from "../../api/hooks";
 
 const Dashboard = () => {
+    const { data: companiesData } = useMyCompanies();
+    const company = companiesData?.[0];
+    const companyId = company?.id;
+
+    const { data: employeesData, isLoading: employeesLoading } = useEmployees(
+        companyId ? { companyId, per_page: 100 } : undefined
+    );
+    const { data: plansData, isLoading: plansLoading } = useTravelPlans(
+        companyId ? { companyId, per_page: 100 } : undefined
+    );
+    const { data: requestsData, isLoading: requestsLoading } = useTravelRequests(
+        companyId ? { companyId } : undefined
+    );
+
+    const totalEmployees = employeesData?.pagination.total ?? 0;
+    const totalCredits = company?.total_credits ?? 0;
+    const usedCredits = company?.used_credits ?? 0;
+    const remainingCredits = totalCredits - usedCredits;
+    const activePlans = plansData?.data.filter(p => p.status === "COMPLETED" || p.status === "PROCESSING").length ?? 0;
+    const pendingRequests = requestsData?.data.filter(r => r.status === "PENDING").length ?? 0;
+
     const stats = [
-        { label: "Total Team Members", value: "24", icon: LucideUsers, href: "/admin/team" },
-        { label: "Credits Remaining", value: "142", icon: LucideCoins, href: "/admin/credits" },
-        { label: "Active Travel Plans", value: "8", icon: LucideFileText, href: "/admin/plans" },
-        { label: "Pending Requests", value: "3", icon: LucideClipboardCheck, href: "/admin/requests" },
+        { label: "Total Team Members", value: totalEmployees, icon: LucideUsers, href: "/admin/team", loading: employeesLoading },
+        { label: "Credits Remaining", value: remainingCredits, icon: LucideCoins, href: "/admin/credits", loading: false },
+        { label: "Active Travel Plans", value: activePlans, icon: LucideFileText, href: "/admin/plans", loading: plansLoading },
+        { label: "Pending Requests", value: pendingRequests, icon: LucideClipboardCheck, href: "/admin/requests", loading: requestsLoading },
     ];
 
     const recentActivity = [
@@ -33,11 +55,17 @@ const Dashboard = () => {
                     >
                         <div className="flex items-center justify-between mb-4">
                             <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
-                                <stat.icon className="w-5 h-5 text-accent" />
+                                {stat.loading ? (
+                                    <LucideLoader2 className="w-5 h-5 text-accent animate-spin" />
+                                ) : (
+                                    <stat.icon className="w-5 h-5 text-accent" />
+                                )}
                             </div>
                             <LucideArrowRight className="w-4 h-4 text-muted" />
                         </div>
-                        <p className="text-3xl font-serif text-heading mb-1">{stat.value}</p>
+                        <p className="text-3xl font-serif text-heading mb-1">
+                            {stat.loading ? "-" : stat.value}
+                        </p>
                         <p className="text-xs text-muted">{stat.label}</p>
                     </Link>
                 ))}

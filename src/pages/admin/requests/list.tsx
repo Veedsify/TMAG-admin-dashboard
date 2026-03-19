@@ -1,59 +1,73 @@
 import { useState } from "react";
-import { LucideSearch, LucideCheck, LucideX, LucideMapPin, LucideFilter } from "lucide-react";
+import { LucideSearch, LucideCheck, LucideX, LucideMapPin, LucideFilter, LucideLoader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { usePlanStore } from "../../../stores/planStore";
+import { useMyCompanies, useTravelRequests, useApproveTravelRequest, useRejectTravelRequest } from "../../../api/hooks";
 
 const TravelRequests = () => {
     const [search, setSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "completed" | "rejected">("all");
-    const [selected, setSelected] = useState<string[]>([]);
-    const requests = usePlanStore((s) => s.travelRequests);
-    const updateStatus = usePlanStore((s) => s.updateRequestStatus);
+    const [statusFilter, setStatusFilter] = useState<"all" | "PENDING" | "APPROVED" | "COMPLETED" | "REJECTED">("all");
+    const [selected, setSelected] = useState<number[]>([]);
+
+    const { data: companiesData } = useMyCompanies();
+    const company = companiesData?.[0];
+    const companyId = company?.id;
+
+    const { data: requestsData, isLoading } = useTravelRequests(
+        companyId ? { companyId, per_page: 50 } : undefined
+    );
+    const approveRequest = useApproveTravelRequest();
+    const rejectRequest = useRejectTravelRequest();
+
+    const requests = requestsData?.data || [];
 
     const filtered = requests.filter((r) => {
         const matchesSearch =
-            r.employeeName.toLowerCase().includes(search.toLowerCase()) ||
+            (r.employeeName?.toLowerCase().includes(search.toLowerCase()) ?? false) ||
             r.destination.toLowerCase().includes(search.toLowerCase());
         const matchesStatus = statusFilter === "all" || r.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
 
-    const handleApprove = (id: string) => {
-        updateStatus(id, "approved");
-        toast.success("Travel request approved");
+    const handleApprove = (id: number) => {
+        approveRequest.mutate(id, {
+            onSuccess: () => toast.success("Travel request approved"),
+            onError: () => toast.error("Failed to approve request"),
+        });
         setSelected((p) => p.filter((s) => s !== id));
     };
 
-    const handleReject = (id: string) => {
-        updateStatus(id, "rejected");
-        toast.success("Travel request rejected");
+    const handleReject = (id: number) => {
+        rejectRequest.mutate(id, {
+            onSuccess: () => toast.success("Travel request rejected"),
+            onError: () => toast.error("Failed to reject request"),
+        });
         setSelected((p) => p.filter((s) => s !== id));
     };
 
     const handleBulkApprove = () => {
-        selected.forEach((id) => updateStatus(id, "approved"));
+        selected.forEach((id) => approveRequest.mutate(id));
         toast.success(`${selected.length} request(s) approved`);
         setSelected([]);
     };
 
     const handleBulkReject = () => {
-        selected.forEach((id) => updateStatus(id, "rejected"));
+        selected.forEach((id) => rejectRequest.mutate(id));
         toast.success(`${selected.length} request(s) rejected`);
         setSelected([]);
     };
 
-    const toggleSelect = (id: string) => {
+    const toggleSelect = (id: number) => {
         setSelected((p) => p.includes(id) ? p.filter((s) => s !== id) : [...p, id]);
     };
 
     const statusBadge = (status: string) => (
         <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
-            status === "pending" ? "bg-gold/10 text-gold" :
-            status === "approved" ? "bg-accent/10 text-accent" :
-            status === "completed" ? "bg-button-secondary text-muted" :
+            status === "PENDING" ? "bg-gold/10 text-gold" :
+            status === "APPROVED" ? "bg-accent/10 text-accent" :
+            status === "COMPLETED" ? "bg-button-secondary text-muted" :
             "bg-red-50 text-red-600"
         }`}>
-            {status.charAt(0).toUpperCase() + status.slice(1)}
+            {status.charAt(0) + status.slice(1).toLowerCase()}
         </span>
     );
 
@@ -77,7 +91,7 @@ const TravelRequests = () => {
                         />
                     </div>
                     <div className="flex gap-2 flex-wrap">
-                        {(["all", "pending", "approved", "completed", "rejected"] as const).map((f) => (
+                        {(["all", "PENDING", "APPROVED", "COMPLETED", "REJECTED"] as const).map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setStatusFilter(f)}
@@ -85,7 +99,7 @@ const TravelRequests = () => {
                                     statusFilter === f ? "bg-accent text-white" : "bg-button-secondary text-muted hover:bg-border-light"
                                 }`}
                             >
-                                {f.charAt(0).toUpperCase() + f.slice(1)}
+                                {f === "all" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
                             </button>
                         ))}
                     </div>
@@ -133,56 +147,66 @@ const TravelRequests = () => {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border-light/50">
-                            {filtered.map((req) => (
-                                <tr key={req.id} className={`hover:bg-background-secondary/50 transition-colors ${selected.includes(req.id) ? "bg-accent/5" : ""}`}>
-                                    <td className="px-4 py-4">
-                                        <input
-                                            type="checkbox"
-                                            checked={selected.includes(req.id)}
-                                            onChange={() => toggleSelect(req.id)}
-                                            className="w-4 h-4 rounded border-border text-accent focus:ring-accent cursor-pointer"
-                                        />
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <div className="flex items-center gap-2.5">
-                                            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
-                                                <span className="text-xs font-semibold text-accent">{req.employeeName.split(" ").map((n) => n[0]).join("")}</span>
-                                            </div>
-                                            <span className="text-sm font-medium text-heading">{req.employeeName}</span>
-                                        </div>
-                                    </td>
-                                    <td className="px-4 py-4">
-                                        <div className="flex items-center gap-1.5 text-sm text-heading">
-                                            <LucideMapPin className="w-3.5 h-3.5 text-muted flex-shrink-0" />
-                                            {req.destination}
-                                        </div>
-                                    </td>
-                                    <td className="px-4 py-4 text-sm text-muted">{req.dates}</td>
-                                    <td className="px-4 py-4">{statusBadge(req.status)}</td>
-                                    <td className="px-4 py-4 text-sm text-muted">{req.submittedAt}</td>
-                                    <td className="px-4 py-4">
-                                        {req.status === "pending" && (
-                                            <div className="flex items-center gap-1.5">
-                                                <button
-                                                    onClick={() => handleApprove(req.id)}
-                                                    className="p-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
-                                                    title="Approve"
-                                                >
-                                                    <LucideCheck className="w-4 h-4" />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleReject(req.id)}
-                                                    className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
-                                                    title="Reject"
-                                                >
-                                                    <LucideX className="w-4 h-4" />
-                                                </button>
-                                            </div>
-                                        )}
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={7} className="px-4 py-12 text-center">
+                                        <LucideLoader2 className="w-6 h-6 text-accent animate-spin mx-auto" />
                                     </td>
                                 </tr>
-                            ))}
-                            {filtered.length === 0 && (
+                            ) : (
+                                filtered.map((req) => (
+                                    <tr key={req.id} className={`hover:bg-background-secondary/50 transition-colors ${selected.includes(req.id) ? "bg-accent/5" : ""}`}>
+                                        <td className="px-4 py-4">
+                                            <input
+                                                type="checkbox"
+                                                checked={selected.includes(req.id)}
+                                                onChange={() => toggleSelect(req.id)}
+                                                className="w-4 h-4 rounded border-border text-accent focus:ring-accent cursor-pointer"
+                                            />
+                                        </td>
+                                        <td className="px-4 py-4">
+                                            <div className="flex items-center gap-2.5">
+                                                <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                                                    <span className="text-xs font-semibold text-accent">{(req.employeeName || "?").split(" ").map((n: string) => n[0]).join("")}</span>
+                                                </div>
+                                                <span className="text-sm font-medium text-heading">{req.employeeName || `Employee #${req.employeeId}`}</span>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-4">
+                                            <div className="flex items-center gap-1.5 text-sm text-heading">
+                                                <LucideMapPin className="w-3.5 h-3.5 text-muted flex-shrink-0" />
+                                                {req.destination}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-4 text-sm text-muted">{req.dates}</td>
+                                        <td className="px-4 py-4">{statusBadge(req.status)}</td>
+                                        <td className="px-4 py-4 text-sm text-muted">{req.submittedAt ? new Date(req.submittedAt).toLocaleDateString() : "N/A"}</td>
+                                        <td className="px-4 py-4">
+                                            {req.status === "PENDING" && (
+                                                <div className="flex items-center gap-1.5">
+                                                    <button
+                                                        onClick={() => handleApprove(req.id)}
+                                                        disabled={approveRequest.isPending}
+                                                        className="p-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors disabled:opacity-50"
+                                                        title="Approve"
+                                                    >
+                                                        <LucideCheck className="w-4 h-4" />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleReject(req.id)}
+                                                        disabled={rejectRequest.isPending}
+                                                        className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors disabled:opacity-50"
+                                                        title="Reject"
+                                                    >
+                                                        <LucideX className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                            {!isLoading && filtered.length === 0 && (
                                 <tr>
                                     <td colSpan={7} className="px-4 py-12 text-center">
                                         <div className="w-12 h-12 rounded-full bg-button-secondary flex items-center justify-center mx-auto mb-3">

@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import {
     LucideBuilding2,
     LucideUsers,
@@ -18,10 +18,14 @@ import {
     LucideX,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useAuth } from "../../context/AuthContext";
+import toast from "react-hot-toast";
 
 const AdminSidebar = () => {
     const [collapsed, setCollapsed] = useState(false);
     const [mobileOpen, setMobileOpen] = useState(false);
+    const { user, logout } = useAuth();
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (mobileOpen) {
@@ -33,6 +37,16 @@ const AdminSidebar = () => {
             document.body.style.overflow = "";
         };
     }, [mobileOpen]);
+
+    const handleLogout = async () => {
+        try {
+            await logout();
+            toast.success("Logged out successfully");
+            navigate("/auth/login");
+        } catch {
+            toast.error("Logout failed");
+        }
+    };
 
     const navItems = [
         { label: "Dashboard", href: "/admin", icon: LucideLayoutDashboard },
@@ -95,21 +109,31 @@ const AdminSidebar = () => {
                     <div className="px-3 py-2.5 rounded-xl bg-white/5">
                         <div className="flex items-center gap-2.5">
                             <div className="w-8 h-8 rounded-full bg-accent/30 flex items-center justify-center flex-shrink-0">
-                                <LucideUser className="w-4 h-4 text-accent" />
+                                {user?.avatar_url ? (
+                                    <img src={user.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover" />
+                                ) : (
+                                    <LucideUser className="w-4 h-4 text-accent" />
+                                )}
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-white text-xs font-semibold truncate">Admin User</p>
-                                <p className="text-white/40 text-[10px] truncate">admin@company.com</p>
+                                <p className="text-white text-xs font-semibold truncate">{user?.first_name} {user?.last_name}</p>
+                                <p className="text-white/40 text-[10px] truncate">{user?.email}</p>
                             </div>
                         </div>
-                        <button className="mt-2 w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-colors text-xs">
+                        <button 
+                            onClick={handleLogout}
+                            className="mt-2 w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-colors text-xs"
+                        >
                             <LucideLogOut className="w-3.5 h-3.5" />
                             Sign out
                         </button>
                     </div>
                 ) : (
                     <div className="flex justify-center">
-                        <button className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-colors">
+                        <button 
+                            onClick={handleLogout}
+                            className="p-2 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-colors"
+                        >
                             <LucideLogOut className="w-4 h-4" />
                         </button>
                     </div>

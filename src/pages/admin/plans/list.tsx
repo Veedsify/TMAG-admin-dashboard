@@ -1,21 +1,35 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { LucideSearch, LucidePlus, LucideMapPin, LucideCalendar, LucideChevronRight, LucideUser } from "lucide-react";
-import { usePlanStore } from "../../../stores/planStore";
+import { LucideSearch, LucidePlus, LucideMapPin, LucideCalendar, LucideChevronRight, LucideUser, LucideLoader2 } from "lucide-react";
+import { useMyCompanies, useTravelPlans } from "../../../api/hooks";
 
 const TravelPlans = () => {
     const [search, setSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState<"all" | "completed" | "processing">("all");
-    const plans = usePlanStore((s) => s.plans);
+    const [statusFilter, setStatusFilter] = useState<"all" | "COMPLETED" | "PROCESSING" | "PENDING">("all");
+
+    const { data: companiesData } = useMyCompanies();
+    const company = companiesData?.[0];
+    const companyId = company?.id;
+
+    const { data: plansData, isLoading } = useTravelPlans(
+        companyId ? { companyId, per_page: 50, search: search || undefined } : undefined
+    );
+
+    const plans = plansData?.data || [];
 
     const filtered = plans.filter((p) => {
         const matchesSearch =
             p.destination.toLowerCase().includes(search.toLowerCase()) ||
-            p.country.toLowerCase().includes(search.toLowerCase()) ||
-            (p.employeeName?.toLowerCase().includes(search.toLowerCase()) ?? false);
+            p.country.toLowerCase().includes(search.toLowerCase());
         const matchesStatus = statusFilter === "all" || p.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
+
+    const getRiskLabel = (score: number) => {
+        if (score <= 1) return "Low";
+        if (score === 2) return "Moderate";
+        return "High";
+    };
 
     const riskBadge = (risk: string) => (
         <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
@@ -56,7 +70,7 @@ const TravelPlans = () => {
                         />
                     </div>
                     <div className="flex gap-2 flex-wrap">
-                        {(["all", "completed", "processing"] as const).map((f) => (
+                        {(["all", "COMPLETED", "PROCESSING", "PENDING"] as const).map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setStatusFilter(f)}
@@ -64,14 +78,18 @@ const TravelPlans = () => {
                                     statusFilter === f ? "bg-accent text-white" : "bg-button-secondary text-muted hover:bg-border-light"
                                 }`}
                             >
-                                {f.charAt(0).toUpperCase() + f.slice(1)}
+                                {f === "all" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
                             </button>
                         ))}
                     </div>
                 </div>
             </div>
 
-            {filtered.length === 0 ? (
+            {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                    <LucideLoader2 className="w-6 h-6 text-accent animate-spin" />
+                </div>
+            ) : filtered.length === 0 ? (
                 <div className="bg-white rounded-2xl border border-border-light/50 p-12 text-center">
                     <div className="w-14 h-14 rounded-full bg-button-secondary flex items-center justify-center mx-auto mb-4">
                         <LucideMapPin className="w-7 h-7 text-muted" />
@@ -88,71 +106,53 @@ const TravelPlans = () => {
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                    {filtered.map((plan) => (
-                        <Link
-                            key={plan.id}
-                            to={`/admin/plans/${plan.id}`}
-                            className="bg-white rounded-2xl border border-border-light/50 p-5 hover:border-accent/30 transition-all group"
-                        >
-                            <div className="flex items-start justify-between mb-3">
-                                <div className="flex items-center gap-2">
-                                    <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
-                                        plan.riskScore === "Low" ? "bg-accent" :
-                                        plan.riskScore === "Moderate" ? "bg-gold" : "bg-red-500"
-                                    }`} />
-                                    <span className="text-sm font-semibold text-heading">{plan.destination}</span>
+                    {filtered.map((plan) => {
+                        const riskLabel = getRiskLabel(plan.riskScore);
+                        return (
+                            <Link
+                                key={plan.id}
+                                to={`/admin/plans/${plan.id}`}
+                                className="bg-white rounded-2xl border border-border-light/50 p-5 hover:border-accent/30 transition-all group"
+                            >
+                                <div className="flex items-start justify-between mb-3">
+                                    <div className="flex items-center gap-2">
+                                        <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                                            riskLabel === "Low" ? "bg-accent" :
+                                            riskLabel === "Moderate" ? "bg-gold" : "bg-red-500"
+                                        }`} />
+                                        <span className="text-sm font-semibold text-heading">{plan.destination}</span>
+                                    </div>
+                                    <LucideChevronRight className="w-4 h-4 text-muted group-hover:text-accent transition-colors" />
                                 </div>
-                                <LucideChevronRight className="w-4 h-4 text-muted group-hover:text-accent transition-colors" />
-                            </div>
 
-                            <div className="flex flex-wrap gap-1.5 mb-3">
-                                {riskBadge(plan.riskScore)}
-                                <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                    plan.status === "completed" ? "bg-accent/10 text-accent" :
-                                    plan.status === "processing" ? "bg-gold/10 text-gold" :
-                                    "bg-button-secondary text-muted"
-                                }`}>
-                                    {plan.status.charAt(0).toUpperCase() + plan.status.slice(1)}
-                                </span>
-                            </div>
+                                <div className="flex flex-wrap gap-1.5 mb-3">
+                                    {riskBadge(riskLabel)}
+                                    <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
+                                        plan.status === "COMPLETED" ? "bg-accent/10 text-accent" :
+                                        plan.status === "PROCESSING" ? "bg-gold/10 text-gold" :
+                                        "bg-button-secondary text-muted"
+                                    }`}>
+                                        {plan.status.charAt(0) + plan.status.slice(1).toLowerCase()}
+                                    </span>
+                                </div>
 
-                            <div className="space-y-1.5">
-                                <div className="flex items-center gap-2 text-xs text-muted">
-                                    <LucideMapPin className="w-3.5 h-3.5" />
-                                    {plan.country}
-                                </div>
-                                <div className="flex items-center gap-2 text-xs text-muted">
-                                    <LucideCalendar className="w-3.5 h-3.5" />
-                                    {plan.duration}
-                                </div>
-                                <div className="flex items-center gap-2 text-xs text-muted">
-                                    <LucideUser className="w-3.5 h-3.5" />
-                                    {plan.employeeName ?? "Unknown"}
-                                </div>
-                            </div>
-
-                            {plan.vaccinations && plan.vaccinations.length > 0 && (
-                                <div className="mt-3 pt-3 border-t border-border-light/50">
-                                    <div className="flex flex-wrap gap-1">
-                                        {plan.vaccinations.slice(0, 3).map((v, i) => (
-                                            <span key={i} className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
-                                                v.status === "Required" ? "bg-red-50 text-red-600" :
-                                                v.status === "Recommended" ? "bg-gold/10 text-gold" :
-                                                "bg-button-secondary text-muted"
-                                            }`}>
-                                                {v.name}
-                                            </span>
-                                        ))}
-                                        {plan.vaccinations.length > 3 && (
-                                            <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-button-secondary text-muted">
-                                                +{plan.vaccinations.length - 3}
-                                            </span>
-                                        )}
+                                <div className="space-y-1.5">
+                                    <div className="flex items-center gap-2 text-xs text-muted">
+                                        <LucideMapPin className="w-3.5 h-3.5" />
+                                        {plan.country}
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-muted">
+                                        <LucideCalendar className="w-3.5 h-3.5" />
+                                        {plan.duration} days
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-muted">
+                                        <LucideUser className="w-3.5 h-3.5" />
+                                        {new Date(plan.createdAt).toLocaleDateString()}
                                     </div>
                                 </div>
-                            )}
-                        </Link>
-                    ))}
+                            </Link>
+                        );
+                    })}
                 </div>
             )}
         </div>
