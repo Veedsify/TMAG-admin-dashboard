@@ -1,8 +1,201 @@
+import { useState } from "react";
+import { LucideSearch, LucideCheck, LucideX, LucideMapPin, LucideFilter } from "lucide-react";
+import toast from "react-hot-toast";
+import { usePlanStore } from "../../../stores/planStore";
+
 const TravelRequests = () => {
+    const [search, setSearch] = useState("");
+    const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "completed" | "rejected">("all");
+    const [selected, setSelected] = useState<string[]>([]);
+    const requests = usePlanStore((s) => s.travelRequests);
+    const updateStatus = usePlanStore((s) => s.updateRequestStatus);
+
+    const filtered = requests.filter((r) => {
+        const matchesSearch =
+            r.employeeName.toLowerCase().includes(search.toLowerCase()) ||
+            r.destination.toLowerCase().includes(search.toLowerCase());
+        const matchesStatus = statusFilter === "all" || r.status === statusFilter;
+        return matchesSearch && matchesStatus;
+    });
+
+    const handleApprove = (id: string) => {
+        updateStatus(id, "approved");
+        toast.success("Travel request approved");
+        setSelected((p) => p.filter((s) => s !== id));
+    };
+
+    const handleReject = (id: string) => {
+        updateStatus(id, "rejected");
+        toast.success("Travel request rejected");
+        setSelected((p) => p.filter((s) => s !== id));
+    };
+
+    const handleBulkApprove = () => {
+        selected.forEach((id) => updateStatus(id, "approved"));
+        toast.success(`${selected.length} request(s) approved`);
+        setSelected([]);
+    };
+
+    const handleBulkReject = () => {
+        selected.forEach((id) => updateStatus(id, "rejected"));
+        toast.success(`${selected.length} request(s) rejected`);
+        setSelected([]);
+    };
+
+    const toggleSelect = (id: string) => {
+        setSelected((p) => p.includes(id) ? p.filter((s) => s !== id) : [...p, id]);
+    };
+
+    const statusBadge = (status: string) => (
+        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
+            status === "pending" ? "bg-gold/10 text-gold" :
+            status === "approved" ? "bg-accent/10 text-accent" :
+            status === "completed" ? "bg-button-secondary text-muted" :
+            "bg-red-50 text-red-600"
+        }`}>
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+        </span>
+    );
+
     return (
-        <div>
-            <h1 className="text-3xl font-serif text-heading mb-2">Travel Requests</h1>
-            <p className="text-sm text-muted">Review and approve employee travel requests</p>
+        <div className="space-y-6">
+            <div>
+                <h1 className="text-3xl font-serif text-heading mb-2">Travel Requests</h1>
+                <p className="text-sm text-muted">Review and manage employee travel requests</p>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-border-light/50 p-4">
+                <div className="flex flex-col lg:flex-row gap-3">
+                    <div className="flex-1 relative">
+                        <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                        <input
+                            type="text"
+                            placeholder="Search by employee or destination..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="w-full pl-9 pr-4 py-2.5 bg-background-primary border border-border-light rounded-xl text-sm text-heading outline-none focus:border-accent transition-colors"
+                        />
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                        {(["all", "pending", "approved", "completed", "rejected"] as const).map((f) => (
+                            <button
+                                key={f}
+                                onClick={() => setStatusFilter(f)}
+                                className={`px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
+                                    statusFilter === f ? "bg-accent text-white" : "bg-button-secondary text-muted hover:bg-border-light"
+                                }`}
+                            >
+                                {f.charAt(0).toUpperCase() + f.slice(1)}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            {selected.length > 0 && (
+                <div className="bg-accent/5 border border-accent/20 rounded-2xl p-4 flex items-center justify-between gap-4">
+                    <span className="text-sm font-semibold text-heading">{selected.length} request(s) selected</span>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={handleBulkApprove}
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors"
+                        >
+                            <LucideCheck className="w-4 h-4" />
+                            Approve All
+                        </button>
+                        <button
+                            onClick={handleBulkReject}
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 text-white font-semibold text-sm hover:bg-red-700 transition-colors"
+                        >
+                            <LucideX className="w-4 h-4" />
+                            Reject All
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full min-w-[560px]">
+                        <thead>
+                            <tr className="border-b border-border-light/50">
+                                <th className="px-4 py-3 w-10">
+                                    <input
+                                        type="checkbox"
+                                        checked={filtered.length > 0 && selected.length === filtered.length}
+                                        onChange={(e) => setSelected(e.target.checked ? filtered.map((r) => r.id) : [])}
+                                        className="w-4 h-4 rounded border-border text-accent focus:ring-accent cursor-pointer"
+                                    />
+                                </th>
+                                {["Employee", "Destination", "Dates", "Status", "Submitted", "Actions"].map((h) => (
+                                    <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{h}</th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border-light/50">
+                            {filtered.map((req) => (
+                                <tr key={req.id} className={`hover:bg-background-secondary/50 transition-colors ${selected.includes(req.id) ? "bg-accent/5" : ""}`}>
+                                    <td className="px-4 py-4">
+                                        <input
+                                            type="checkbox"
+                                            checked={selected.includes(req.id)}
+                                            onChange={() => toggleSelect(req.id)}
+                                            className="w-4 h-4 rounded border-border text-accent focus:ring-accent cursor-pointer"
+                                        />
+                                    </td>
+                                    <td className="px-4 py-4">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
+                                                <span className="text-xs font-semibold text-accent">{req.employeeName.split(" ").map((n) => n[0]).join("")}</span>
+                                            </div>
+                                            <span className="text-sm font-medium text-heading">{req.employeeName}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-4">
+                                        <div className="flex items-center gap-1.5 text-sm text-heading">
+                                            <LucideMapPin className="w-3.5 h-3.5 text-muted flex-shrink-0" />
+                                            {req.destination}
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-4 text-sm text-muted">{req.dates}</td>
+                                    <td className="px-4 py-4">{statusBadge(req.status)}</td>
+                                    <td className="px-4 py-4 text-sm text-muted">{req.submittedAt}</td>
+                                    <td className="px-4 py-4">
+                                        {req.status === "pending" && (
+                                            <div className="flex items-center gap-1.5">
+                                                <button
+                                                    onClick={() => handleApprove(req.id)}
+                                                    className="p-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
+                                                    title="Approve"
+                                                >
+                                                    <LucideCheck className="w-4 h-4" />
+                                                </button>
+                                                <button
+                                                    onClick={() => handleReject(req.id)}
+                                                    className="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                                                    title="Reject"
+                                                >
+                                                    <LucideX className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        )}
+                                    </td>
+                                </tr>
+                            ))}
+                            {filtered.length === 0 && (
+                                <tr>
+                                    <td colSpan={7} className="px-4 py-12 text-center">
+                                        <div className="w-12 h-12 rounded-full bg-button-secondary flex items-center justify-center mx-auto mb-3">
+                                            <LucideFilter className="w-6 h-6 text-muted" />
+                                        </div>
+                                        <p className="text-sm text-muted">No travel requests match your filters</p>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     );
 };

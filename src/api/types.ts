@@ -250,6 +250,7 @@ export interface TravelRequestResponse {
   companyId?: number;
   employeeId?: number;
   userId?: number;
+  employeeName?: string;
   createdAt: string;
   updatedAt: string;
 }

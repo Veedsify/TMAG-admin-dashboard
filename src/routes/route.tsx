@@ -1,6 +1,5 @@
 import { lazy, Suspense } from "react";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
-import { LucideLoader2 } from "lucide-react";
 
 // Layouts
 import AdminLayout from "../layouts/adminlayout";
@@ -32,7 +31,16 @@ const DataExport = lazy(() => import("../pages/admin/settings/data-export"));
 
 const LoadingFallback = () => (
     <div className="min-h-screen bg-background-primary flex items-center justify-center">
-        <LucideLoader2 className="w-8 h-8 text-accent animate-spin" />
+        <div className="flex flex-col items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-darkest flex items-center justify-center">
+                <span className="text-white font-bold">TM</span>
+            </div>
+            <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: "0ms" }} />
+                <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: "150ms" }} />
+                <div className="w-2 h-2 rounded-full bg-accent animate-bounce" style={{ animationDelay: "300ms" }} />
+            </div>
+        </div>
     </div>
 );
 

@@ -26,7 +26,7 @@ const CompanyProfile = () => {
     };
 
     return (
-        <div className="max-w-4xl space-y-6">
+        <div className="space-y-6">
             <div>
                 <h1 className="text-3xl font-serif text-heading mb-2">Company Profile</h1>
                 <p className="text-sm text-muted">Manage your company information and settings</p>

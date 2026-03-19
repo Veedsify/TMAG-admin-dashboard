@@ -11,7 +11,7 @@ const Reports = () => {
     const { data: employeesData, isLoading: employeesLoading } = useEmployees({ companyId: companyIdNum });
     const { data: requestsData, isLoading: requestsLoading } = useTravelRequests({ companyId: companyIdNum });
 
-    const plans = plansData?.data || [];
+    void plansData;
     const employees = employeesData?.data || [];
     const travelRequests = requestsData?.data || [];
 
