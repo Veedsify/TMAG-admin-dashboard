@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { LucideSave, LucideBuilding2, LucideBell, LucideShield, LucideGlobe } from "lucide-react";
+import { useState, useEffect } from "react";
+import { LucideSave, LucideBuilding2, LucideBell, LucideShield, LucideGlobe, LucideLoader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useMyCompanies, useUpdateCompany, useUpdateProfilePassword } from "../../../api/hooks";
 
 const tabs = [
     { id: "general", label: "General", icon: LucideBuilding2 },
@@ -11,14 +12,15 @@ const tabs = [
 
 const Settings = () => {
     const [activeTab, setActiveTab] = useState("general");
+    const { data: myCompanies, isLoading: companyLoading } = useMyCompanies();
+    const updateCompany = useUpdateCompany();
+    const updatePassword = useUpdateProfilePassword();
+    const company = myCompanies?.[0];
+
     const [general, setGeneral] = useState({
-        name: "TechCorp Global",
-        industry: "Technology",
-        email: "admin@techcorp.com",
-        phone: "+1 234 567 8900",
-        address: "123 Business St, San Francisco, CA 94105",
-        website: "https://techcorp.com",
-        timezone: "America/Los_Angeles",
+        name: "",
+        industry: "",
+        plan: "",
     });
     const [notifications, setNotifications] = useState({
         travelRequests: true,
@@ -28,9 +30,66 @@ const Settings = () => {
         weeklyDigest: true,
     });
     const [twoFactor, setTwoFactor] = useState(false);
+    const [passwordForm, setPasswordForm] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+    });
 
-    const handleSave = () => {
-        toast.success("Settings saved successfully");
+    useEffect(() => {
+        if (company) {
+            setGeneral({
+                name: company.name ?? "",
+                industry: company.industry ?? "",
+                plan: company.plan ?? "",
+            });
+        }
+    }, [company]);
+
+    const handleSaveGeneral = async () => {
+        if (!company) return;
+        try {
+            await updateCompany.mutateAsync({
+                id: company.id,
+                data: {
+                    name: general.name,
+                    industry: general.industry,
+                    plan: general.plan,
+                },
+            });
+            toast.success("Company settings saved successfully");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || "Failed to save settings");
+        }
+    };
+
+    const handleSaveNotifications = () => {
+        toast.success("Notification preferences saved");
+    };
+
+    const handleUpdatePassword = async () => {
+        if (!passwordForm.currentPassword || !passwordForm.newPassword) {
+            toast.error("Please fill in all password fields");
+            return;
+        }
+        if (passwordForm.newPassword !== passwordForm.confirmPassword) {
+            toast.error("New passwords do not match");
+            return;
+        }
+        if (passwordForm.newPassword.length < 8) {
+            toast.error("Password must be at least 8 characters");
+            return;
+        }
+        try {
+            await updatePassword.mutateAsync({
+                OldPassword: passwordForm.currentPassword,
+                NewPassword: passwordForm.newPassword,
+            });
+            toast.success("Password updated successfully");
+            setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || "Failed to update password");
+        }
     };
 
     return (
@@ -60,46 +119,40 @@ const Settings = () => {
             {activeTab === "general" && (
                 <div className="bg-white rounded-2xl border border-border-light/50 p-6 space-y-5">
                     <h2 className="text-base font-semibold text-heading">Company Information</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Company Name</label>
-                            <input type="text" value={general.name} onChange={(e) => setGeneral({ ...general, name: e.target.value })} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors" />
+                    {companyLoading ? (
+                        <div className="flex items-center justify-center py-8">
+                            <LucideLoader2 className="w-6 h-6 text-accent animate-spin" />
                         </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Industry</label>
-                            <select value={general.industry} onChange={(e) => setGeneral({ ...general, industry: e.target.value })} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors">
-                                {["Technology", "Healthcare", "Finance", "Manufacturing", "Consulting", "Other"].map((i) => <option key={i}>{i}</option>)}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Email</label>
-                            <input type="email" value={general.email} onChange={(e) => setGeneral({ ...general, email: e.target.value })} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors" />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Phone</label>
-                            <input type="tel" value={general.phone} onChange={(e) => setGeneral({ ...general, phone: e.target.value })} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors" />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Website</label>
-                            <input type="url" value={general.website} onChange={(e) => setGeneral({ ...general, website: e.target.value })} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors" />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Timezone</label>
-                            <select value={general.timezone} onChange={(e) => setGeneral({ ...general, timezone: e.target.value })} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors">
-                                {["America/New_York", "America/Chicago", "America/Denver", "America/Los_Angeles", "Europe/London", "Europe/Paris", "Africa/Lagos", "Asia/Dubai"].map((tz) => <option key={tz}>{tz}</option>)}
-                            </select>
-                        </div>
-                        <div className="md:col-span-2">
-                            <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Address</label>
-                            <textarea value={general.address} onChange={(e) => setGeneral({ ...general, address: e.target.value })} rows={2} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors resize-none" />
-                        </div>
-                    </div>
-                    <div className="flex justify-end pt-2">
-                        <button onClick={handleSave} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors">
-                            <LucideSave className="w-4 h-4" />
-                            Save Changes
-                        </button>
-                    </div>
+                    ) : (
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div>
+                                    <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Company Name</label>
+                                    <input type="text" value={general.name} onChange={(e) => setGeneral({ ...general, name: e.target.value })} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Industry</label>
+                                    <select value={general.industry} onChange={(e) => setGeneral({ ...general, industry: e.target.value })} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors">
+                                        <option value="">Select industry...</option>
+                                        {["Technology", "Healthcare", "Finance", "Manufacturing", "Consulting", "Other"].map((i) => <option key={i}>{i}</option>)}
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Plan</label>
+                                    <input type="text" value={general.plan} onChange={(e) => setGeneral({ ...general, plan: e.target.value })} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors" />
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Invite Code</label>
+                                    <input type="text" value={company?.company_code ?? ""} readOnly className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none cursor-default" />
+                                </div>
+                            </div>
+                            <div className="flex justify-end pt-2">
+                                <button onClick={handleSaveGeneral} disabled={updateCompany.isPending} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50">
+                                    {updateCompany.isPending ? <><LucideLoader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><LucideSave className="w-4 h-4" /> Save Changes</>}
+                                </button>
+                            </div>
+                        </>
+                    )}
                 </div>
             )}
 
@@ -129,7 +182,7 @@ const Settings = () => {
                         ))}
                     </div>
                     <div className="flex justify-end pt-2">
-                        <button onClick={handleSave} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors">
+                        <button onClick={handleSaveNotifications} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors">
                             <LucideSave className="w-4 h-4" />
                             Save Preferences
                         </button>
@@ -141,19 +194,40 @@ const Settings = () => {
                 <div className="space-y-4">
                     <div className="bg-white rounded-2xl border border-border-light/50 p-6 space-y-5">
                         <h2 className="text-base font-semibold text-heading">Password</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                             <div>
                                 <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Current Password</label>
-                                <input type="password" placeholder="••••••••" className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors" />
+                                <input
+                                    type="password"
+                                    value={passwordForm.currentPassword}
+                                    onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
+                                    placeholder="••••••••"
+                                    className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">New Password</label>
-                                <input type="password" placeholder="••••••••" className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors" />
+                                <input
+                                    type="password"
+                                    value={passwordForm.newPassword}
+                                    onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+                                    placeholder="••••••••"
+                                    className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Confirm Password</label>
+                                <input
+                                    type="password"
+                                    value={passwordForm.confirmPassword}
+                                    onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
+                                    placeholder="••••••••"
+                                    className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                />
                             </div>
                         </div>
-                        <button onClick={handleSave} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors">
-                            <LucideSave className="w-4 h-4" />
-                            Update Password
+                        <button onClick={handleUpdatePassword} disabled={updatePassword.isPending} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50">
+                            {updatePassword.isPending ? <><LucideLoader2 className="w-4 h-4 animate-spin" /> Updating...</> : <><LucideSave className="w-4 h-4" /> Update Password</>}
                         </button>
                     </div>
                     <div className="bg-white rounded-2xl border border-border-light/50 p-6 space-y-4">
@@ -198,7 +272,7 @@ const Settings = () => {
                         ))}
                     </div>
                     <div className="flex justify-end pt-2">
-                        <button onClick={handleSave} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors">
+                        <button onClick={() => toast.success("Preferences saved")} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors">
                             <LucideSave className="w-4 h-4" />
                             Save Preferences
                         </button>
@@ -213,7 +287,14 @@ const Settings = () => {
                         <p className="text-sm font-semibold text-red-700">Delete Account</p>
                         <p className="text-xs text-red-500 mt-0.5">Permanently delete your company account and all data</p>
                     </div>
-                    <button className="px-4 py-2 rounded-xl bg-red-600 text-white font-semibold text-sm hover:bg-red-700 transition-colors">
+                    <button
+                        onClick={() => {
+                            if (company && window.confirm("Are you sure you want to delete your company? This action cannot be undone.")) {
+                                toast.error("Company deletion requires contacting support");
+                            }
+                        }}
+                        className="px-4 py-2 rounded-xl bg-red-600 text-white font-semibold text-sm hover:bg-red-700 transition-colors"
+                    >
                         Delete Account
                     </button>
                 </div>

@@ -6,11 +6,8 @@ import type {
   SelectOption,
   // Auth
   LoginRequest,
-  RegisterRequest,
-  ForgotPasswordRequest,
-  ResendVerificationRequest,
-  ResetPasswordRequest,
   AuthResponse,
+  CompanyAdminUser,
   // Company
   CompanyResponse,
   CompanyCodeValidationResponse,
@@ -90,32 +87,17 @@ function buildParams(params?: PaginationParams) {
   };
 }
 
-// ─── Auth ────────────────────────────────────────────────────
+// ─── Auth (company-admin) ────────────────────────────────────
 
 export const authApi = {
   login: (data: LoginRequest) =>
-    api.post<ApiResponse<AuthResponse>>("/auth/login", data).then((r) => r.data.data),
-
-  register: (data: RegisterRequest) =>
-    api.post<ApiResponse<AuthResponse>>("/auth/register", data).then((r) => r.data.data),
+    api.post<ApiResponse<AuthResponse>>("/company-admin/auth/login", data).then((r) => r.data.data),
 
   logout: () =>
-    api.post<ApiResponse<null>>("/auth/logout").then((r) => r.data.data),
+    api.post<ApiResponse<null>>("/company-admin/auth/logout").then((r) => r.data.data),
 
-  forgotPassword: (data: ForgotPasswordRequest) =>
-    api.post<ApiResponse<null>>("/auth/forgot-password", data).then((r) => r.data.data),
-
-  resetPassword: (data: ResetPasswordRequest) =>
-    api.post<ApiResponse<null>>("/auth/reset-password", data).then((r) => r.data.data),
-
-  resendVerificationEmail: (data: ResendVerificationRequest) =>
-    api.post<ApiResponse<{ message: string }>>("/auth/resend-verification", data).then((r) => r.data.data),
-
-  verifyEmail: (data: { email: string; code: string }) =>
-    api.post<ApiResponse<{ message: string }>>("/auth/verify-email", data).then((r) => r.data.data),
-
-  acceptInvitation: (data: { token: string; new_password: string }) =>
-    api.post<ApiResponse<AuthResponse>>("/auth/accept-invitation", data).then((r) => r.data.data),
+  getCurrentUser: () =>
+    api.get<ApiResponse<CompanyAdminUser>>("/company-admin/auth/me").then((r) => r.data.data),
 };
 
 // ─── Companies ───────────────────────────────────────────────
@@ -155,6 +137,29 @@ export const companiesApi = {
 
   purchaseCredits: (id: number, data: PurchaseCreditsRequest) =>
     api.post<ApiResponse<CompanyResponse>>(`/companies/${id}/purchase-credits`, data).then((r) => r.data.data),
+};
+
+// ─── Company Admin Credits ───────────────────────────────────────────────
+
+export const companyAdminCreditsApi = {
+  getQuote: (companyId: number, credits: number) =>
+    api.post<ApiResponse<any>>("/company-admin/credits/quote", null, { params: { companyId, credits } }).then((r) => r.data.data),
+  
+  purchase: (data: { credits: number; companyId: number }) =>
+    api.post<ApiResponse<any>>("/company-admin/credits/purchase", data).then((r) => r.data.data),
+
+  verify: (txRef: string, transactionId?: string) =>
+    api.get<ApiResponse<{ success: boolean; purchase: any }>>(`/company-admin/credits/verify/${txRef}`, {
+      params: transactionId ? { transaction_id: transactionId } : {},
+    }).then((r) => r.data.data),
+
+  getPurchase: (txRef: string) =>
+    api.get<ApiResponse<any>>(`/company-admin/credits/${txRef}`).then((r) => r.data.data),
+
+  getHistory: (companyId?: number) =>
+    api.get<ApiResponse<any[]>>("/company-admin/credits/history", {
+      params: companyId ? { companyId } : {},
+    }).then((r) => r.data.data),
 };
 
 // ─── Employees ───────────────────────────────────────────────

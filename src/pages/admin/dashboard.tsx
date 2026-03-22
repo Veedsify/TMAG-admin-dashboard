@@ -24,18 +24,28 @@ const Dashboard = () => {
     const activePlans = plansData?.data.filter(p => p.status === "COMPLETED" || p.status === "PROCESSING").length ?? 0;
     const pendingRequests = requestsData?.data.filter(r => r.status === "PENDING").length ?? 0;
 
+    // Build recent activity from real data
+    const planActivities = (plansData?.data ?? []).map((p) => ({
+        action: `Travel plan created for ${p.destination}`,
+        user: p.country,
+        time: new Date(p.createdAt).toLocaleDateString(),
+        sortDate: new Date(p.createdAt).getTime(),
+    }));
+    const requestActivities = (requestsData?.data ?? []).map((r) => ({
+        action: `Travel request ${r.status?.toLowerCase()}: ${r.destination}`,
+        user: r.dates || "",
+        time: r.submittedAt ? new Date(r.submittedAt).toLocaleDateString() : new Date(r.createdAt).toLocaleDateString(),
+        sortDate: new Date(r.submittedAt || r.createdAt).getTime(),
+    }));
+    const recentActivity = [...planActivities, ...requestActivities]
+        .sort((a, b) => b.sortDate - a.sortDate)
+        .slice(0, 5);
+
     const stats = [
         { label: "Total Team Members", value: totalEmployees, icon: LucideUsers, href: "/admin/team", loading: employeesLoading },
         { label: "Credits Remaining", value: remainingCredits, icon: LucideCoins, href: "/admin/credits", loading: false },
         { label: "Active Travel Plans", value: activePlans, icon: LucideFileText, href: "/admin/plans", loading: plansLoading },
         { label: "Pending Requests", value: pendingRequests, icon: LucideClipboardCheck, href: "/admin/requests", loading: requestsLoading },
-    ];
-
-    const recentActivity = [
-        { action: "New travel plan created", user: "Sarah Chen", time: "2 hours ago" },
-        { action: "Travel request approved", user: "John Doe", time: "5 hours ago" },
-        { action: "Credits purchased", user: "Admin", time: "1 day ago" },
-        { action: "New team member invited", user: "Admin", time: "2 days ago" },
     ];
 
     return (

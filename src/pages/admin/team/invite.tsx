@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { LucideMail, LucideUpload, LucideX, LucidePlus, LucideDownload, LucideUserCog, LucideShield, LucideUser } from "lucide-react";
+import { LucideMail, LucideUpload, LucideX, LucidePlus, LucideDownload, LucideUserCog, LucideShield, LucideUser, LucideLoader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useMyCompanies, useInviteEmployee } from "../../../api/hooks";
 
-type Role = "Administrator" | "HR" | "Individual";
+type Role = "Individual" | "HR" | "Administrator";
 
 const roles: { id: Role; label: string; desc: string; icon: typeof LucideUser }[] = [
     { id: "Individual", label: "Individual", desc: "Can create travel plans and submit requests", icon: LucideUser },
@@ -18,10 +19,18 @@ emma.wilson@company.com,Emma,Wilson,Human Resources,HR
 alex.admin@company.com,Alex,Admin,Management,Administrator`;
 
 const InviteMembers = () => {
+    const { data: myCompanies } = useMyCompanies();
+    const company = myCompanies?.[0];
+    const companyId = company?.id ?? 0;
+    const availableCredits = (company?.total_credits ?? 0) - (company?.used_credits ?? 0);
+    const inviteEmployee = useInviteEmployee();
+
     const [inviteMethod, setInviteMethod] = useState<"single" | "bulk">("single");
     const [selectedRole, setSelectedRole] = useState<Role>("Individual");
     const [bulkRole, setBulkRole] = useState<Role>("Individual");
+    const [defaultCredits, setDefaultCredits] = useState(5);
     const [invites, setInvites] = useState([{ firstName: "", lastName: "", email: "", department: "" }]);
+    const [sending, setSending] = useState(false);
 
     const addInviteRow = () => {
         setInvites([...invites, { firstName: "", lastName: "", email: "", department: "" }]);
@@ -37,21 +46,127 @@ const InviteMembers = () => {
         setInvites(updated);
     };
 
-    const handleSendInvites = () => {
+    const handleSendInvites = async () => {
         const valid = invites.filter((i) => i.email.trim() !== "");
         if (valid.length === 0) {
             toast.error("Please enter at least one email address");
             return;
         }
-        toast.success(`Invitations sent to ${valid.length} member(s) as ${selectedRole}`);
-        setInvites([{ firstName: "", lastName: "", email: "", department: "" }]);
+        if (companyId <= 0) {
+            toast.error("No company found. Please set up your company first.");
+            return;
+        }
+        const totalRequired = valid.length * defaultCredits;
+        if (totalRequired > availableCredits) {
+            toast.error(`Not enough credits. Need ${totalRequired}, but only ${availableCredits} available.`);
+            return;
+        }
+
+        setSending(true);
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const invite of valid) {
+            try {
+                await inviteEmployee.mutateAsync({
+                    name: `${invite.firstName} ${invite.lastName}`.trim(),
+                    email: invite.email.trim(),
+                    department: invite.department.trim() || "General",
+                    role: selectedRole,
+                    creditsAllocated: defaultCredits,
+                    companyId,
+                });
+                successCount++;
+            } catch {
+                failCount++;
+            }
+        }
+
+        setSending(false);
+
+        if (successCount > 0) {
+            toast.success(`Invitations sent to ${successCount} member(s) as ${selectedRole}`);
+            setInvites([{ firstName: "", lastName: "", email: "", department: "" }]);
+        }
+        if (failCount > 0) {
+            toast.error(`${failCount} invitation(s) failed to send`);
+        }
     };
 
-    const handleBulkUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleBulkUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file) {
-            toast.success(`Processing ${file.name}...`, { duration: 3000 });
+        if (!file) return;
+        if (companyId <= 0) {
+            toast.error("No company found. Please set up your company first.");
+            return;
         }
+
+        try {
+            const text = await file.text();
+            const lines = text.trim().split("\n");
+            if (lines.length < 2) {
+                toast.error("CSV file is empty or has no data rows");
+                return;
+            }
+
+            const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+            const emailIdx = headers.indexOf("email");
+            const firstNameIdx = headers.indexOf("first_name");
+            const lastNameIdx = headers.indexOf("last_name");
+            const deptIdx = headers.indexOf("department");
+            const roleIdx = headers.indexOf("role");
+
+            if (emailIdx === -1) {
+                toast.error("CSV must have an 'email' column");
+                return;
+            }
+
+            const rows = lines.slice(1);
+            toast.success(`Processing ${rows.length} member(s)...`);
+            setSending(true);
+
+            let successCount = 0;
+            let failCount = 0;
+
+            for (const line of rows) {
+                const cols = line.split(",").map((c) => c.trim());
+                const email = cols[emailIdx];
+                if (!email) continue;
+
+                const firstName = firstNameIdx >= 0 ? cols[firstNameIdx] : "";
+                const lastName = lastNameIdx >= 0 ? cols[lastNameIdx] : "";
+                const department = deptIdx >= 0 ? cols[deptIdx] : "General";
+                const role = roleIdx >= 0 && cols[roleIdx] ? cols[roleIdx] : bulkRole;
+
+                try {
+                    await inviteEmployee.mutateAsync({
+                        name: `${firstName} ${lastName}`.trim() || email,
+                        email,
+                        department,
+                        role,
+                        creditsAllocated: defaultCredits,
+                        companyId,
+                    });
+                    successCount++;
+                } catch {
+                    failCount++;
+                }
+            }
+
+            setSending(false);
+
+            if (successCount > 0) {
+                toast.success(`${successCount} invitation(s) sent successfully`);
+            }
+            if (failCount > 0) {
+                toast.error(`${failCount} invitation(s) failed to send`);
+            }
+        } catch {
+            toast.error("Failed to parse CSV file");
+            setSending(false);
+        }
+
+        e.target.value = "";
     };
 
     const handleDownloadSample = () => {
@@ -70,6 +185,27 @@ const InviteMembers = () => {
             <div>
                 <h1 className="text-3xl font-serif text-heading mb-2">Invite Team Members</h1>
                 <p className="text-sm text-muted">Add new employees to your company</p>
+            </div>
+
+            {/* Credits per invite */}
+            <div className="bg-white rounded-2xl border border-border-light/50 p-5">
+                <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
+                    Default Credits per Invite
+                </label>
+                <input
+                    type="number"
+                    min={1}
+                    max={availableCredits}
+                    value={defaultCredits}
+                    onChange={(e) => setDefaultCredits(Math.max(1, Math.min(availableCredits, Number(e.target.value))))}
+                    className="w-32 bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                />
+                <p className="text-xs text-muted mt-1.5">
+                    Each invited member receives this many credits upon signup &mdash;{" "}
+                    <span className={availableCredits <= 0 ? "text-red-500 font-semibold" : "font-semibold"}>
+                        {availableCredits} credits available
+                    </span>
+                </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -213,10 +349,14 @@ const InviteMembers = () => {
                         </div>
                         <button
                             onClick={handleSendInvites}
-                            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors shrink-0"
+                            disabled={sending}
+                            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors shrink-0 disabled:opacity-50"
                         >
-                            <LucideMail className="w-4 h-4" />
-                            Send Invitations
+                            {sending ? (
+                                <><LucideLoader2 className="w-4 h-4 animate-spin" /> Sending...</>
+                            ) : (
+                                <><LucideMail className="w-4 h-4" /> Send Invitations</>
+                            )}
                         </button>
                     </div>
                 </div>

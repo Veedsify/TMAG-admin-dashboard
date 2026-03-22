@@ -1,31 +1,22 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { LucideArrowLeft, LucideDownload, LucideSearch, LucideFileText, LucideExternalLink } from "lucide-react";
-import toast from "react-hot-toast";
+import { LucideArrowLeft, LucideSearch, LucideFileText, LucideLoader2 } from "lucide-react";
+import { useInvoices } from "../../../api/hooks";
 
 const Invoices = () => {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState<"all" | "paid" | "pending">("all");
+    const { data: invoicesData, isLoading } = useInvoices();
 
-    const invoices = [
-        { id: "INV-2026-001", date: "Mar 15, 2026", description: "Credit Purchase — 100 credits", amount: "$850.00", status: "paid", paidAt: "Mar 15, 2026" },
-        { id: "INV-2026-002", date: "Feb 10, 2026", description: "Credit Purchase — 50 credits", amount: "$450.00", status: "paid", paidAt: "Feb 10, 2026" },
-        { id: "INV-2026-003", date: "Jan 5, 2026", description: "Credit Purchase — 200 credits", amount: "$1,600.00", status: "paid", paidAt: "Jan 5, 2026" },
-        { id: "INV-2025-004", date: "Dec 1, 2025", description: "Subscription — Pro Plan (Monthly)", amount: "$299.00", status: "paid", paidAt: "Dec 1, 2025" },
-        { id: "INV-2025-005", date: "Nov 1, 2025", description: "Subscription — Pro Plan (Monthly)", amount: "$299.00", status: "paid", paidAt: "Nov 1, 2025" },
-    ];
+    const invoices = invoicesData?.data ?? [];
 
     const filtered = invoices.filter((inv) => {
-        const matchesSearch = inv.id.toLowerCase().includes(search.toLowerCase()) || inv.description.toLowerCase().includes(search.toLowerCase());
-        const matchesStatus = statusFilter === "all" || inv.status === statusFilter;
+        const matchesSearch = `INV-${inv.id}`.toLowerCase().includes(search.toLowerCase()) || inv.description?.toLowerCase().includes(search.toLowerCase());
+        const matchesStatus = statusFilter === "all" || inv.status?.toLowerCase() === statusFilter;
         return matchesSearch && matchesStatus;
     });
 
-    const totalPaid = invoices.filter((i) => i.status === "paid").reduce((sum, i) => sum + parseFloat(i.amount.replace("$", "").replace(",", "")), 0);
-
-    const handleDownload = (id: string) => {
-        toast.success(`Downloading ${id}...`);
-    };
+    const totalPaid = invoices.filter((i) => i.status?.toLowerCase() === "paid").reduce((sum, i) => sum + (i.amount ?? 0), 0);
 
     return (
         <div className="space-y-6">
@@ -48,17 +39,17 @@ const Invoices = () => {
                         </div>
                     </div>
                     <p className="text-3xl font-serif text-heading">${totalPaid.toLocaleString()}</p>
-                    <p className="text-xs text-muted mt-1">{invoices.filter((i) => i.status === "paid").length} invoices</p>
+                    <p className="text-xs text-muted mt-1">{invoices.filter((i) => i.status?.toLowerCase() === "paid").length} invoices</p>
                 </div>
                 <div className="bg-white rounded-2xl border border-border-light/50 p-5">
                     <div className="flex items-center justify-between mb-3">
-                        <span className="text-xs font-semibold text-muted uppercase tracking-wider">Next Renewal</span>
+                        <span className="text-xs font-semibold text-muted uppercase tracking-wider">Total Invoices</span>
                         <div className="w-9 h-9 rounded-xl bg-gold/10 flex items-center justify-center">
-                            <LucideExternalLink className="w-5 h-5 text-gold" />
+                            <LucideFileText className="w-5 h-5 text-gold" />
                         </div>
                     </div>
-                    <p className="text-3xl font-serif text-heading">Apr 15, 2026</p>
-                    <p className="text-xs text-muted mt-1">Auto-renewal enabled</p>
+                    <p className="text-3xl font-serif text-heading">{invoices.length}</p>
+                    <p className="text-xs text-muted mt-1">{invoices.filter((i) => i.status?.toLowerCase() === "pending").length} pending</p>
                 </div>
             </div>
 
@@ -89,55 +80,56 @@ const Invoices = () => {
                     </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full min-w-[540px]">
-                        <thead>
-                            <tr className="border-b border-border-light/50">
-                                {["Invoice", "Date", "Description", "Amount", "Status", ""].map((h) => (
-                                    <th key={h} className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{h}</th>
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                        <LucideLoader2 className="w-6 h-6 text-accent animate-spin" />
+                    </div>
+                ) : (
+                    <div className="overflow-x-auto">
+                        <table className="w-full min-w-[540px]">
+                            <thead>
+                                <tr className="border-b border-border-light/50">
+                                    {["Invoice", "Date", "Description", "Amount", "Status"].map((h) => (
+                                        <th key={h} className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-border-light/50">
+                                {filtered.map((inv) => (
+                                    <tr key={inv.id} className="hover:bg-background-secondary/50 transition-colors">
+                                        <td className="px-6 py-4">
+                                            <span className="text-sm font-medium text-accent">INV-{inv.id}</span>
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-muted">
+                                            {inv.issuedAt ? new Date(inv.issuedAt).toLocaleDateString() : inv.paidAt ? new Date(inv.paidAt).toLocaleDateString() : "—"}
+                                        </td>
+                                        <td className="px-6 py-4 text-sm text-heading">{inv.description || "—"}</td>
+                                        <td className="px-6 py-4 text-sm font-semibold text-heading">
+                                            {inv.currency === "NGN" ? "₦" : "$"}{(inv.amount ?? 0).toLocaleString()}
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
+                                                inv.status?.toLowerCase() === "paid" ? "bg-accent/10 text-accent" : "bg-gold/10 text-gold"
+                                            }`}>
+                                                {inv.status ? inv.status.charAt(0).toUpperCase() + inv.status.slice(1).toLowerCase() : "Unknown"}
+                                            </span>
+                                        </td>
+                                    </tr>
                                 ))}
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border-light/50">
-                            {filtered.map((inv) => (
-                                <tr key={inv.id} className="hover:bg-background-secondary/50 transition-colors">
-                                    <td className="px-6 py-4">
-                                        <span className="text-sm font-medium text-accent">{inv.id}</span>
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-muted">{inv.date}</td>
-                                    <td className="px-6 py-4 text-sm text-heading">{inv.description}</td>
-                                    <td className="px-6 py-4 text-sm font-semibold text-heading">{inv.amount}</td>
-                                    <td className="px-6 py-4">
-                                        <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                            inv.status === "paid" ? "bg-accent/10 text-accent" : "bg-gold/10 text-gold"
-                                        }`}>
-                                            {inv.status.charAt(0).toUpperCase() + inv.status.slice(1)}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <button
-                                            onClick={() => handleDownload(inv.id)}
-                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-heading bg-button-secondary hover:bg-border-light transition-colors"
-                                        >
-                                            <LucideDownload className="w-3.5 h-3.5" />
-                                            PDF
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                            {filtered.length === 0 && (
-                                <tr>
-                                    <td colSpan={6} className="px-6 py-12 text-center">
-                                        <div className="w-12 h-12 rounded-full bg-button-secondary flex items-center justify-center mx-auto mb-3">
-                                            <LucideFileText className="w-6 h-6 text-muted" />
-                                        </div>
-                                        <p className="text-sm text-muted">No invoices found</p>
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                {filtered.length === 0 && (
+                                    <tr>
+                                        <td colSpan={5} className="px-6 py-12 text-center">
+                                            <div className="w-12 h-12 rounded-full bg-button-secondary flex items-center justify-center mx-auto mb-3">
+                                                <LucideFileText className="w-6 h-6 text-muted" />
+                                            </div>
+                                            <p className="text-sm text-muted">No invoices found</p>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
         </div>
     );

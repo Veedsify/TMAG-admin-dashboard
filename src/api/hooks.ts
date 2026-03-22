@@ -1,8 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { PaginationParams, ResendVerificationRequest } from "./types";
+import type { PaginationParams } from "./types";
 import {
   authApi,
   companiesApi,
+  companyAdminCreditsApi,
   employeesApi,
   travelPlansApi,
   travelRequestsApi,
@@ -22,9 +23,6 @@ import {
 } from "./api";
 import type {
   LoginRequest,
-  RegisterRequest,
-  ForgotPasswordRequest,
-  ResetPasswordRequest,
   CreateCompanyRequest,
   UpdateCompanyRequest,
   PurchaseCreditsRequest,
@@ -33,7 +31,6 @@ import type {
   AllocateEmployeeCreditsRequest,
   UpdateEmployeeStatusRequest,
   InviteEmployeeRequest,
-  AcceptInvitationRequest,
   CreateTravelPlanRequest,
   UpdateTravelPlanRequest,
   CreateTravelRequestRequest,
@@ -189,7 +186,7 @@ export const queryKeys = {
   },
 };
 
-// ─── Auth Hooks ──────────────────────────────────────────────
+// ─── Auth Hooks (company-admin) ──────────────────────────────
 
 export function useLogin() {
   return useMutation({
@@ -197,32 +194,8 @@ export function useLogin() {
   });
 }
 
-export function useRegister() {
-  return useMutation({
-    mutationFn: (data: RegisterRequest) => authApi.register(data),
-  });
-}
-
 export function useLogout() {
   return useMutation({ mutationFn: () => authApi.logout() });
-}
-
-export function useForgotPassword() {
-  return useMutation({
-    mutationFn: (data: ForgotPasswordRequest) => authApi.forgotPassword(data),
-  });
-}
-
-export function useResetPassword() {
-  return useMutation({
-    mutationFn: (data: ResetPasswordRequest) => authApi.resetPassword(data),
-  });
-}
-
-export function useVerifyEmail() {
-  return useMutation({
-    mutationFn: (data: { email: string; code: string }) => authApi.verifyEmail(data),
-  });
 }
 
 // ─── Company Hooks ───────────────────────────────────────────
@@ -283,6 +256,40 @@ export function usePurchaseCredits() {
       qc.invalidateQueries({ queryKey: queryKeys.companies.all });
       qc.invalidateQueries({ queryKey: queryKeys.credits.all });
     },
+  });
+}
+
+export function useCompanyAdminPurchaseCredits() {
+  return useMutation({
+    mutationFn: (data: { credits: number; companyId: number }) =>
+      companyAdminCreditsApi.purchase(data),
+  });
+}
+
+export function useCompanyAdminCreditQuote() {
+  return useMutation({
+    mutationFn: ({ companyId, credits }: { companyId: number; credits: number }) =>
+      companyAdminCreditsApi.getQuote(companyId, credits),
+  });
+}
+
+export function useVerifyCompanyCreditPurchase() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ txRef, transactionId }: { txRef: string; transactionId?: string }) =>
+      companyAdminCreditsApi.verify(txRef, transactionId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.companies.all });
+      qc.invalidateQueries({ queryKey: queryKeys.credits.all });
+    },
+  });
+}
+
+export function useCompanyCreditHistory(companyId?: number) {
+  return useQuery({
+    queryKey: [...queryKeys.credits.all, "history", companyId],
+    queryFn: () => companyAdminCreditsApi.getHistory(companyId),
+    enabled: !!companyId,
   });
 }
 
@@ -377,12 +384,6 @@ export function useInviteEmployee() {
   return useMutation({
     mutationFn: (data: InviteEmployeeRequest) => employeesApi.invite(data),
     onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.employees.all }),
-  });
-}
-
-export function useAcceptInvitation() {
-  return useMutation({
-    mutationFn: (data: AcceptInvitationRequest) => authApi.acceptInvitation(data),
   });
 }
 
@@ -890,12 +891,6 @@ export function useUpdateProfileAvatar() {
 export function useUpdateProfilePassword() {
   return useMutation({
     mutationFn: (data: UpdateProfilePasswordRequest) => profileApi.updatePassword(data),
-  });
-}
-
-export function useResendVerificationEmail() {
-  return useMutation({
-    mutationFn: (data: ResendVerificationRequest) => authApi.resendVerificationEmail(data),
   });
 }
 

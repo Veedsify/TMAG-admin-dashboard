@@ -7,9 +7,6 @@ import AuthLayout from "../layouts/authlayouts";
 
 // Auth pages (eager load)
 import Login from "../pages/auth/login";
-import Register from "../pages/auth/register";
-import ForgotPassword from "../pages/auth/forgot-password";
-import ResetPassword from "../pages/auth/reset-password";
 
 // Admin pages (lazy load)
 const Dashboard = lazy(() => import("../pages/admin/dashboard"));
@@ -17,6 +14,7 @@ const CompanyProfile = lazy(() => import("../pages/admin/company/profile"));
 const TeamMembers = lazy(() => import("../pages/admin/team/members"));
 const InviteMembers = lazy(() => import("../pages/admin/team/invite"));
 const Credits = lazy(() => import("../pages/admin/credits/overview"));
+const PaymentCallback = lazy(() => import("../pages/admin/credits/callback"));
 const Invoices = lazy(() => import("../pages/admin/credits/invoices"));
 const TravelPlans = lazy(() => import("../pages/admin/plans/list"));
 const PlanDetails = lazy(() => import("../pages/admin/plans/details"));
@@ -53,10 +51,8 @@ const router = createBrowserRouter([
         path: "/auth",
         element: <AuthLayout />,
         children: [
+            { index: true, element: <Navigate to="/auth/login" replace /> },
             { path: "login", element: <Login /> },
-            { path: "register", element: <Register /> },
-            { path: "forgot-password", element: <ForgotPassword /> },
-            { path: "reset-password", element: <ResetPassword /> },
         ],
     },
     {
@@ -108,6 +104,14 @@ const router = createBrowserRouter([
                 element: (
                     <Suspense fallback={<LoadingFallback />}>
                         <Credits />
+                    </Suspense>
+                ),
+            },
+            {
+                path: "credits/callback",
+                element: (
+                    <Suspense fallback={<LoadingFallback />}>
+                        <PaymentCallback />
                     </Suspense>
                 ),
             },
@@ -192,6 +196,11 @@ const router = createBrowserRouter([
                 ),
             },
         ],
+    },
+    // Catch-all redirect
+    {
+        path: "*",
+        element: <Navigate to="/admin" replace />,
     },
 ]);
 

@@ -1,22 +1,71 @@
 import { useState } from "react";
-import { LucideSearch,     LucideFilter, LucideShield, LucideUserCog, LucideCoins, LucideFilePlus, LucideUserPlus } from "lucide-react";
+import { LucideSearch, LucideFilter, LucideShield, LucideUserCog, LucideCoins, LucideFilePlus, LucideUserPlus, LucideLoader2 } from "lucide-react";
+import { useMyCompanies, useEmployees, useTravelPlans, useTravelRequests } from "../../../api/hooks";
+
+interface LogEntry {
+    id: string;
+    action: string;
+    actor: string;
+    target: string;
+    time: string;
+    sortDate: number;
+    type: string;
+}
 
 const AuditLog = () => {
     const [search, setSearch] = useState("");
     const [filter, setFilter] = useState<string>("all");
+    const { data: myCompanies } = useMyCompanies();
+    const companyId = myCompanies?.[0]?.id;
 
-    const logs = [
-        { id: 1, action: "Team member invited", actor: "Admin User", target: "priya@techcorp.com", time: "2 minutes ago", type: "team" },
-        { id: 2, action: "Travel request approved", actor: "Admin User", target: "Anna Chen — Singapore", time: "15 minutes ago", type: "request" },
-        { id: 3, action: "Travel plan created", actor: "Admin User", target: "Tokyo & Osaka — Michael Osei", time: "1 hour ago", type: "plan" },
-        { id: 4, action: "Credits purchased", actor: "Admin User", target: "100 credits", time: "2 hours ago", type: "billing" },
-        { id: 5, action: "Employee role changed", actor: "Admin User", target: "John Doe → Admin", time: "5 hours ago", type: "team" },
-        { id: 6, action: "Travel request rejected", actor: "Admin User", target: "David Kim — Berlin", time: "1 day ago", type: "request" },
-        { id: 7, action: "Company profile updated", actor: "Admin User", target: "Industry changed to Technology", time: "1 day ago", type: "settings" },
-        { id: 8, action: "Bulk invite sent", actor: "Admin User", target: "12 employees", time: "2 days ago", type: "team" },
-        { id: 9, action: "Invoice downloaded", actor: "Admin User", target: "INV-2026-001", time: "3 days ago", type: "billing" },
-        { id: 10, action: "Travel plan downloaded", actor: "Admin User", target: "Nairobi & Maasai Mara", time: "4 days ago", type: "plan" },
-    ];
+    const { data: employeesData, isLoading: empLoading } = useEmployees(companyId ? { companyId, per_page: 100 } : undefined);
+    const { data: plansData, isLoading: plansLoading } = useTravelPlans(companyId ? { companyId, per_page: 100 } : undefined);
+    const { data: requestsData, isLoading: reqLoading } = useTravelRequests(companyId ? { companyId, per_page: 100 } : undefined);
+
+    const isLoading = empLoading || plansLoading || reqLoading;
+
+    // Build log entries from real data
+    const logs: LogEntry[] = [];
+
+    (employeesData?.data ?? []).forEach((emp) => {
+        logs.push({
+            id: `emp-${emp.id}`,
+            action: emp.status === "active" ? "Team member onboarded" : "Team member invited",
+            actor: "Admin",
+            target: `${emp.name} — ${emp.department}`,
+            time: new Date(emp.createdAt).toLocaleDateString(),
+            sortDate: new Date(emp.createdAt).getTime(),
+            type: "team",
+        });
+    });
+
+    (plansData?.data ?? []).forEach((plan) => {
+        logs.push({
+            id: `plan-${plan.id}`,
+            action: `Travel plan ${plan.status?.toLowerCase() === "completed" ? "completed" : "created"}`,
+            actor: "System",
+            target: `${plan.destination}, ${plan.country}`,
+            time: new Date(plan.createdAt).toLocaleDateString(),
+            sortDate: new Date(plan.createdAt).getTime(),
+            type: "plan",
+        });
+    });
+
+    (requestsData?.data ?? []).forEach((req) => {
+        const statusLabel = req.status?.toLowerCase() === "pending" ? "submitted" : req.status?.toLowerCase();
+        logs.push({
+            id: `req-${req.id}`,
+            action: `Travel request ${statusLabel}`,
+            actor: req.status?.toLowerCase() === "pending" ? "Employee" : "Admin",
+            target: req.destination,
+            time: new Date(req.submittedAt || req.createdAt).toLocaleDateString(),
+            sortDate: new Date(req.submittedAt || req.createdAt).getTime(),
+            type: "request",
+        });
+    });
+
+    // Sort by date descending
+    logs.sort((a, b) => b.sortDate - a.sortDate);
 
     const filtered = logs.filter((l) => {
         const matchesSearch = l.action.toLowerCase().includes(search.toLowerCase()) || l.actor.toLowerCase().includes(search.toLowerCase()) || l.target.toLowerCase().includes(search.toLowerCase());
@@ -45,8 +94,6 @@ const AuditLog = () => {
         { value: "team", label: "Team" },
         { value: "request", label: "Requests" },
         { value: "plan", label: "Plans" },
-        { value: "billing", label: "Billing" },
-        { value: "settings", label: "Settings" },
     ];
 
     return (
@@ -61,7 +108,7 @@ const AuditLog = () => {
                     { label: "Total Actions", value: logs.length, color: "text-heading" },
                     { label: "Team Actions", value: logs.filter((l) => l.type === "team").length, color: "text-accent" },
                     { label: "Request Actions", value: logs.filter((l) => l.type === "request").length, color: "text-gold" },
-                    { label: "Billing Actions", value: logs.filter((l) => l.type === "billing").length, color: "text-green-600" },
+                    { label: "Plan Actions", value: logs.filter((l) => l.type === "plan").length, color: "text-heading" },
                 ].map((stat) => (
                     <div key={stat.label} className="bg-white rounded-2xl border border-border-light/50 p-5">
                         <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">{stat.label}</p>
@@ -97,28 +144,34 @@ const AuditLog = () => {
                     </div>
                 </div>
 
-                <div className="divide-y divide-border-light/50">
-                    {filtered.map((log) => (
-                        <div key={log.id} className="px-4 sm:px-6 py-4 flex items-start gap-4 hover:bg-background-secondary/30 transition-colors">
-                            {typeIcon(log.type)}
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-heading">{log.action}</p>
-                                <p className="text-xs text-muted mt-0.5">
-                                    By <span className="font-medium">{log.actor}</span> &middot; {log.target}
-                                </p>
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-12">
+                        <LucideLoader2 className="w-6 h-6 text-accent animate-spin" />
+                    </div>
+                ) : (
+                    <div className="divide-y divide-border-light/50">
+                        {filtered.map((log) => (
+                            <div key={log.id} className="px-4 sm:px-6 py-4 flex items-start gap-4 hover:bg-background-secondary/30 transition-colors">
+                                {typeIcon(log.type)}
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-heading">{log.action}</p>
+                                    <p className="text-xs text-muted mt-0.5">
+                                        By <span className="font-medium">{log.actor}</span> &middot; {log.target}
+                                    </p>
+                                </div>
+                                <span className="text-xs text-muted flex-shrink-0">{log.time}</span>
                             </div>
-                            <span className="text-xs text-muted flex-shrink-0">{log.time}</span>
-                        </div>
-                    ))}
-                    {filtered.length === 0 && (
-                        <div className="px-6 py-12 text-center">
-                            <div className="w-12 h-12 rounded-full bg-button-secondary flex items-center justify-center mx-auto mb-3">
-                                <LucideFilter className="w-6 h-6 text-muted" />
+                        ))}
+                        {filtered.length === 0 && (
+                            <div className="px-6 py-12 text-center">
+                                <div className="w-12 h-12 rounded-full bg-button-secondary flex items-center justify-center mx-auto mb-3">
+                                    <LucideFilter className="w-6 h-6 text-muted" />
+                                </div>
+                                <p className="text-sm text-muted">{logs.length === 0 ? "No activity yet. Actions will appear here as your team uses the platform." : "No audit log entries match your filters"}</p>
                             </div>
-                            <p className="text-sm text-muted">No audit log entries match your filters</p>
-                        </div>
-                    )}
-                </div>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

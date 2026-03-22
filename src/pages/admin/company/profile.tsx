@@ -1,29 +1,73 @@
-import { useState } from "react";
-import { LucideBuilding2, LucideSave, LucideCopy, LucideCheck } from "lucide-react";
+import { useState, useEffect } from "react";
+import { LucideBuilding2, LucideSave, LucideCopy, LucideCheck, LucideLoader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useMyCompanies, useUpdateCompany } from "../../../api/hooks";
 
 const CompanyProfile = () => {
     const [copied, setCopied] = useState(false);
+    const { data: myCompanies, isLoading } = useMyCompanies();
+    const updateCompany = useUpdateCompany();
+    const company = myCompanies?.[0];
+
     const [form, setForm] = useState({
-        name: "TechCorp Global",
-        industry: "Technology",
-        email: "admin@techcorp.com",
-        phone: "+1 234 567 8900",
-        address: "123 Business St, San Francisco, CA 94105",
-        billingCurrency: "USD",
-        inviteCode: "TMA-TC001",
+        name: "",
+        industry: "",
+        plan: "",
     });
 
+    useEffect(() => {
+        if (company) {
+            setForm({
+                name: company.name ?? "",
+                industry: company.industry ?? "",
+                plan: company.plan ?? "",
+            });
+        }
+    }, [company]);
+
     const handleCopyCode = () => {
-        navigator.clipboard.writeText(form.inviteCode);
+        if (!company?.company_code) return;
+        navigator.clipboard.writeText(company.company_code);
         setCopied(true);
         toast.success("Invite code copied!");
         setTimeout(() => setCopied(false), 2000);
     };
 
-    const handleSave = () => {
-        toast.success("Company profile updated successfully");
+    const handleSave = async () => {
+        if (!company) return;
+        try {
+            await updateCompany.mutateAsync({
+                id: company.id,
+                data: {
+                    name: form.name,
+                    industry: form.industry,
+                    plan: form.plan,
+                },
+            });
+            toast.success("Company profile updated successfully");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || "Failed to update company profile");
+        }
     };
+
+    if (isLoading) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20">
+                <LucideLoader2 className="w-8 h-8 text-accent animate-spin mb-3" />
+                <p className="text-sm text-muted">Loading company profile...</p>
+            </div>
+        );
+    }
+
+    if (!company) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20">
+                <LucideBuilding2 className="w-12 h-12 text-muted mb-3" />
+                <p className="text-lg font-serif text-heading mb-2">No company found</p>
+                <p className="text-sm text-muted">You're not linked to any company yet.</p>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -42,7 +86,7 @@ const CompanyProfile = () => {
                         </p>
                         <div className="flex items-center gap-2">
                             <code className="px-4 py-2 bg-white rounded-lg text-lg font-mono font-semibold text-accent">
-                                {form.inviteCode}
+                                {company.company_code || "—"}
                             </code>
                             <button
                                 onClick={handleCopyCode}
@@ -59,6 +103,22 @@ const CompanyProfile = () => {
                     <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center">
                         <LucideBuilding2 className="w-6 h-6 text-accent" />
                     </div>
+                </div>
+            </div>
+
+            {/* Credit Summary */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-white rounded-2xl border border-border-light/50 p-5">
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-1">Total Credits</p>
+                    <p className="text-2xl font-serif font-bold text-heading">{company.total_credits}</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-border-light/50 p-5">
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-1">Used Credits</p>
+                    <p className="text-2xl font-serif font-bold text-heading">{company.used_credits}</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-border-light/50 p-5">
+                    <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-1">Employees</p>
+                    <p className="text-2xl font-serif font-bold text-heading">{company.employee_count}</p>
                 </div>
             </div>
 
@@ -87,6 +147,7 @@ const CompanyProfile = () => {
                             onChange={(e) => setForm({ ...form, industry: e.target.value })}
                             className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
                         >
+                            <option value="">Select industry...</option>
                             <option>Technology</option>
                             <option>Healthcare</option>
                             <option>Finance</option>
@@ -96,68 +157,30 @@ const CompanyProfile = () => {
                         </select>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
-                                Email
-                            </label>
-                            <input
-                                type="email"
-                                value={form.email}
-                                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
-                            />
-                        </div>
-
-                        <div>
-                            <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
-                                Phone
-                            </label>
-                            <input
-                                type="tel"
-                                value={form.phone}
-                                onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                                className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
-                            />
-                        </div>
-                    </div>
-
                     <div>
                         <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
-                            Address
+                            Plan
                         </label>
-                        <textarea
-                            value={form.address}
-                            onChange={(e) => setForm({ ...form, address: e.target.value })}
-                            rows={3}
-                            className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors resize-none"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
-                            Billing Currency
-                        </label>
-                        <select
-                            value={form.billingCurrency}
-                            onChange={(e) => setForm({ ...form, billingCurrency: e.target.value })}
+                        <input
+                            type="text"
+                            value={form.plan}
+                            onChange={(e) => setForm({ ...form, plan: e.target.value })}
                             className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
-                        >
-                            <option value="USD">USD - US Dollar</option>
-                            <option value="EUR">EUR - Euro</option>
-                            <option value="GBP">GBP - British Pound</option>
-                            <option value="NGN">NGN - Nigerian Naira</option>
-                        </select>
+                        />
                     </div>
                 </div>
 
                 <div className="mt-6 pt-6 border-t border-border-light/50 flex justify-end">
                     <button
                         onClick={handleSave}
-                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors"
+                        disabled={updateCompany.isPending}
+                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50"
                     >
-                        <LucideSave className="w-4 h-4" />
-                        Save Changes
+                        {updateCompany.isPending ? (
+                            <><LucideLoader2 className="w-4 h-4 animate-spin" /> Saving...</>
+                        ) : (
+                            <><LucideSave className="w-4 h-4" /> Save Changes</>
+                        )}
                     </button>
                 </div>
             </div>

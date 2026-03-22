@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
     LucidePlus,
@@ -13,6 +13,24 @@ import { useMyCompanies, useEmployees, useUpdateEmployeeStatus, useDeleteEmploye
 const TeamMembers = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [showMenu, setShowMenu] = useState<number | null>(null);
+    const [menuPos, setMenuPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
+    const menuBtnRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
+
+    const openMenu = (id: number) => {
+        const btn = menuBtnRefs.current.get(id);
+        if (btn) {
+            const rect = btn.getBoundingClientRect();
+            setMenuPos({ top: rect.bottom + 4, left: rect.right - 192 }); // 192 = w-48
+        }
+        setShowMenu(id);
+    };
+
+    useEffect(() => {
+        if (showMenu === null) return;
+        const onScroll = () => setShowMenu(null);
+        window.addEventListener("scroll", onScroll, true);
+        return () => window.removeEventListener("scroll", onScroll, true);
+    }, [showMenu]);
 
     const { data: companiesData } = useMyCompanies();
     const company = companiesData?.[0];
@@ -71,7 +89,7 @@ const TeamMembers = () => {
             </div>
 
             {/* Members Table */}
-            <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+            <div className="bg-white rounded-2xl border border-border-light/50 overflow-x-auto">
                 <table className="w-full">
                     <thead className="bg-background-primary border-b border-border-light/50">
                         <tr>
@@ -109,14 +127,8 @@ const TeamMembers = () => {
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span
-                                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                                member.status === "active"
-                                                    ? "bg-accent/10 text-accent"
-                                                    : "bg-border-light text-muted"
-                                            }`}
-                                        >
-                                            {member.status === "active" ? "Active" : "Inactive"}
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-accent/10 text-accent">
+                                            {member.role || "Member"}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
@@ -134,40 +146,42 @@ const TeamMembers = () => {
                                         <span className="text-sm text-heading">{member.plansGenerated}</span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <div className="relative inline-block">
-                                            <button
-                                                onClick={() => setShowMenu(showMenu === member.id ? null : member.id)}
-                                                className="p-1 rounded-lg hover:bg-background-primary transition-colors"
-                                            >
-                                                <LucideMoreVertical className="w-5 h-5 text-muted" />
-                                            </button>
+                                        <button
+                                            ref={(el) => { if (el) menuBtnRefs.current.set(member.id, el); }}
+                                            onClick={() => showMenu === member.id ? setShowMenu(null) : openMenu(member.id)}
+                                            className="p-1 rounded-lg hover:bg-background-primary transition-colors"
+                                        >
+                                            <LucideMoreVertical className="w-5 h-5 text-muted" />
+                                        </button>
 
-                                            {showMenu === member.id && (
-                                                <>
-                                                    <div className="fixed inset-0 z-10" onClick={() => setShowMenu(null)} />
-                                                    <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl border border-border-light/50 shadow-lg py-2 z-20">
-                                                        <button className="w-full px-4 py-2 text-left text-sm text-heading hover:bg-background-primary transition-colors flex items-center gap-2">
-                                                            <LucideUserCog className="w-4 h-4" />
-                                                            Change Role
-                                                        </button>
-                                                        <button
-                                                            onClick={() => handleStatusChange(member.id, member.status)}
-                                                            className="w-full px-4 py-2 text-left text-sm text-heading hover:bg-background-primary transition-colors flex items-center gap-2"
-                                                        >
-                                                            <LucideUserX className="w-4 h-4" />
-                                                            {member.status === "active" ? "Deactivate" : "Activate"}
-                                                        </button>
-                                                        <button
-                                                            onClick={() => { deleteEmployee.mutate(member.id); setShowMenu(null); }}
-                                                            className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
-                                                        >
-                                                            <LucideUserX className="w-4 h-4" />
-                                                            Remove
-                                                        </button>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
+                                        {showMenu === member.id && (
+                                            <>
+                                                <div className="fixed inset-0 z-40" onClick={() => setShowMenu(null)} />
+                                                <div
+                                                    className="fixed w-48 bg-white rounded-xl border border-border-light/50 shadow-lg py-2 z-50"
+                                                    style={{ top: menuPos.top, left: menuPos.left }}
+                                                >
+                                                    <button className="w-full px-4 py-2 text-left text-sm text-heading hover:bg-background-primary transition-colors flex items-center gap-2">
+                                                        <LucideUserCog className="w-4 h-4" />
+                                                        Change Role
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleStatusChange(member.id, member.status)}
+                                                        className="w-full px-4 py-2 text-left text-sm text-heading hover:bg-background-primary transition-colors flex items-center gap-2"
+                                                    >
+                                                        <LucideUserX className="w-4 h-4" />
+                                                        {member.status === "active" ? "Deactivate" : "Activate"}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => { deleteEmployee.mutate(member.id); setShowMenu(null); }}
+                                                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                                                    >
+                                                        <LucideUserX className="w-4 h-4" />
+                                                        Remove
+                                                    </button>
+                                                </div>
+                                            </>
+                                        )}
                                     </td>
                                 </tr>
                             ))

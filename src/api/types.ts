@@ -67,21 +67,25 @@ export interface ResetPasswordRequest {
 }
 
 export interface AuthResponse {
-  id: number;
-  first_name: string;
-  last_name: string;
-  username: string;
-  phone: string;
-  email: string;
-  role_id: number;
-  role_name: string;
-  avatar_url: string;
-  onboarding_stage: number;
-  is_verified: boolean;
-  last_login: string;
-  accessToken: string; // Backend uses accessToken (camelCase) in AuthResponse.java @JsonProperty("accessToken")
+  token: string;
   exp: number;
-  extend?: any;
+  user: CompanyAdminUser;
+}
+
+// ─── Company Admin Auth ─────────────────────────────────────
+
+export type CompanyAdminRole = "super_admin" | "client_admin" | "support_admin";
+
+export interface CompanyAdminUser {
+  id: number;
+  name: string;
+  email: string;
+  role: CompanyAdminRole;
+  status: string;
+  lastLogin: string;
+  createdAt: string;
+  permissions: string[];
+  companies: { id: number; name: string; companyRole: string }[];
 }
 
 // ─── User ────────────────────────────────────────────────────
@@ -144,6 +148,7 @@ export interface EmployeeResponse {
   name: string;
   email: string;
   department: string;
+  role: string | null;
   creditsUsed: number;
   creditsAllocated: number;
   status: string;
@@ -180,6 +185,7 @@ export interface InviteEmployeeRequest {
   name: string;
   email: string;
   department: string;
+  role: string;
   creditsAllocated: number;
   companyId: number;
 }
@@ -551,6 +557,8 @@ export interface MyCompanyMembership {
   employee_count: number;
   billing_currency: BillingCurrency;
   role: string;
+  credits_allocated: number;
+  credits_used: number;
 }
 
 export interface CreateCompanyUserRequest {

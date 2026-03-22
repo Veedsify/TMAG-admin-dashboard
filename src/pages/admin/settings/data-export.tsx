@@ -2,19 +2,42 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { LucideArrowLeft, LucideDownload, LucideFileText, LucideUsers, LucideMapPin, LucideActivity, LucideLoader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useMyCompanies, useEmployees, useTravelPlans, useTravelRequests, useInvoices } from "../../../api/hooks";
+
+function downloadFile(content: string, filename: string, mimeType: string) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function toCSV(headers: string[], rows: string[][]): string {
+    const escape = (v: string) => `"${(v ?? "").replace(/"/g, '""')}"`;
+    return [headers.map(escape).join(","), ...rows.map((r) => r.map(escape).join(","))].join("\n");
+}
 
 const dataTypes = [
     { id: "employees", label: "Employee Data", desc: "Names, emails, departments, roles, and credit allocations", icon: LucideUsers },
     { id: "plans", label: "Travel Plans", desc: "All generated travel health plans with recommendations", icon: LucideMapPin },
     { id: "requests", label: "Travel Requests", desc: "All travel requests and their approval status", icon: LucideActivity },
     { id: "billing", label: "Billing History", desc: "Invoices, credit purchases, and transactions", icon: LucideFileText },
-    { id: "questionnaires", label: "Health Questionnaires", desc: "Employee health profiles and questionnaire responses", icon: LucideActivity },
 ];
 
 const DataExport = () => {
     const [selected, setSelected] = useState<string[]>(["employees", "plans"]);
-    const [format, setFormat] = useState<"json" | "csv" | "pdf">("json");
+    const [format, setFormat] = useState<"json" | "csv">("json");
     const [exporting, setExporting] = useState(false);
+
+    const { data: myCompanies } = useMyCompanies();
+    const companyId = myCompanies?.[0]?.id;
+
+    const { data: employeesData } = useEmployees(companyId ? { companyId, per_page: 500 } : undefined);
+    const { data: plansData } = useTravelPlans(companyId ? { companyId, per_page: 500 } : undefined);
+    const { data: requestsData } = useTravelRequests(companyId ? { companyId, per_page: 500 } : undefined);
+    const { data: invoicesData } = useInvoices(companyId ? { companyId, per_page: 500 } : undefined);
 
     const toggle = (id: string) => {
         setSelected((p) => p.includes(id) ? p.filter((s) => s !== id) : [...p, id]);
@@ -26,7 +49,77 @@ const DataExport = () => {
             return;
         }
         setExporting(true);
-        await new Promise((r) => setTimeout(r, 2500));
+
+        const timestamp = new Date().toISOString().split("T")[0];
+
+        for (const type of selected) {
+            let data: unknown;
+            let filename = "";
+
+            switch (type) {
+                case "employees": {
+                    const items = employeesData?.data ?? [];
+                    data = items;
+                    if (format === "csv") {
+                        const csv = toCSV(
+                            ["ID", "Name", "Email", "Department", "Status", "Credits Allocated", "Credits Used", "Plans Generated", "Created"],
+                            items.map((e) => [String(e.id), e.name, e.email, e.department, e.status, String(e.creditsAllocated), String(e.creditsUsed), String(e.plansGenerated), e.createdAt])
+                        );
+                        downloadFile(csv, `employees-${timestamp}.csv`, "text/csv");
+                    } else {
+                        filename = `employees-${timestamp}.json`;
+                    }
+                    break;
+                }
+                case "plans": {
+                    const items = plansData?.data ?? [];
+                    data = items;
+                    if (format === "csv") {
+                        const csv = toCSV(
+                            ["ID", "Destination", "Country", "Duration", "Purpose", "Risk Score", "Status", "Created"],
+                            items.map((p) => [String(p.id), p.destination, p.country, String(p.duration), p.purpose, String(p.riskScore), p.status, p.createdAt])
+                        );
+                        downloadFile(csv, `travel-plans-${timestamp}.csv`, "text/csv");
+                    } else {
+                        filename = `travel-plans-${timestamp}.json`;
+                    }
+                    break;
+                }
+                case "requests": {
+                    const items = requestsData?.data ?? [];
+                    data = items;
+                    if (format === "csv") {
+                        const csv = toCSV(
+                            ["ID", "Destination", "Dates", "Status", "Created"],
+                            items.map((r) => [String(r.id), r.destination, r.dates || "", r.status, r.createdAt])
+                        );
+                        downloadFile(csv, `travel-requests-${timestamp}.csv`, "text/csv");
+                    } else {
+                        filename = `travel-requests-${timestamp}.json`;
+                    }
+                    break;
+                }
+                case "billing": {
+                    const items = invoicesData?.data ?? [];
+                    data = items;
+                    if (format === "csv") {
+                        const csv = toCSV(
+                            ["ID", "Amount", "Currency", "Status", "Description", "Issued", "Paid"],
+                            items.map((inv) => [String(inv.id), String(inv.amount), inv.currency, inv.status, inv.description || "", inv.issuedAt || "", inv.paidAt || ""])
+                        );
+                        downloadFile(csv, `billing-${timestamp}.csv`, "text/csv");
+                    } else {
+                        filename = `billing-${timestamp}.json`;
+                    }
+                    break;
+                }
+            }
+
+            if (format === "json" && data && filename) {
+                downloadFile(JSON.stringify(data, null, 2), filename, "application/json");
+            }
+        }
+
         setExporting(false);
         toast.success(`Export completed: ${selected.join(", ")} as ${format.toUpperCase()}`);
     };
@@ -50,7 +143,7 @@ const DataExport = () => {
                 <LucideDownload className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
                 <div>
                     <p className="text-sm font-semibold text-heading mb-0.5">GDPR Compliance</p>
-                    <p className="text-xs text-muted">You have the right to export all personal and company data. Exports are provided in machine-readable formats within 72 hours of request.</p>
+                    <p className="text-xs text-muted">You have the right to export all personal and company data. Exports are generated instantly from your live data.</p>
                 </div>
             </div>
 
@@ -94,12 +187,11 @@ const DataExport = () => {
 
             <div className="bg-white rounded-2xl border border-border-light/50 p-6 space-y-5">
                 <h2 className="text-base font-semibold text-heading">Export Format</h2>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 gap-3">
                     {([
-                        { id: "json", label: "JSON", desc: "Machine-readable" },
-                        { id: "csv", label: "CSV", desc: "Spreadsheet" },
-                        { id: "pdf", label: "PDF", desc: "Human-readable" },
-                    ] as const).map((f) => (
+                        { id: "json" as const, label: "JSON", desc: "Machine-readable" },
+                        { id: "csv" as const, label: "CSV", desc: "Spreadsheet compatible" },
+                    ]).map((f) => (
                         <button
                             key={f.id}
                             onClick={() => setFormat(f.id)}
@@ -118,7 +210,7 @@ const DataExport = () => {
                 <h2 className="text-base font-semibold text-heading mb-3">Summary</h2>
                 <div className="flex items-center justify-between mb-4">
                     <span className="text-sm text-muted">{selected.length} data type(s) selected</span>
-                    <span className="text-sm text-muted">Estimated size: ~2.4 MB</span>
+                    <span className="text-sm text-muted">Format: {format.toUpperCase()}</span>
                 </div>
                 <button
                     onClick={handleExport}

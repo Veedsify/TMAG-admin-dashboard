@@ -2,15 +2,20 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { LucideArrowLeft, LucideUser, LucideMapPin, LucideLoader2, LucideCoins, LucideCheck } from "lucide-react";
 import toast from "react-hot-toast";
-import { usePlanStore } from "../../../stores/planStore";
+import { useMyCompanies, useEmployees, useCreateTravelPlan } from "../../../api/hooks";
+import type { EmployeeResponse } from "../../../api/types";
 
 const purposes = ["Business", "Conference", "Client Visit", "Training", "Leisure", "Other"];
 const durations = ["1-3 days", "4-7 days", "8-14 days", "15-30 days", "30+ days"];
 
 const CreatePlan = () => {
     const navigate = useNavigate();
-    const employees = usePlanStore((s) => s.employees);
-    const addPlan = usePlanStore((s) => s.addPlan);
+    const { data: myCompanies } = useMyCompanies();
+    const company = myCompanies?.[0];
+    const companyId = company?.id ?? 0;
+    const { data: employeesData } = useEmployees({ companyId: companyId > 0 ? companyId : undefined });
+    const createPlan = useCreateTravelPlan();
+
     const [submitting, setSubmitting] = useState(false);
     const [step, setStep] = useState(1);
     const [form, setForm] = useState({
@@ -22,37 +27,37 @@ const CreatePlan = () => {
         medicalNotes: "",
     });
 
-    const selectedEmployee = employees.find((e) => e.id === form.employeeId);
-    const creditsRemaining = 84;
+    const employees: EmployeeResponse[] = employeesData?.data ?? [];
+    const selectedEmployee = employees.find((e) => e.id === Number(form.employeeId));
+    const creditsRemaining = company ? (company.total_credits - company.used_credits) : 0;
 
     const handleSubmit = async () => {
         if (!form.employeeId || !form.destination || !form.country || !form.duration || !form.purpose) {
             toast.error("Please fill in all required fields");
             return;
         }
+        if (creditsRemaining < 1) {
+            toast.error("Not enough credits to create a plan");
+            return;
+        }
         setSubmitting(true);
-        await new Promise((r) => setTimeout(r, 2000));
-        addPlan({
-            id: `p${Date.now()}`,
-            companyId: "c1",
-            destination: form.destination,
-            country: form.country,
-            duration: form.duration,
-            purpose: form.purpose,
-            riskScore: "Moderate",
-            status: "processing",
-            createdAt: new Date().toISOString().split("T")[0],
-            employeeId: form.employeeId,
-            employeeName: selectedEmployee?.name,
-            vaccinations: [],
-            healthAlerts: [],
-            safetyAdvisories: [],
-            medications: [],
-            waterFood: [],
-            emergencyContacts: [],
-        });
-        toast.success("Travel plan created successfully");
-        navigate("/admin/plans");
+        try {
+            await createPlan.mutateAsync({
+                companyId,
+                employeeId: Number(form.employeeId),
+                destination: form.destination,
+                country: form.country,
+                duration: Number(form.duration.split("-")[0]) || 7,
+                purpose: form.purpose,
+                medicalConsiderations: form.medicalNotes || undefined,
+            });
+            toast.success("Travel plan created successfully");
+            navigate("/admin/plans");
+        } catch (err: any) {
+            toast.error(err?.response?.data?.message || "Failed to create travel plan");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
