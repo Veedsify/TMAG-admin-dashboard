@@ -4,6 +4,7 @@ import { LucideArrowLeft, LucideUser, LucideMapPin, LucideLoader2, LucideCoins, 
 import toast from "react-hot-toast";
 import { useMyCompanies, useEmployees, useCreateTravelPlan } from "../../../api/hooks";
 import type { EmployeeResponse } from "../../../api/types";
+import { useAuth } from "../../../context/AuthContext";
 
 const purposes = ["Business", "Conference", "Client Visit", "Training", "Leisure", "Other"];
 const durations = ["1-3 days", "4-7 days", "8-14 days", "15-30 days", "30+ days"];
@@ -43,6 +44,7 @@ const CreatePlan = () => {
         setSubmitting(true);
         try {
             await createPlan.mutateAsync({
+                userId: selectedEmployee?.id,
                 companyId,
                 employeeId: Number(form.employeeId),
                 destination: form.destination,
@@ -77,13 +79,11 @@ const CreatePlan = () => {
                     <button
                         key={s}
                         onClick={() => setStep(s)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
-                            step === s ? "bg-accent text-white" : "text-muted hover:bg-background-primary"
-                        }`}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${step === s ? "bg-accent text-white" : "text-muted hover:bg-background-primary"
+                            }`}
                     >
-                        <span className={`w-5 h-5 rounded-full text-[11px] flex items-center justify-center ${
-                            step > s ? "bg-white/20" : step === s ? "bg-white/20" : "bg-button-secondary"
-                        }`}>
+                        <span className={`w-5 h-5 rounded-full text-[11px] flex items-center justify-center ${step > s ? "bg-white/20" : step === s ? "bg-white/20" : "bg-button-secondary"
+                            }`}>
                             {step > s ? <LucideCheck className="w-3 h-3" /> : s}
                         </span>
                         {s === 1 ? "Details" : "Review"}
