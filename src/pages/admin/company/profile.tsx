@@ -110,7 +110,7 @@ const CompanyProfile = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-white rounded-2xl border border-border-light/50 p-5">
                     <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-1">Total Credits</p>
-                    <p className="text-2xl font-serif font-bold text-heading">{company.total_credits}</p>
+                    <p className="text-2xl font-serif font-bold text-heading">{company.total_credits - company.used_credits}</p>
                 </div>
                 <div className="bg-white rounded-2xl border border-border-light/50 p-5">
                     <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-1">Used Credits</p>
