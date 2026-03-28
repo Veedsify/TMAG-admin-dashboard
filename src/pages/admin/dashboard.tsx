@@ -1,6 +1,6 @@
 import { LucideUsers, LucideCoins, LucideFileText, LucideClipboardCheck, LucideArrowRight, LucideLoader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useMyCompanies, useEmployees, useTravelPlans, useTravelRequests } from "../../api/hooks";
+import { useMyCompanies, useEmployees, useTravelPlans, useTravelRequests, useCompanyCreditHistory } from "../../api/hooks";
 
 const Dashboard = () => {
     const { data: companiesData } = useMyCompanies();
@@ -16,6 +16,7 @@ const Dashboard = () => {
     const { data: requestsData, isLoading: requestsLoading } = useTravelRequests(
         companyId ? { companyId } : undefined
     );
+    const { data: creditPurchases } = useCompanyCreditHistory(companyId);
 
     const totalEmployees = employeesData?.pagination.total ?? 0;
     const totalCredits = company?.total_credits ?? 0;
@@ -30,14 +31,23 @@ const Dashboard = () => {
         user: p.country,
         time: new Date(p.createdAt).toLocaleDateString(),
         sortDate: new Date(p.createdAt).getTime(),
+        type: "plan" as const,
     }));
     const requestActivities = (requestsData?.data ?? []).map((r) => ({
         action: `Travel request ${r.status?.toLowerCase()}: ${r.destination}`,
         user: r.dates || "",
         time: r.submittedAt ? new Date(r.submittedAt).toLocaleDateString() : new Date(r.createdAt).toLocaleDateString(),
         sortDate: new Date(r.submittedAt || r.createdAt).getTime(),
+        type: "request" as const,
     }));
-    const recentActivity = [...planActivities, ...requestActivities]
+    const purchaseActivities = (creditPurchases ?? []).map((p) => ({
+        action: `Credit purchase: ${p.creditsPurchased} credits`,
+        user: `${p.currencySymbol || "$"}${(p.amountPaid || p.amount).toLocaleString()}`,
+        time: new Date(p.paidAt || p.createdAt).toLocaleDateString(),
+        sortDate: new Date(p.paidAt || p.createdAt).getTime(),
+        type: "billing" as const,
+    }));
+    const recentActivity = [...planActivities, ...requestActivities, ...purchaseActivities]
         .sort((a, b) => b.sortDate - a.sortDate)
         .slice(0, 5);
 

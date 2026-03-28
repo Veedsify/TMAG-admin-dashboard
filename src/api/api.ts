@@ -71,6 +71,13 @@ import type {
   OnboardingQuestionCategoryResponse,
   SubmitQuestionnaireRequest,
   QuestionnaireProgressRequest,
+  // API Keys
+  ApiKeyResponse,
+  CreateApiKeyRequest,
+  CreateApiKeyResponse,
+  // Settings
+  CompanySettingsResponse,
+  CompanySettingsUpdateRequest,
 } from "./types";
 
 // ─── Generic CRUD helpers ────────────────────────────────────
@@ -490,4 +497,36 @@ export const onboardingApi = {
 
   getProgress: () =>
     api.get<ApiResponse<any>>("/onboarding/progress").then((r) => r.data.data),
+};
+
+// ─── Company API Keys ─────────────────────────────────────────
+
+export const apiKeysApi = {
+  list: (companyId: number) =>
+    api.get<ApiResponse<ApiKeyResponse[]>>("/company-admin/api-keys", { params: { companyId } })
+      .then((r) => r.data.data),
+
+  create: (data: CreateApiKeyRequest) =>
+    api.post<ApiResponse<CreateApiKeyResponse>>("/company-admin/api-keys", data)
+      .then((r) => r.data.data),
+
+  revoke: (id: number, companyId: number) =>
+    api.delete<ApiResponse<null>>(`/company-admin/api-keys/${id}`, { params: { companyId } })
+      .then((r) => r.data.data),
+};
+
+// ─── Company Settings ─────────────────────────────────────────
+
+export const settingsApi = {
+  get: (companyId: number) =>
+    api.get<ApiResponse<CompanySettingsResponse>>("/company-admin/settings", { params: { companyId } })
+      .then((r) => r.data.data),
+
+  update: (data: CompanySettingsUpdateRequest) =>
+    api.put<ApiResponse<CompanySettingsResponse>>("/company-admin/settings", data)
+      .then((r) => r.data.data),
+
+  updateBillingCurrency: (companyId: number, currency: string) =>
+    api.put("/company-admin/settings/billing-currency", null, { params: { companyId, currency } })
+      .then((r) => r.data),
 };

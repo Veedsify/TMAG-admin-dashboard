@@ -1,47 +1,21 @@
-import { useState, useEffect } from "react";
-import { LucidePlus, LucideCopy, LucideTrash2, LucideCheck, LucideShield, LucideKey } from "lucide-react";
+import { useState } from "react";
+import { LucidePlus, LucideCopy, LucideTrash2, LucideCheck, LucideShield, LucideKey, LucideLoader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useMyCompanies } from "../../../api/hooks";
-
-interface ApiKey {
-    id: string;
-    name: string;
-    key: string;
-    createdAt: string;
-    status: "active" | "revoked";
-}
-
-function generateKey(): string {
-    const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-    const segments = [8, 4, 4, 4, 12];
-    return "sk_live_tmag_" + segments.map((len) => Array.from({ length: len }, () => chars[Math.floor(Math.random() * chars.length)]).join("")).join("_");
-}
-
-const STORAGE_KEY = "tmag_api_keys";
-
-function loadKeys(): ApiKey[] {
-    try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    } catch {
-        return [];
-    }
-}
-
-function saveKeys(keys: ApiKey[]) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(keys));
-}
+import { useMyCompanies, useApiKeys, useCreateApiKey, useRevokeApiKey } from "../../../api/hooks";
 
 const ApiKeys = () => {
     const { data: myCompanies } = useMyCompanies();
     const company = myCompanies?.[0];
+    const companyId = company?.id;
+
     const [showCreate, setShowCreate] = useState(false);
     const [newKeyName, setNewKeyName] = useState("");
     const [copied, setCopied] = useState<string | null>(null);
-    const [keys, setKeys] = useState<ApiKey[]>([]);
+    const [createdKey, setCreatedKey] = useState<string | null>(null);
 
-    useEffect(() => {
-        setKeys(loadKeys().filter((k) => k.status === "active"));
-    }, []);
+    const { data: keys = [], isLoading } = useApiKeys(companyId!);
+    const createKey = useCreateApiKey();
+    const revokeKey = useRevokeApiKey();
 
     const handleCopy = (key: string) => {
         navigator.clipboard.writeText(key);
@@ -50,32 +24,32 @@ const ApiKeys = () => {
         setTimeout(() => setCopied(null), 2000);
     };
 
-    const handleRevoke = (id: string, name: string) => {
+    const handleRevoke = async (id: number, name: string) => {
         if (!window.confirm(`Revoke "${name}"? This action cannot be undone.`)) return;
-        const updated = keys.map((k) => k.id === id ? { ...k, status: "revoked" as const } : k);
-        setKeys(updated.filter((k) => k.status === "active"));
-        saveKeys(updated);
-        toast.success(`${name} has been revoked`);
+        if (!companyId) return;
+        try {
+            await revokeKey.mutateAsync({ id, companyId });
+            toast.success(`${name} has been revoked`);
+        } catch {
+            toast.error("Failed to revoke API key");
+        }
     };
 
-    const handleCreate = () => {
+    const handleCreate = async () => {
         if (!newKeyName.trim()) {
             toast.error("Please enter a name for this API key");
             return;
         }
-        const newKey: ApiKey = {
-            id: crypto.randomUUID(),
-            name: newKeyName.trim(),
-            key: generateKey(),
-            createdAt: new Date().toLocaleDateString(),
-            status: "active",
-        };
-        const allKeys = [...loadKeys(), newKey];
-        saveKeys(allKeys);
-        setKeys(allKeys.filter((k) => k.status === "active"));
-        setNewKeyName("");
-        setShowCreate(false);
-        toast.success(`API key "${newKey.name}" created`);
+        if (!companyId) return;
+        try {
+            const result = await createKey.mutateAsync({ name: newKeyName.trim(), companyId });
+            setCreatedKey(result.fullKey);
+            setNewKeyName("");
+            setShowCreate(false);
+            toast.success(`API key "${result.key.name}" created`);
+        } catch {
+            toast.error("Failed to create API key");
+        }
     };
 
     return (
@@ -123,6 +97,34 @@ const ApiKeys = () => {
                 </div>
             )}
 
+            {/* Newly created key banner */}
+            {createdKey && (
+                <div className="bg-accent/5 border border-accent/30 rounded-2xl p-5">
+                    <div className="flex items-center gap-2 mb-3">
+                        <LucideCheck className="w-4 h-4 text-accent" />
+                        <p className="text-sm font-semibold text-heading">API Key Created</p>
+                    </div>
+                    <p className="text-xs text-muted mb-3">Copy this key now — you won&apos;t be able to see it again.</p>
+                    <div className="flex items-center gap-2">
+                        <code className="flex-1 px-4 py-3 bg-white rounded-xl text-sm font-mono text-heading border border-accent/20">
+                            {createdKey}
+                        </code>
+                        <button
+                            onClick={() => handleCopy(createdKey)}
+                            className="p-3 rounded-xl bg-accent text-white hover:bg-accent/90 transition-colors"
+                        >
+                            <LucideCopy className="w-4 h-4" />
+                        </button>
+                    </div>
+                    <button
+                        onClick={() => setCreatedKey(null)}
+                        className="mt-3 text-xs text-muted hover:text-heading transition-colors"
+                    >
+                        Done, hide key
+                    </button>
+                </div>
+            )}
+
             <div className="flex justify-between items-center">
                 <h2 className="text-base font-semibold text-heading">Generated API Keys</h2>
                 <button
@@ -149,18 +151,29 @@ const ApiKeys = () => {
                             />
                         </div>
                         <div className="flex gap-3">
-                            <button onClick={() => setShowCreate(false)} className="px-4 py-2.5 rounded-xl bg-button-secondary text-heading font-semibold text-sm hover:bg-border-light transition-colors">
+                            <button
+                                onClick={() => setShowCreate(false)}
+                                className="px-4 py-2.5 rounded-xl bg-button-secondary text-heading font-semibold text-sm hover:bg-border-light transition-colors"
+                            >
                                 Cancel
                             </button>
-                            <button onClick={handleCreate} className="px-4 py-2.5 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors">
-                                Generate Key
+                            <button
+                                onClick={handleCreate}
+                                disabled={createKey.isPending}
+                                className="px-4 py-2.5 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+                            >
+                                {createKey.isPending ? <><LucideLoader2 className="w-4 h-4 animate-spin" /> Generating...</> : "Generate Key"}
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {keys.length === 0 ? (
+            {isLoading ? (
+                <div className="flex items-center justify-center py-12">
+                    <LucideLoader2 className="w-6 h-6 text-accent animate-spin" />
+                </div>
+            ) : keys.length === 0 && !createdKey ? (
                 <div className="bg-white rounded-2xl border border-border-light/50 p-12 text-center">
                     <LucideKey className="w-10 h-10 text-muted mx-auto mb-3" />
                     <p className="text-sm font-medium text-heading mb-1">No API keys yet</p>
@@ -185,21 +198,29 @@ const ApiKeys = () => {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
-                                                <code className="text-xs font-mono text-muted bg-background-primary px-2 py-1 rounded-lg truncate max-w-[220px]">{k.key}</code>
-                                                <button onClick={() => handleCopy(k.key)} className="p-1 rounded hover:bg-button-secondary transition-colors flex-shrink-0">
-                                                    {copied === k.key ? <LucideCheck className="w-4 h-4 text-accent" /> : <LucideCopy className="w-4 h-4 text-muted" />}
+                                                <code className="text-xs font-mono text-muted bg-background-primary px-2 py-1 rounded-lg">
+                                                    {k.keyPrefix}••••••••••••••••
+                                                </code>
+                                                <button className="p-1 rounded hover:bg-button-secondary transition-colors flex-shrink-0" title="Full key not shown for security">
+                                                    <LucideKey className="w-4 h-4 text-muted" />
                                                 </button>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-muted">{k.createdAt}</td>
+                                        <td className="px-6 py-4 text-sm text-muted">
+                                            {k.createdAt ? new Date(k.createdAt).toLocaleDateString() : "—"}
+                                        </td>
                                         <td className="px-6 py-4">
                                             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-accent/10 text-accent">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-accent" />
-                                                Active
+                                                {k.status}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <button onClick={() => handleRevoke(k.id, k.name)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-colors">
+                                            <button
+                                                onClick={() => handleRevoke(k.id, k.name)}
+                                                disabled={revokeKey.isPending}
+                                                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold text-red-600 bg-red-50 hover:bg-red-100 transition-colors disabled:opacity-50"
+                                            >
                                                 <LucideTrash2 className="w-3.5 h-3.5" />
                                                 Revoke
                                             </button>

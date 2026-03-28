@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { LucideSave, LucideBuilding2, LucideBell, LucideShield, LucideGlobe, LucideLoader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useMyCompanies, useUpdateCompany, useUpdateProfilePassword } from "../../../api/hooks";
+import { useMyCompanies, useUpdateCompany, useUpdateProfilePassword, useCompanySettings, useUpdateCompanySettings } from "../../../api/hooks";
 
 const tabs = [
     { id: "general", label: "General", icon: LucideBuilding2 },
@@ -10,12 +10,36 @@ const tabs = [
     { id: "preferences", label: "Preferences", icon: LucideGlobe },
 ];
 
+const preferenceOptions: Record<string, string[]> = {
+    dateFormat: ["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"],
+    distanceUnit: ["Miles", "Kilometers"],
+    temperatureUnit: ["Fahrenheit (°F)", "Celsius (°C)"],
+    currency: ["USD ($)", "EUR (€)", "GBP (£)", "NGN (₦)"],
+};
+
+const settingKeyMap = {
+    travelRequests: "notify_travel_requests",
+    planCompletion: "notify_plan_completion",
+    billingAlerts: "notify_billing_alerts",
+    teamActivity: "notify_team_activity",
+    weeklyDigest: "notify_weekly_digest",
+    twoFactor: "two_factor_enabled",
+    dateFormat: "pref_date_format",
+    distanceUnit: "pref_distance_unit",
+    temperatureUnit: "pref_temperature_unit",
+    currency: "pref_currency",
+} as const;
+
 const Settings = () => {
     const [activeTab, setActiveTab] = useState("general");
     const { data: myCompanies, isLoading: companyLoading } = useMyCompanies();
     const updateCompany = useUpdateCompany();
     const updatePassword = useUpdateProfilePassword();
+    const updateSettings = useUpdateCompanySettings();
     const company = myCompanies?.[0];
+    const companyId = company?.id;
+
+    const { data: settingsData } = useCompanySettings(companyId!);
 
     const [general, setGeneral] = useState({
         name: "",
@@ -30,6 +54,12 @@ const Settings = () => {
         weeklyDigest: true,
     });
     const [twoFactor, setTwoFactor] = useState(false);
+    const [preferences, setPreferences] = useState({
+        dateFormat: "MM/DD/YYYY",
+        distanceUnit: "Miles",
+        temperatureUnit: "Fahrenheit (°F)",
+        currency: "USD ($)",
+    });
     const [passwordForm, setPasswordForm] = useState({
         currentPassword: "",
         newPassword: "",
@@ -45,6 +75,26 @@ const Settings = () => {
             });
         }
     }, [company]);
+
+    useEffect(() => {
+        if (settingsData?.settings) {
+            const s = settingsData.settings;
+            setNotifications({
+                travelRequests: s[settingKeyMap.travelRequests]?.value === true,
+                planCompletion: s[settingKeyMap.planCompletion]?.value === true,
+                billingAlerts: s[settingKeyMap.billingAlerts]?.value === true,
+                teamActivity: s[settingKeyMap.teamActivity]?.value === true,
+                weeklyDigest: s[settingKeyMap.weeklyDigest]?.value === true,
+            });
+            setTwoFactor(s[settingKeyMap.twoFactor]?.value === true);
+            setPreferences({
+                dateFormat: (s[settingKeyMap.dateFormat]?.value as string) || "MM/DD/YYYY",
+                distanceUnit: (s[settingKeyMap.distanceUnit]?.value as string) || "Miles",
+                temperatureUnit: (s[settingKeyMap.temperatureUnit]?.value as string) || "Fahrenheit (°F)",
+                currency: (s[settingKeyMap.currency]?.value as string) || "USD ($)",
+            });
+        }
+    }, [settingsData]);
 
     const handleSaveGeneral = async () => {
         if (!company) return;
@@ -63,8 +113,52 @@ const Settings = () => {
         }
     };
 
-    const handleSaveNotifications = () => {
-        toast.success("Notification preferences saved");
+    const handleSaveNotifications = async () => {
+        if (!companyId) return;
+        const settings: Record<string, { value: string; type: string }> = {};
+        for (const [uiKey, backendKey] of Object.entries(settingKeyMap)) {
+            if (uiKey in notifications) {
+                settings[backendKey] = { value: String(notifications[uiKey as keyof typeof notifications]), type: "BOOLEAN" };
+            }
+        }
+        try {
+            await updateSettings.mutateAsync({ companyId, settings });
+            toast.success("Notification preferences saved");
+        } catch {
+            toast.error("Failed to save notification preferences");
+        }
+    };
+
+    const handleSavePreferences = async () => {
+        if (!companyId) return;
+        const settings: Record<string, { value: string; type: string }> = {};
+        for (const [uiKey, backendKey] of Object.entries(settingKeyMap)) {
+            if (uiKey in preferences) {
+                settings[backendKey] = { value: preferences[uiKey as keyof typeof preferences], type: "STRING" };
+            }
+        }
+        try {
+            await updateSettings.mutateAsync({ companyId, settings });
+            toast.success("Preferences saved");
+        } catch {
+            toast.error("Failed to save preferences");
+        }
+    };
+
+    const handleToggleTwoFactor = async () => {
+        if (!companyId) return;
+        const newValue = !twoFactor;
+        setTwoFactor(newValue);
+        try {
+            await updateSettings.mutateAsync({
+                companyId,
+                settings: { [settingKeyMap.twoFactor]: { value: String(newValue), type: "BOOLEAN" } },
+            });
+            toast.success(newValue ? "Two-factor authentication enabled" : "Two-factor authentication disabled");
+        } catch {
+            setTwoFactor(!newValue);
+            toast.error("Failed to update two-factor setting");
+        }
     };
 
     const handleUpdatePassword = async () => {
@@ -182,9 +276,8 @@ const Settings = () => {
                         ))}
                     </div>
                     <div className="flex justify-end pt-2">
-                        <button onClick={handleSaveNotifications} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors">
-                            <LucideSave className="w-4 h-4" />
-                            Save Preferences
+                        <button onClick={handleSaveNotifications} disabled={updateSettings.isPending} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50">
+                            {updateSettings.isPending ? <><LucideLoader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><LucideSave className="w-4 h-4" /> Save Preferences</>}
                         </button>
                     </div>
                 </div>
@@ -237,8 +330,9 @@ const Settings = () => {
                                 <p className="text-xs text-muted mt-0.5">Add an extra layer of security to your account</p>
                             </div>
                             <button
-                                onClick={() => setTwoFactor(!twoFactor)}
-                                className={`w-11 h-6 rounded-full transition-colors relative ${twoFactor ? "bg-accent" : "bg-border"}`}
+                                onClick={handleToggleTwoFactor}
+                                disabled={updateSettings.isPending}
+                                className={`w-11 h-6 rounded-full transition-colors relative ${twoFactor ? "bg-accent" : "bg-border"} disabled:opacity-50`}
                             >
                                 <span className={`block w-4 h-4 bg-white rounded-full shadow transition-transform ${twoFactor ? "translate-x-6" : "translate-x-1"}`} />
                             </button>
@@ -258,23 +352,26 @@ const Settings = () => {
                     <h2 className="text-base font-semibold text-heading">Display Preferences</h2>
                     <div className="space-y-4">
                         {[
-                            { label: "Date Format", options: ["MM/DD/YYYY", "DD/MM/YYYY", "YYYY-MM-DD"] },
-                            { label: "Distance Units", options: ["Miles", "Kilometers"] },
-                            { label: "Temperature Units", options: ["Fahrenheit (°F)", "Celsius (°C)"] },
-                            { label: "Currency", options: ["USD ($)", "EUR (€)", "GBP (£)", "NGN (₦)"] },
+                            { label: "Date Format", key: "dateFormat", options: preferenceOptions.dateFormat },
+                            { label: "Distance Units", key: "distanceUnit", options: preferenceOptions.distanceUnit },
+                            { label: "Temperature Units", key: "temperatureUnit", options: preferenceOptions.temperatureUnit },
+                            { label: "Currency", key: "currency", options: preferenceOptions.currency },
                         ].map((item) => (
-                            <div key={item.label} className="flex items-center justify-between py-3 border-b border-border-light/30 last:border-0">
+                            <div key={item.key} className="flex items-center justify-between py-3 border-b border-border-light/30 last:border-0">
                                 <span className="text-sm font-medium text-heading">{item.label}</span>
-                                <select className="bg-background-primary border border-border-light rounded-xl px-3 py-2 text-sm text-heading outline-none focus:border-accent transition-colors">
+                                <select
+                                    value={preferences[item.key as keyof typeof preferences]}
+                                    onChange={(e) => setPreferences({ ...preferences, [item.key]: e.target.value })}
+                                    className="bg-background-primary border border-border-light rounded-xl px-3 py-2 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                >
                                     {item.options.map((o) => <option key={o}>{o}</option>)}
                                 </select>
                             </div>
                         ))}
                     </div>
                     <div className="flex justify-end pt-2">
-                        <button onClick={() => toast.success("Preferences saved")} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors">
-                            <LucideSave className="w-4 h-4" />
-                            Save Preferences
+                        <button onClick={handleSavePreferences} disabled={updateSettings.isPending} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50">
+                            {updateSettings.isPending ? <><LucideLoader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><LucideSave className="w-4 h-4" /> Save Preferences</>}
                         </button>
                     </div>
                 </div>

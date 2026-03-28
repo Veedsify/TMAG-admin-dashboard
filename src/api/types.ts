@@ -135,7 +135,9 @@ export interface CreateCompanyRequest {
   employeeCount: number;
 }
 
-export interface UpdateCompanyRequest extends Partial<CreateCompanyRequest> { }
+export interface UpdateCompanyRequest extends Partial<CreateCompanyRequest> {
+  billing_currency?: BillingCurrency;
+}
 
 export interface CompanyCodeValidationResponse {
   valid: boolean;
@@ -592,6 +594,29 @@ export interface AdvanceStageRequest {
   stage: number;
 }
 
+// ─── Company API Key ───────────────────────────────────────
+
+export interface ApiKeyResponse {
+  id: number;
+  name: string;
+  keyPrefix: string;
+  status: "ACTIVE" | "REVOKED";
+  lastUsedAt: string | null;
+  expiresAt: string | null;
+  createdAt: string;
+}
+
+export interface CreateApiKeyRequest {
+  name: string;
+  companyId: number;
+  expiresAt?: string;
+}
+
+export interface CreateApiKeyResponse {
+  fullKey: string;
+  key: ApiKeyResponse;
+}
+
 // ─── Onboarding Questionnaire ───────────────────────────────
 
 export interface OnboardingQuestionCategoryResponse {
@@ -614,4 +639,21 @@ export interface QuestionnaireProgressRequest {
   answers: Record<string, unknown>;
   categoryIndex: number;
   questionIndex: number;
+}
+
+// ─── Company Settings ───────────────────────────────────────
+
+export interface CompanySettingValue {
+  value: boolean | string | number;
+  type: "BOOLEAN" | "STRING" | "NUMBER";
+}
+
+export interface CompanySettingsResponse {
+  companyId: number;
+  settings: Record<string, CompanySettingValue>;
+}
+
+export interface CompanySettingsUpdateRequest {
+  companyId: number;
+  settings: Record<string, { value: string; type: string }>;
 }

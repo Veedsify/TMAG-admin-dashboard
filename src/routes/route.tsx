@@ -16,6 +16,7 @@ const InviteMembers = lazy(() => import("../pages/admin/team/invite"));
 const Credits = lazy(() => import("../pages/admin/credits/overview"));
 const PaymentCallback = lazy(() => import("../pages/admin/credits/callback"));
 const Invoices = lazy(() => import("../pages/admin/credits/invoices"));
+const InvoiceDetail = lazy(() => import("../pages/admin/credits/invoice-detail"));
 const TravelPlans = lazy(() => import("../pages/admin/plans/list"));
 const PlanDetails = lazy(() => import("../pages/admin/plans/details"));
 const CreatePlan = lazy(() => import("../pages/admin/plans/create"));
@@ -120,6 +121,14 @@ const router = createBrowserRouter([
                 element: (
                     <Suspense fallback={<LoadingFallback />}>
                         <Invoices />
+                    </Suspense>
+                ),
+            },
+            {
+                path: "credits/invoices/:id",
+                element: (
+                    <Suspense fallback={<LoadingFallback />}>
+                        <InvoiceDetail />
                     </Suspense>
                 ),
             },

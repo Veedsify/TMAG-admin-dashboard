@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { LucideCoins, LucideFileText, LucideArrowRight, LucideLoader2, LucideExternalLink } from "lucide-react";
-import { useMyCompanies, useCompanyAdminPurchaseCredits, useCompanyAdminCreditQuote, useCredits } from "../../../api/hooks";
+import { useMyCompanies, useCompanyAdminPurchaseCredits, useCompanyAdminCreditQuote, useCredits, useCompanySettings } from "../../../api/hooks";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 
@@ -8,7 +8,9 @@ const Credits = () => {
     const { data: companiesData } = useMyCompanies();
     const company = companiesData?.[0];
     const companyId = company?.id;
-    const billingCurrency = company?.billing_currency || "NGN";
+
+    const { data: settingsData } = useCompanySettings(companyId!);
+    const billingCurrency = (settingsData?.settings?.pref_currency?.value as string) || "NGN";
 
     const { data: creditsData, isLoading } = useCredits(companyId ? { companyId, per_page: 10 } : undefined);
     const purchaseCredits = useCompanyAdminPurchaseCredits();

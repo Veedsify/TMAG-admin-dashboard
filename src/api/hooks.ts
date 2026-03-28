@@ -20,6 +20,8 @@ import {
   companyUsersApi,
   profileApi,
   onboardingApi,
+  apiKeysApi,
+  settingsApi,
 } from "./api";
 import type {
   LoginRequest,
@@ -50,6 +52,8 @@ import type {
   AdvanceStageRequest,
   SubmitQuestionnaireRequest,
   QuestionnaireProgressRequest,
+  CreateApiKeyRequest,
+  CompanySettingsUpdateRequest,
 } from "./types";
 
 // ─── Query Keys ──────────────────────────────────────────────
@@ -955,5 +959,61 @@ export function useGetQuestionnaireProgress() {
     retry: false,
     staleTime: 0,
     gcTime: 0,
+  });
+}
+
+// ─── Company API Key Hooks ────────────────────────────────────
+
+export function useApiKeys(companyId: number) {
+  return useQuery({
+    queryKey: ["api-keys", companyId],
+    queryFn: () => apiKeysApi.list(companyId),
+    enabled: !!companyId,
+  });
+}
+
+export function useCreateApiKey() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreateApiKeyRequest) => apiKeysApi.create(data),
+    onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: ["api-keys", vars.companyId] }),
+  });
+}
+
+export function useRevokeApiKey() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, companyId }: { id: number; companyId: number }) => apiKeysApi.revoke(id, companyId),
+    onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: ["api-keys", vars.companyId] }),
+  });
+}
+
+// ─── Company Settings Hooks ────────────────────────────────────
+
+export function useCompanySettings(companyId: number) {
+  return useQuery({
+    queryKey: ["company-settings", companyId],
+    queryFn: () => settingsApi.get(companyId),
+    enabled: !!companyId,
+  });
+}
+
+export function useUpdateCompanySettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CompanySettingsUpdateRequest) => settingsApi.update(data),
+    onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: ["company-settings", vars.companyId] }),
+  });
+}
+
+export function useUpdateBillingCurrency() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ companyId, currency }: { companyId: number; currency: string }) =>
+      settingsApi.updateBillingCurrency(companyId, currency),
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: queryKeys.companies.all });
+      qc.invalidateQueries({ queryKey: ["company-settings", vars.companyId] });
+    },
   });
 }

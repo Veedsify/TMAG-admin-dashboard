@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { LucideSearch, LucideFilter, LucideShield, LucideUserCog, LucideCoins, LucideFilePlus, LucideUserPlus, LucideLoader2 } from "lucide-react";
-import { useMyCompanies, useEmployees, useTravelPlans, useTravelRequests } from "../../../api/hooks";
+import { useMyCompanies, useEmployees, useTravelPlans, useTravelRequests, useCompanyCreditHistory } from "../../../api/hooks";
 
 interface LogEntry {
     id: string;
@@ -21,8 +21,9 @@ const AuditLog = () => {
     const { data: employeesData, isLoading: empLoading } = useEmployees(companyId ? { companyId, per_page: 100 } : undefined);
     const { data: plansData, isLoading: plansLoading } = useTravelPlans(companyId ? { companyId, per_page: 100 } : undefined);
     const { data: requestsData, isLoading: reqLoading } = useTravelRequests(companyId ? { companyId, per_page: 100 } : undefined);
+    const { data: creditPurchases, isLoading: purchasesLoading } = useCompanyCreditHistory(companyId);
 
-    const isLoading = empLoading || plansLoading || reqLoading;
+    const isLoading = empLoading || plansLoading || reqLoading || purchasesLoading;
 
     // Build log entries from real data
     const logs: LogEntry[] = [];
@@ -64,6 +65,18 @@ const AuditLog = () => {
         });
     });
 
+    (creditPurchases ?? []).forEach((purchase) => {
+        logs.push({
+            id: `purchase-${purchase.id || purchase.txRef}`,
+            action: `Credit purchase: ${purchase.creditsPurchased} credits`,
+            actor: "Admin",
+            target: `${purchase.currencySymbol || "$"}${purchase.amountPaid || purchase.amount} paid`,
+            time: new Date(purchase.paidAt || purchase.createdAt).toLocaleDateString(),
+            sortDate: new Date(purchase.paidAt || purchase.createdAt).getTime(),
+            type: "billing",
+        });
+    });
+
     // Sort by date descending
     logs.sort((a, b) => b.sortDate - a.sortDate);
 
@@ -94,6 +107,7 @@ const AuditLog = () => {
         { value: "team", label: "Team" },
         { value: "request", label: "Requests" },
         { value: "plan", label: "Plans" },
+        { value: "billing", label: "Billing" },
     ];
 
     return (
@@ -103,12 +117,13 @@ const AuditLog = () => {
                 <p className="text-sm text-muted">Track all admin and HR actions within your company account</p>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
                 {[
                     { label: "Total Actions", value: logs.length, color: "text-heading" },
                     { label: "Team Actions", value: logs.filter((l) => l.type === "team").length, color: "text-accent" },
                     { label: "Request Actions", value: logs.filter((l) => l.type === "request").length, color: "text-gold" },
                     { label: "Plan Actions", value: logs.filter((l) => l.type === "plan").length, color: "text-heading" },
+                    { label: "Billing Actions", value: logs.filter((l) => l.type === "billing").length, color: "text-green-600" },
                 ].map((stat) => (
                     <div key={stat.label} className="bg-white rounded-2xl border border-border-light/50 p-5">
                         <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">{stat.label}</p>

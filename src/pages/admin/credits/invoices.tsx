@@ -96,9 +96,9 @@ const Invoices = () => {
                             </thead>
                             <tbody className="divide-y divide-border-light/50">
                                 {filtered.map((inv) => (
-                                    <tr key={inv.id} className="hover:bg-background-secondary/50 transition-colors">
+                                    <tr key={inv.id} className="hover:bg-background-secondary/50 transition-colors cursor-pointer">
                                         <td className="px-6 py-4">
-                                            <span className="text-sm font-medium text-accent">INV-{inv.id}</span>
+                                            <Link to={`/admin/credits/invoices/${inv.id}`} className="text-sm font-medium text-accent hover:underline">INV-{inv.id}</Link>
                                         </td>
                                         <td className="px-6 py-4 text-sm text-muted">
                                             {inv.issuedAt ? new Date(inv.issuedAt).toLocaleDateString() : inv.paidAt ? new Date(inv.paidAt).toLocaleDateString() : "—"}
