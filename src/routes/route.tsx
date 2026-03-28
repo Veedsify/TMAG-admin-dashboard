@@ -20,7 +20,7 @@ const InvoiceDetail = lazy(() => import("../pages/admin/credits/invoice-detail")
 const TravelPlans = lazy(() => import("../pages/admin/plans/list"));
 const PlanDetails = lazy(() => import("../pages/admin/plans/details"));
 const CreatePlan = lazy(() => import("../pages/admin/plans/create"));
-const TravelRequests = lazy(() => import("../pages/admin/requests/list"));
+const CreditRequests = lazy(() => import("../pages/admin/requests/list"));
 const Reports = lazy(() => import("../pages/admin/reports/overview"));
 const OnboardingStatus = lazy(() => import("../pages/admin/team/onboarding-status"));
 const Settings = lazy(() => import("../pages/admin/settings/general"));
@@ -160,7 +160,7 @@ const router = createBrowserRouter([
                 path: "requests",
                 element: (
                     <Suspense fallback={<LoadingFallback />}>
-                        <TravelRequests />
+                        <CreditRequests />
                     </Suspense>
                 ),
             },

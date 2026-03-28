@@ -1,6 +1,6 @@
 import { LucideUsers, LucideCoins, LucideFileText, LucideClipboardCheck, LucideArrowRight, LucideLoader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useMyCompanies, useEmployees, useTravelPlans, useTravelRequests, useCompanyCreditHistory } from "../../api/hooks";
+import { useMyCompanies, useEmployees, useTravelPlans, useCreditRequests, useCompanyCreditHistory } from "../../api/hooks";
 
 const Dashboard = () => {
     const { data: companiesData } = useMyCompanies();
@@ -13,7 +13,7 @@ const Dashboard = () => {
     const { data: plansData, isLoading: plansLoading } = useTravelPlans(
         companyId ? { companyId, per_page: 100 } : undefined
     );
-    const { data: requestsData, isLoading: requestsLoading } = useTravelRequests(
+    const { data: requestsData, isLoading: requestsLoading } = useCreditRequests(
         companyId ? { companyId } : undefined
     );
     const { data: creditPurchases } = useCompanyCreditHistory(companyId);
@@ -34,8 +34,8 @@ const Dashboard = () => {
         type: "plan" as const,
     }));
     const requestActivities = (requestsData?.data ?? []).map((r) => ({
-        action: `Travel request ${r.status?.toLowerCase()}: ${r.destination}`,
-        user: r.dates || "",
+        action: `Credit request ${r.status?.toLowerCase()}: ${r.creditsRequested} credits`,
+        user: r.reason || "",
         time: r.submittedAt ? new Date(r.submittedAt).toLocaleDateString() : new Date(r.createdAt).toLocaleDateString(),
         sortDate: new Date(r.submittedAt || r.createdAt).getTime(),
         type: "request" as const,

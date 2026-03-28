@@ -14,7 +14,7 @@ const pageTitles: Record<string, string> = {
     "/admin/credits/invoices": "Invoices",
     "/admin/plans": "Travel Plans",
     "/admin/plans/create": "Create Travel Plan",
-    "/admin/requests": "Travel Requests",
+    "/admin/requests": "Credit Requests",
     "/admin/reports": "Reports & Analytics",
     "/admin/audit": "Audit Log",
     "/admin/api-keys": "API Keys",

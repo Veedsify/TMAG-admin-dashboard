@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { LucideSearch, LucideFilter, LucideShield, LucideUserCog, LucideCoins, LucideFilePlus, LucideUserPlus, LucideLoader2 } from "lucide-react";
-import { useMyCompanies, useEmployees, useTravelPlans, useTravelRequests, useCompanyCreditHistory } from "../../../api/hooks";
+import { useMyCompanies, useEmployees, useTravelPlans, useCreditRequests, useCompanyCreditHistory } from "../../../api/hooks";
 
 interface LogEntry {
     id: string;
@@ -20,7 +20,7 @@ const AuditLog = () => {
 
     const { data: employeesData, isLoading: empLoading } = useEmployees(companyId ? { companyId, per_page: 100 } : undefined);
     const { data: plansData, isLoading: plansLoading } = useTravelPlans(companyId ? { companyId, per_page: 100 } : undefined);
-    const { data: requestsData, isLoading: reqLoading } = useTravelRequests(companyId ? { companyId, per_page: 100 } : undefined);
+    const { data: requestsData, isLoading: reqLoading } = useCreditRequests(companyId ? { companyId, per_page: 100 } : undefined);
     const { data: creditPurchases, isLoading: purchasesLoading } = useCompanyCreditHistory(companyId);
 
     const isLoading = empLoading || plansLoading || reqLoading || purchasesLoading;
@@ -56,9 +56,9 @@ const AuditLog = () => {
         const statusLabel = req.status?.toLowerCase() === "pending" ? "submitted" : req.status?.toLowerCase();
         logs.push({
             id: `req-${req.id}`,
-            action: `Travel request ${statusLabel}`,
+            action: `Credit request ${statusLabel}`,
             actor: req.status?.toLowerCase() === "pending" ? "Employee" : "Admin",
-            target: req.destination,
+            target: `${req.creditsRequested} credits`,
             time: new Date(req.submittedAt || req.createdAt).toLocaleDateString(),
             sortDate: new Date(req.submittedAt || req.createdAt).getTime(),
             type: "request",

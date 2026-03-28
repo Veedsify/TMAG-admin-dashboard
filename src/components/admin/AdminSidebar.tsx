@@ -54,7 +54,7 @@ const AdminSidebar = () => {
         { label: "Team Members", href: "/admin/team", icon: LucideUsers },
         { label: "Credits & Billing", href: "/admin/credits", icon: LucideCoins },
         { label: "Travel Plans", href: "/admin/plans", icon: LucideFileText },
-        { label: "Travel Requests", href: "/admin/requests", icon: LucideClipboardList },
+        { label: "Credit Requests", href: "/admin/requests", icon: LucideClipboardList },
         { label: "Reports", href: "/admin/reports", icon: LucideBarChart3 },
         { label: "Audit Log", href: "/admin/audit", icon: LucideShield },
         { label: "API Keys", href: "/admin/api-keys", icon: LucideKey },

@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { LucideDownload, LucideFileText, LucideUsers, LucideMapPin, LucideActivity, LucideLoader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useMyCompanies, useEmployees, useTravelPlans } from "../../../api/hooks";
+import { useMyCompanies, useUsageReport, usePlanHistoryReport, useTeamReport } from "../../../api/hooks";
+import { adminReportsApi } from "../../../api/api";
 
 function downloadCSV(content: string, filename: string) {
     const blob = new Blob([content], { type: "text/csv;charset=utf-8;" });
@@ -17,17 +19,18 @@ const Reports = () => {
     const company = myCompanies?.[0];
     const companyId = company?.id;
 
-    const { data: employeesData, isLoading: empLoading } = useEmployees(companyId ? { companyId, per_page: 100 } : undefined);
-    const { data: plansData, isLoading: plansLoading } = useTravelPlans(companyId ? { companyId, per_page: 100 } : undefined);
+    const { data: usageReport, isLoading: usageLoading } = useUsageReport(companyId);
+    const { data: planHistory, isLoading: plansLoading } = usePlanHistoryReport(companyId);
+    useTeamReport(companyId);
 
-    const employees = employeesData?.data ?? [];
-    const plans = plansData?.data ?? [];
+    const [exporting, setExporting] = useState<string | null>(null);
 
-    const totalPlans = plans.length;
-    const totalEmployees = employees.length;
-    const completedTrips = plans.filter((p) => p.status === "COMPLETED").length;
-    const creditsUsed = company?.used_credits ?? 0;
-    const isLoading = empLoading || plansLoading;
+    const isLoading = usageLoading || plansLoading;
+
+    const totalPlans = usageReport?.totalPlansGenerated ?? 0;
+    const totalEmployees = usageReport?.totalEmployees ?? 0;
+    const completedTrips = planHistory?.filter((p) => p.status === "COMPLETED").length ?? 0;
+    const creditsUsed = usageReport?.totalCreditsUsed ?? 0;
 
     const stats = [
         { label: "Total Plans", value: totalPlans, icon: LucideMapPin },
@@ -36,25 +39,42 @@ const Reports = () => {
         { label: "Credits Used", value: creditsUsed, icon: LucideActivity },
     ];
 
-    const handleDownload = (id: string, format: string) => {
-        if (format === "CSV") {
-            if (id === "usage") {
-                const rows = [["Employee", "Email", "Department", "Credits Used", "Credits Allocated", "Plans Generated", "Status"]];
-                employees.forEach((e) => rows.push([e.name, e.email, e.department, String(e.creditsUsed), String(e.creditsAllocated), String(e.plansGenerated), e.status]));
-                downloadCSV(rows.map((r) => r.join(",")).join("\n"), "usage-report.csv");
-            } else if (id === "plans") {
-                const rows = [["ID", "Destination", "Country", "Duration", "Purpose", "Risk Score", "Status", "Created"]];
-                plans.forEach((p) => rows.push([String(p.id), p.destination, p.country, String(p.duration), p.purpose, String(p.riskScore), p.status, p.createdAt]));
-                downloadCSV(rows.map((r) => r.join(",")).join("\n"), "plan-history.csv");
-            } else if (id === "team") {
-                const rows = [["Name", "Email", "Department", "Status", "Credits Allocated", "Credits Used", "Plans Generated"]];
-                employees.forEach((e) => rows.push([e.name, e.email, e.department, e.status, String(e.creditsAllocated), String(e.creditsUsed), String(e.plansGenerated)]));
-                downloadCSV(rows.map((r) => r.join(",")).join("\n"), "team-report.csv");
-            }
-            toast.success(`${id} report downloaded as CSV`);
-        } else if (format === "PDF") {
+    const handleExport = async (id: string, format: string) => {
+        if (format !== "CSV") {
             window.print();
             toast.success(`Print ${id} report as PDF`);
+            return;
+        }
+
+        setExporting(id);
+        try {
+            let response: { data: string } | undefined;
+            let filename = "";
+
+            switch (id) {
+                case "usage":
+                    response = await adminReportsApi.getUsageReportCsv(companyId);
+                    filename = "usage-report.csv";
+                    break;
+                case "plans":
+                    response = await adminReportsApi.getPlanHistoryCsv(companyId);
+                    filename = "plan-history.csv";
+                    break;
+                case "team":
+                    response = await adminReportsApi.getTeamReportCsv(companyId);
+                    filename = "team-report.csv";
+                    break;
+            }
+
+            if (response?.data) {
+                downloadCSV(response.data, filename);
+                toast.success(`${id} report downloaded as CSV`);
+            }
+        } catch (error) {
+            console.error("Export failed:", error);
+            toast.error(`Failed to export ${id} report`);
+        } finally {
+            setExporting(null);
         }
     };
 
@@ -103,11 +123,16 @@ const Reports = () => {
                                 {report.format.map((f) => (
                                     <button
                                         key={f}
-                                        onClick={() => handleDownload(report.id, f)}
-                                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-button-secondary text-heading font-semibold text-xs hover:bg-border-light transition-colors"
+                                        onClick={() => handleExport(report.id, f)}
+                                        disabled={exporting === report.id}
+                                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-button-secondary text-heading font-semibold text-xs hover:bg-border-light transition-colors disabled:opacity-50"
                                     >
-                                        <LucideDownload className="w-3.5 h-3.5" />
-                                        {f}
+                                        {exporting === report.id ? (
+                                            <LucideLoader2 className="w-3.5 h-3.5 animate-spin" />
+                                        ) : (
+                                            <LucideDownload className="w-3.5 h-3.5" />
+                                        )}
+                                        {exporting === report.id ? "Exporting..." : f}
                                     </button>
                                 ))}
                             </div>
@@ -117,11 +142,11 @@ const Reports = () => {
             </div>
 
             {/* Top Destinations from real data */}
-            {plans.length > 0 && (
+            {planHistory && planHistory.length > 0 && (
                 <div className="bg-white rounded-2xl border border-border-light/50 p-6">
                     <h2 className="text-base font-semibold text-heading mb-4">Top Destinations</h2>
                     <div className="space-y-3">
-                        {Object.entries(plans.reduce<Record<string, number>>((acc, p) => {
+                        {Object.entries(planHistory.reduce<Record<string, number>>((acc, p) => {
                             acc[p.destination] = (acc[p.destination] || 0) + 1;
                             return acc;
                         }, {}))

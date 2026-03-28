@@ -1,36 +1,37 @@
 import { useState } from "react";
-import { LucideSearch, LucideCheck, LucideX, LucideMapPin, LucideFilter, LucideLoader2 } from "lucide-react";
+import { LucideSearch, LucideCheck, LucideX, LucideCoins, LucideFilter, LucideLoader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useMyCompanies, useTravelRequests, useApproveTravelRequest, useRejectTravelRequest } from "../../../api/hooks";
+import { useMyCompanies, useCreditRequests, useApproveCreditRequest, useRejectCreditRequest } from "../../../api/hooks";
 
-const TravelRequests = () => {
+const CreditRequests = () => {
     const [search, setSearch] = useState("");
-    const [statusFilter, setStatusFilter] = useState<"all" | "PENDING" | "APPROVED" | "COMPLETED" | "REJECTED">("all");
+    const [statusFilter, setStatusFilter] = useState<"all" | "PENDING" | "APPROVED" | "REJECTED">("all");
     const [selected, setSelected] = useState<number[]>([]);
 
     const { data: companiesData } = useMyCompanies();
     const company = companiesData?.[0];
     const companyId = company?.id;
 
-    const { data: requestsData, isLoading } = useTravelRequests(
+    const { data: requestsData, isLoading } = useCreditRequests(
         companyId ? { companyId, per_page: 50 } : undefined
     );
-    const approveRequest = useApproveTravelRequest();
-    const rejectRequest = useRejectTravelRequest();
+    const approveRequest = useApproveCreditRequest();
+    const rejectRequest = useRejectCreditRequest();
 
     const requests = requestsData?.data || [];
 
-    const filtered = requests.filter((r) => {
+    const filtered = requests.filter((r: { employeeName?: string; creditsRequested: number; reason?: string; status: string }) => {
         const matchesSearch =
             (r.employeeName?.toLowerCase().includes(search.toLowerCase()) ?? false) ||
-            r.destination.toLowerCase().includes(search.toLowerCase());
+            (r.reason?.toLowerCase().includes(search.toLowerCase()) ?? false) ||
+            String(r.creditsRequested).includes(search);
         const matchesStatus = statusFilter === "all" || r.status === statusFilter;
         return matchesSearch && matchesStatus;
     });
 
     const handleApprove = (id: number) => {
         approveRequest.mutate(id, {
-            onSuccess: () => toast.success("Travel request approved"),
+            onSuccess: () => toast.success("Credit request approved"),
             onError: () => toast.error("Failed to approve request"),
         });
         setSelected((p) => p.filter((s) => s !== id));
@@ -38,7 +39,7 @@ const TravelRequests = () => {
 
     const handleReject = (id: number) => {
         rejectRequest.mutate(id, {
-            onSuccess: () => toast.success("Travel request rejected"),
+            onSuccess: () => toast.success("Credit request rejected"),
             onError: () => toast.error("Failed to reject request"),
         });
         setSelected((p) => p.filter((s) => s !== id));
@@ -64,7 +65,6 @@ const TravelRequests = () => {
         <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
             status === "PENDING" ? "bg-gold/10 text-gold" :
             status === "APPROVED" ? "bg-accent/10 text-accent" :
-            status === "COMPLETED" ? "bg-button-secondary text-muted" :
             "bg-red-50 text-red-600"
         }`}>
             {status.charAt(0) + status.slice(1).toLowerCase()}
@@ -74,8 +74,8 @@ const TravelRequests = () => {
     return (
         <div className="space-y-6">
             <div>
-                <h1 className="text-3xl font-serif text-heading mb-2">Travel Requests</h1>
-                <p className="text-sm text-muted">Review and manage employee travel requests</p>
+                <h1 className="text-3xl font-serif text-heading mb-2">Credit Requests</h1>
+                <p className="text-sm text-muted">Review and manage employee credit requests</p>
             </div>
 
             <div className="bg-white rounded-2xl border border-border-light/50 p-4">
@@ -84,14 +84,14 @@ const TravelRequests = () => {
                         <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
                         <input
                             type="text"
-                            placeholder="Search by employee or destination..."
+                            placeholder="Search by employee, reason, or credits..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full pl-9 pr-4 py-2.5 bg-background-primary border border-border-light rounded-xl text-sm text-heading outline-none focus:border-accent transition-colors"
                         />
                     </div>
                     <div className="flex gap-2 flex-wrap">
-                        {(["all", "PENDING", "APPROVED", "COMPLETED", "REJECTED"] as const).map((f) => (
+                        {(["all", "PENDING", "APPROVED", "REJECTED"] as const).map((f) => (
                             <button
                                 key={f}
                                 onClick={() => setStatusFilter(f)}
@@ -137,11 +137,11 @@ const TravelRequests = () => {
                                     <input
                                         type="checkbox"
                                         checked={filtered.length > 0 && selected.length === filtered.length}
-                                        onChange={(e) => setSelected(e.target.checked ? filtered.map((r) => r.id) : [])}
+                                        onChange={(e) => setSelected(e.target.checked ? filtered.map((r: { id: number }) => r.id) : [])}
                                         className="w-4 h-4 rounded border-border text-accent focus:ring-accent cursor-pointer"
                                     />
                                 </th>
-                                {["Employee", "Destination", "Dates", "Status", "Submitted", "Actions"].map((h) => (
+                                {["Employee", "Credits Requested", "Reason", "Status", "Submitted", "Actions"].map((h) => (
                                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{h}</th>
                                 ))}
                             </tr>
@@ -154,7 +154,7 @@ const TravelRequests = () => {
                                     </td>
                                 </tr>
                             ) : (
-                                filtered.map((req) => (
+                                filtered.map((req: { id: number; employeeName?: string; employeeId?: number; creditsRequested: number; reason?: string; status: string; submittedAt?: string }) => (
                                     <tr key={req.id} className={`hover:bg-background-secondary/50 transition-colors ${selected.includes(req.id) ? "bg-accent/5" : ""}`}>
                                         <td className="px-4 py-4">
                                             <input
@@ -173,12 +173,12 @@ const TravelRequests = () => {
                                             </div>
                                         </td>
                                         <td className="px-4 py-4">
-                                            <div className="flex items-center gap-1.5 text-sm text-heading">
-                                                <LucideMapPin className="w-3.5 h-3.5 text-muted flex-shrink-0" />
-                                                {req.destination}
+                                            <div className="flex items-center gap-1.5 text-sm text-heading font-semibold">
+                                                <LucideCoins className="w-3.5 h-3.5 text-muted flex-shrink-0" />
+                                                {req.creditsRequested} credits
                                             </div>
                                         </td>
-                                        <td className="px-4 py-4 text-sm text-muted">{req.dates}</td>
+                                        <td className="px-4 py-4 text-sm text-muted max-w-[200px] truncate">{req.reason || "No reason provided"}</td>
                                         <td className="px-4 py-4">{statusBadge(req.status)}</td>
                                         <td className="px-4 py-4 text-sm text-muted">{req.submittedAt ? new Date(req.submittedAt).toLocaleDateString() : "N/A"}</td>
                                         <td className="px-4 py-4">
@@ -212,7 +212,7 @@ const TravelRequests = () => {
                                         <div className="w-12 h-12 rounded-full bg-button-secondary flex items-center justify-center mx-auto mb-3">
                                             <LucideFilter className="w-6 h-6 text-muted" />
                                         </div>
-                                        <p className="text-sm text-muted">No travel requests match your filters</p>
+                                        <p className="text-sm text-muted">No credit requests match your filters</p>
                                     </td>
                                 </tr>
                             )}
@@ -224,4 +224,4 @@ const TravelRequests = () => {
     );
 };
 
-export default TravelRequests;
+export default CreditRequests;

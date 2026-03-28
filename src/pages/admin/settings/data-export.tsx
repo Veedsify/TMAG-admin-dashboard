@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { LucideArrowLeft, LucideDownload, LucideFileText, LucideUsers, LucideMapPin, LucideActivity, LucideLoader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useMyCompanies, useEmployees, useTravelPlans, useTravelRequests, useInvoices } from "../../../api/hooks";
+import { useMyCompanies, useEmployees, useTravelPlans, useCreditRequests, useInvoices } from "../../../api/hooks";
 
 function downloadFile(content: string, filename: string, mimeType: string) {
     const blob = new Blob([content], { type: mimeType });
@@ -22,7 +22,7 @@ function toCSV(headers: string[], rows: string[][]): string {
 const dataTypes = [
     { id: "employees", label: "Employee Data", desc: "Names, emails, departments, roles, and credit allocations", icon: LucideUsers },
     { id: "plans", label: "Travel Plans", desc: "All generated travel health plans with recommendations", icon: LucideMapPin },
-    { id: "requests", label: "Travel Requests", desc: "All travel requests and their approval status", icon: LucideActivity },
+    { id: "requests", label: "Credit Requests", desc: "All credit requests and their approval status", icon: LucideActivity },
     { id: "billing", label: "Billing History", desc: "Invoices, credit purchases, and transactions", icon: LucideFileText },
 ];
 
@@ -36,7 +36,7 @@ const DataExport = () => {
 
     const { data: employeesData } = useEmployees(companyId ? { companyId, per_page: 500 } : undefined);
     const { data: plansData } = useTravelPlans(companyId ? { companyId, per_page: 500 } : undefined);
-    const { data: requestsData } = useTravelRequests(companyId ? { companyId, per_page: 500 } : undefined);
+    const { data: requestsData } = useCreditRequests(companyId ? { companyId, per_page: 500 } : undefined);
     const { data: invoicesData } = useInvoices(companyId ? { companyId, per_page: 500 } : undefined);
 
     const toggle = (id: string) => {
@@ -90,12 +90,12 @@ const DataExport = () => {
                     data = items;
                     if (format === "csv") {
                         const csv = toCSV(
-                            ["ID", "Destination", "Dates", "Status", "Created"],
-                            items.map((r) => [String(r.id), r.destination, r.dates || "", r.status, r.createdAt])
+                            ["ID", "Credits Requested", "Reason", "Status", "Created"],
+                            items.map((r) => [String(r.id), String(r.creditsRequested), r.reason || "", r.status, r.createdAt])
                         );
-                        downloadFile(csv, `travel-requests-${timestamp}.csv`, "text/csv");
+                        downloadFile(csv, `credit-requests-${timestamp}.csv`, "text/csv");
                     } else {
-                        filename = `travel-requests-${timestamp}.json`;
+                        filename = `credit-requests-${timestamp}.json`;
                     }
                     break;
                 }
