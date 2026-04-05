@@ -182,9 +182,9 @@ const InviteMembers = () => {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-serif text-heading mb-2">Invite Team Members</h1>
-                <p className="text-sm text-muted">Add new employees to your company</p>
+            <div className="mb-8">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Invite Team Members</h1>
+                <p className="text-sm text-muted mt-1">Add new employees to your company</p>
             </div>
 
             {/* Credits per invite */}
@@ -198,7 +198,7 @@ const InviteMembers = () => {
                     max={availableCredits}
                     value={defaultCredits}
                     onChange={(e) => setDefaultCredits(Math.max(1, Math.min(availableCredits, Number(e.target.value))))}
-                    className="w-32 bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                    className="w-32 bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
                 />
                 <p className="text-xs text-muted mt-1.5">
                     Each invited member receives this many credits upon signup &mdash;{" "}
@@ -284,7 +284,7 @@ const InviteMembers = () => {
                                                     value={invite.firstName}
                                                     onChange={(e) => updateInvite(index, "firstName", e.target.value)}
                                                     placeholder="John"
-                                                    className="w-full bg-background-primary border border-border-light rounded-lg px-3 py-2 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                                    className="w-full bg-button-secondary border border-border-light rounded-lg px-3 py-2 text-sm text-heading outline-none focus:border-accent transition-colors"
                                                 />
                                             </td>
                                             <td className="px-4 py-2">
@@ -293,7 +293,7 @@ const InviteMembers = () => {
                                                     value={invite.lastName}
                                                     onChange={(e) => updateInvite(index, "lastName", e.target.value)}
                                                     placeholder="Doe"
-                                                    className="w-full bg-background-primary border border-border-light rounded-lg px-3 py-2 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                                    className="w-full bg-button-secondary border border-border-light rounded-lg px-3 py-2 text-sm text-heading outline-none focus:border-accent transition-colors"
                                                 />
                                             </td>
                                             <td className="px-4 py-2">
@@ -302,7 +302,7 @@ const InviteMembers = () => {
                                                     value={invite.email}
                                                     onChange={(e) => updateInvite(index, "email", e.target.value)}
                                                     placeholder="john@company.com"
-                                                    className="w-full bg-background-primary border border-border-light rounded-lg px-3 py-2 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                                    className="w-full bg-button-secondary border border-border-light rounded-lg px-3 py-2 text-sm text-heading outline-none focus:border-accent transition-colors"
                                                 />
                                             </td>
                                             <td className="px-4 py-2">
@@ -311,7 +311,7 @@ const InviteMembers = () => {
                                                     value={invite.department}
                                                     onChange={(e) => updateInvite(index, "department", e.target.value)}
                                                     placeholder="Engineering"
-                                                    className="w-full bg-background-primary border border-border-light rounded-lg px-3 py-2 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                                    className="w-full bg-button-secondary border border-border-light rounded-lg px-3 py-2 text-sm text-heading outline-none focus:border-accent transition-colors"
                                                 />
                                             </td>
                                             <td className="px-4 py-2 w-10">
@@ -350,7 +350,7 @@ const InviteMembers = () => {
                         <button
                             onClick={handleSendInvites}
                             disabled={sending}
-                            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors shrink-0 disabled:opacity-50"
+                            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 shrink-0 disabled:opacity-50"
                         >
                             {sending ? (
                                 <><LucideLoader2 className="w-4 h-4 animate-spin" /> Sending...</>
@@ -414,7 +414,7 @@ const InviteMembers = () => {
                             />
                             <label
                                 htmlFor="csv-upload"
-                                className="inline-block px-6 py-2.5 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors cursor-pointer"
+                                className="inline-block px-6 py-2.5 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 cursor-pointer"
                             >
                                 Choose File
                             </label>

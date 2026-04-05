@@ -74,9 +74,9 @@ const slideVariants = {
 // ─── Shared input styles ─────────────────────────────────────
 
 const INPUT_CLS =
-    "w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading placeholder:text-muted/40 outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all";
+    "w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading placeholder:text-brand-muted outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all";
 const INNER_INPUT_CLS =
-    "w-full bg-white border border-border-light rounded-xl px-4 py-3 text-sm text-heading placeholder:text-muted/40 outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all";
+    "w-full bg-white border border-border-light rounded-xl px-4 py-3 text-sm text-heading placeholder:text-brand-muted outline-none focus:border-accent focus:ring-2 focus:ring-accent/10 transition-all";
 
 // ─── Inline CountryPicker ────────────────────────────────────
 
@@ -241,11 +241,11 @@ const CreatePlan = () => {
     if (createPlan.isPending) {
         return (
             <div className="space-y-6">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 mb-8">
                     <Link to="/admin/plans" className="p-2 rounded-xl hover:bg-white transition-colors">
                         <LucideArrowLeft className="w-5 h-5 text-muted" />
                     </Link>
-                    <h1 className="text-3xl font-serif text-heading">Create Travel Plan</h1>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Create Travel Plan</h1>
                 </div>
                 <div className="flex flex-col items-center justify-center py-32">
                     <LucideLoader2 className="w-10 h-10 text-accent animate-spin mb-6" />
@@ -263,13 +263,13 @@ const CreatePlan = () => {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mb-8">
                 <Link to="/admin/plans" className="p-2 rounded-xl hover:bg-white transition-colors">
                     <LucideArrowLeft className="w-5 h-5 text-muted" />
                 </Link>
                 <div>
-                    <h1 className="text-3xl font-serif text-heading mb-0.5">Create Travel Plan</h1>
-                    <p className="text-sm text-muted">Generate a personalized health advisory for an employee</p>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Create Travel Plan</h1>
+                    <p className="text-sm text-muted mt-1">Generate a personalized health advisory for an employee</p>
                 </div>
             </div>
 
@@ -482,8 +482,8 @@ const CreatePlan = () => {
                                                     type="button"
                                                     onClick={() => setDuration(d)}
                                                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${duration === d
-                                                        ? "bg-accent text-white"
-                                                        : "bg-background-primary border border-border-light text-muted hover:text-heading"
+                                                        ? "bg-dark text-background-primary"
+                                                        : "bg-button-secondary border border-border-light text-muted hover:text-heading"
                                                         }`}
                                                 >
                                                     {d}d

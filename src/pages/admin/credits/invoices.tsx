@@ -20,13 +20,13 @@ const Invoices = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-2">
+            <div className="flex items-center gap-3 mb-8">
                 <Link to="/admin/credits" className="p-2 rounded-xl hover:bg-white transition-colors">
                     <LucideArrowLeft className="w-5 h-5 text-muted" />
                 </Link>
                 <div>
-                    <h1 className="text-3xl font-serif text-heading mb-2">Invoices</h1>
-                    <p className="text-sm text-muted mt-0.5">View and download your billing history</p>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Invoices</h1>
+                    <p className="text-sm text-muted mt-1">View and download your billing history</p>
                 </div>
             </div>
 
@@ -38,7 +38,7 @@ const Invoices = () => {
                             <LucideFileText className="w-5 h-5 text-accent" />
                         </div>
                     </div>
-                    <p className="text-3xl font-serif text-heading">${totalPaid.toLocaleString()}</p>
+                    <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">${totalPaid.toLocaleString()}</p>
                     <p className="text-xs text-muted mt-1">{invoices.filter((i) => i.status?.toLowerCase() === "paid").length} invoices</p>
                 </div>
                 <div className="bg-white rounded-2xl border border-border-light/50 p-5">
@@ -48,7 +48,7 @@ const Invoices = () => {
                             <LucideFileText className="w-5 h-5 text-gold" />
                         </div>
                     </div>
-                    <p className="text-3xl font-serif text-heading">{invoices.length}</p>
+                    <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{invoices.length}</p>
                     <p className="text-xs text-muted mt-1">{invoices.filter((i) => i.status?.toLowerCase() === "pending").length} pending</p>
                 </div>
             </div>
@@ -56,13 +56,13 @@ const Invoices = () => {
             <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
                 <div className="px-4 sm:px-6 py-4 border-b border-border-light/50 flex flex-col sm:flex-row gap-3">
                     <div className="flex-1 relative">
-                        <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                        <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
                         <input
                             type="text"
                             placeholder="Search invoices..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2.5 bg-background-primary border border-border-light rounded-xl text-sm text-heading outline-none focus:border-accent transition-colors"
+                            className="w-full pl-9 pr-4 py-2.5 bg-button-secondary border border-border-light rounded-xl text-sm text-heading placeholder:text-brand-muted outline-none focus:border-accent transition-colors"
                         />
                     </div>
                     <div className="flex gap-2">
@@ -71,7 +71,7 @@ const Invoices = () => {
                                 key={f}
                                 onClick={() => setStatusFilter(f)}
                                 className={`px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                                    statusFilter === f ? "bg-accent text-white" : "bg-button-secondary text-muted hover:bg-border-light"
+                                    statusFilter === f ? "bg-dark text-background-primary" : "bg-button-secondary text-muted hover:bg-border-light"
                                 }`}
                             >
                                 {f.charAt(0).toUpperCase() + f.slice(1)}

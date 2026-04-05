@@ -52,14 +52,14 @@ const TeamMembers = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-serif text-heading mb-2">Team Members</h1>
-                    <p className="text-sm text-muted">Manage your company's team members and roles</p>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Team Members</h1>
+                    <p className="text-sm text-muted mt-1">Manage your company&apos;s team members and roles</p>
                 </div>
                 <Link
                     to="/admin/team/invite"
-                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors"
+                    className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200"
                 >
                     <LucidePlus className="w-4 h-4" />
                     Invite Members
@@ -70,13 +70,13 @@ const TeamMembers = () => {
             <div className="bg-white rounded-2xl border border-border-light/50 p-4">
                 <div className="flex items-center gap-4">
                     <div className="flex-1 relative">
-                        <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
+                        <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted pointer-events-none" />
                         <input
                             type="text"
                             placeholder="Search by name or email..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-10 pr-4 py-2.5 bg-background-primary border border-border-light rounded-xl text-sm text-heading outline-none focus:border-accent transition-colors"
+                            className="w-full pl-10 pr-4 py-2.5 bg-button-secondary border border-border-light rounded-xl text-sm text-heading placeholder:text-brand-muted outline-none focus:border-accent transition-colors"
                         />
                     </div>
                     <Link

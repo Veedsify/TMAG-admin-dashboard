@@ -95,9 +95,9 @@ const CompanyProfile = () => {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-serif text-heading mb-2">Company Profile</h1>
-                <p className="text-sm text-muted">Manage your company information and settings</p>
+            <div className="mb-8">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Company Profile</h1>
+                <p className="text-sm text-muted mt-1">Manage your company information and settings</p>
             </div>
 
             {/* Invite Code Card */}
@@ -134,21 +134,21 @@ const CompanyProfile = () => {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-white rounded-2xl border border-border-light/50 p-5">
                     <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-1">Total Credits</p>
-                    <p className="text-2xl font-serif font-bold text-heading">{company.total_credits - company.used_credits}</p>
+                    <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{company.total_credits - company.used_credits}</p>
                 </div>
                 <div className="bg-white rounded-2xl border border-border-light/50 p-5">
                     <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-1">Used Credits</p>
-                    <p className="text-2xl font-serif font-bold text-heading">{company.used_credits}</p>
+                    <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{company.used_credits}</p>
                 </div>
                 <div className="bg-white rounded-2xl border border-border-light/50 p-5">
                     <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-1">Employees</p>
-                    <p className="text-2xl font-serif font-bold text-heading">{company.employee_count}</p>
+                    <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{company.employee_count}</p>
                 </div>
             </div>
 
             {/* Company Details Form */}
             <div className="bg-white rounded-2xl border border-border-light/50 p-6">
-                <h2 className="text-lg font-semibold text-heading mb-6">Company Details</h2>
+                <h2 className="text-base font-semibold text-heading mb-6">Company Details</h2>
                 <div className="space-y-5">
                     <div>
                         <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
@@ -158,7 +158,7 @@ const CompanyProfile = () => {
                             type="text"
                             value={form.name}
                             onChange={(e) => setForm({ ...form, name: e.target.value })}
-                            className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                            className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
                         />
                     </div>
 
@@ -169,7 +169,7 @@ const CompanyProfile = () => {
                         <select
                             value={form.industry}
                             onChange={(e) => setForm({ ...form, industry: e.target.value })}
-                            className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                            className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
                         >
                             <option value="">Select industry...</option>
                             <option>Technology</option>
@@ -189,7 +189,7 @@ const CompanyProfile = () => {
                             type="text"
                             value={form.plan}
                             onChange={(e) => setForm({ ...form, plan: e.target.value })}
-                            className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                            className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
                         />
                     </div>
 
@@ -199,7 +199,7 @@ const CompanyProfile = () => {
                     <button
                         onClick={handleSave}
                         disabled={updateCompany.isPending}
-                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50"
+                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 disabled:opacity-50"
                     >
                         {updateCompany.isPending ? (
                             <><LucideLoader2 className="w-4 h-4 animate-spin" /> Saving...</>
@@ -212,7 +212,7 @@ const CompanyProfile = () => {
 
             {/* Billing Currency */}
             <div className="bg-white rounded-2xl border border-border-light/50 p-6">
-                <h2 className="text-lg font-semibold text-heading mb-1">Billing Currency</h2>
+                <h2 className="text-base font-semibold text-heading mb-1">Billing Currency</h2>
                 <p className="text-xs text-muted mb-6">
                     Sets the currency shown on all credit purchase cards for this company.
                 </p>
@@ -224,7 +224,7 @@ const CompanyProfile = () => {
                         <select
                             value={billingCurrency}
                             onChange={(e) => setBillingCurrency(e.target.value)}
-                            className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                            className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
                         >
                             {BILLING_CURRENCIES.map((c) => (
                                 <option key={c.value} value={c.value}>{c.label}</option>
@@ -234,7 +234,7 @@ const CompanyProfile = () => {
                     <button
                         onClick={handleSaveCurrency}
                         disabled={updateBillingCurrency.isPending}
-                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50 shrink-0"
+                        className="flex items-center gap-2 px-6 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 disabled:opacity-50 shrink-0"
                     >
                         {updateBillingCurrency.isPending ? (
                             <><LucideLoader2 className="w-4 h-4 animate-spin" /> Saving...</>

@@ -97,7 +97,7 @@ const PaymentCallback = () => {
                             <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
                                 Credits added
                             </p>
-                            <p className="text-4xl font-serif text-accent font-medium">
+                            <p className="text-2xl sm:text-3xl md:text-4xl font-serif text-accent tabular-nums">
                                 +{creditsPurchased}
                             </p>
                         </div>
@@ -106,7 +106,7 @@ const PaymentCallback = () => {
                         </p>
                         <Link
                             to="/admin/credits"
-                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors"
+                            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200"
                         >
                             Back to Credits
                         </Link>
@@ -132,7 +132,7 @@ const PaymentCallback = () => {
                         <div className="flex flex-col gap-3">
                             <Link
                                 to="/admin/credits"
-                                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors"
+                                className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200"
                             >
                                 Try Again
                             </Link>

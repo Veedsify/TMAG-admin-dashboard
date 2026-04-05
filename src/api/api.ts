@@ -81,6 +81,7 @@ import type {
   // Reports
   UsageReportSummary,
   PlanHistoryDto,
+  DashboardAnalyticsDto,
   ComplianceReportDto,
 } from "./types";
 
@@ -538,6 +539,13 @@ export const settingsApi = {
 // ─── Admin Reports ────────────────────────────────────────────────
 
 export const adminReportsApi = {
+  getDashboardAnalytics: (companyId?: number) =>
+    api
+      .get<ApiResponse<DashboardAnalyticsDto>>("/company-admin/reports/dashboard/analytics", {
+        params: companyId !== undefined ? { companyId } : {},
+      })
+      .then((r) => r.data.data),
+
   getUsageReport: (companyId?: number) =>
     api.get<ApiResponse<UsageReportSummary>>("/company-admin/reports/usage", { params: companyId ? { companyId } : {} }).then((r) => r.data.data),
 

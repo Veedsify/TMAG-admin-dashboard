@@ -129,13 +129,13 @@ const DataExport = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mb-8">
                 <Link to="/admin/settings" className="p-2 rounded-xl hover:bg-white transition-colors">
                     <LucideArrowLeft className="w-5 h-5 text-muted" />
                 </Link>
                 <div>
-                    <h1 className="text-3xl font-serif text-heading mb-2">Data Export</h1>
-                    <p className="text-sm text-muted mt-0.5">Export all company data for compliance or offboarding</p>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Data Export</h1>
+                    <p className="text-sm text-muted mt-1">Export all company data for compliance or offboarding</p>
                 </div>
             </div>
 
@@ -199,7 +199,7 @@ const DataExport = () => {
                                 format === f.id ? "border-accent bg-accent/5" : "border-border-light hover:border-accent/30"
                             }`}
                         >
-                            <p className="text-base font-bold text-heading">{f.label}</p>
+                            <p className="text-base font-semibold text-heading">{f.label}</p>
                             <p className="text-xs text-muted mt-0.5">{f.desc}</p>
                         </button>
                     ))}
@@ -215,7 +215,7 @@ const DataExport = () => {
                 <button
                     onClick={handleExport}
                     disabled={exporting || selected.length === 0}
-                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-60"
+                    className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 disabled:opacity-60"
                 >
                     {exporting ? (
                         <><LucideLoader2 className="w-4 h-4 animate-spin" /> Generating Export...</>

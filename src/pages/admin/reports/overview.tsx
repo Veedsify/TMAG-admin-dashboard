@@ -86,9 +86,9 @@ const Reports = () => {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-serif text-heading mb-2">Reports & Analytics</h1>
-                <p className="text-sm text-muted">Generate and export company reports for compliance and oversight</p>
+            <div className="mb-8">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Reports & Analytics</h1>
+                <p className="text-sm text-muted mt-1">Generate and export company reports for compliance and oversight</p>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -102,7 +102,7 @@ const Reports = () => {
                                 <stat.icon className="w-4 h-4 text-muted" />
                             )}
                         </div>
-                        <p className="text-3xl font-serif text-heading">{isLoading ? "—" : stat.value}</p>
+                        <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{isLoading ? "—" : stat.value}</p>
                     </div>
                 ))}
             </div>

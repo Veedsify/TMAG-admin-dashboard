@@ -1,41 +1,24 @@
-import { LucideBell, LucideLogOut, LucideUser } from "lucide-react";
+import { LucideBell, LucideLogOut, LucideMenu, LucideUser } from "lucide-react";
 import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import { useMobileSidebar } from "../../context/MobileSidebarContext";
 import toast from "react-hot-toast";
-
-const pageTitles: Record<string, string> = {
-    "/admin": "Dashboard",
-    "/admin/company": "Company Profile",
-    "/admin/team": "Team Members",
-    "/admin/team/invite": "Invite Team Members",
-    "/admin/team/onboarding": "Onboarding Status",
-    "/admin/credits": "Credits & Billing",
-    "/admin/credits/invoices": "Invoices",
-    "/admin/plans": "Travel Plans",
-    "/admin/plans/create": "Create Travel Plan",
-    "/admin/requests": "Credit Requests",
-    "/admin/reports": "Reports & Analytics",
-    "/admin/audit": "Audit Log",
-    "/admin/api-keys": "API Keys",
-    "/admin/settings": "Settings",
-    "/admin/settings/export": "Data Export",
-};
+import { cn } from "../../lib/utils";
 
 const roleBadge: Record<string, { label: string; className: string }> = {
-    super_admin: { label: "Super Admin", className: "bg-accent/10 text-accent border-accent/20" },
-    client_admin: { label: "Administrator", className: "bg-blue-50 text-blue-600 border-blue-200" },
-    support_admin: { label: "Support", className: "bg-gray-100 text-gray-600 border-gray-200" },
+    super_admin: { label: "Super Admin", className: "bg-accent/10 text-accent border border-accent/20" },
+    client_admin: { label: "Administrator", className: "bg-button-secondary text-heading border border-border-light" },
+    support_admin: { label: "Support", className: "bg-button-secondary text-muted border border-border-light" },
 };
 
 const AdminHeader = () => {
     const [showProfile, setShowProfile] = useState(false);
     const [showNotifications, setShowNotifications] = useState(false);
-    const location = useLocation();
     const navigate = useNavigate();
     const { user, logout } = useAuth();
+    const { toggle } = useMobileSidebar();
 
-    const title = pageTitles[location.pathname] ?? "Dashboard";
     const badge = roleBadge[user?.role ?? "support_admin"];
 
     const notifications = [
@@ -68,27 +51,36 @@ const AdminHeader = () => {
     };
 
     return (
-        <header className="h-16 bg-white border-b border-border-light/50 flex items-center justify-between px-4 sm:px-6 lg:px-12 sticky top-0 z-30">
-            <div className="flex items-center gap-4">
-                <div className="lg:hidden w-8" />
-                <div>
-                    <h1 className="text-lg sm:text-xl font-serif font-semibold text-heading leading-tight">{title}</h1>
-                </div>
-            </div>
+        <header className="flex items-center justify-between gap-4 mb-6 lg:mb-8">
+            <button
+                type="button"
+                onClick={toggle}
+                className="lg:hidden p-2 rounded-xl bg-button-secondary text-heading hover:bg-border-light transition-colors duration-150 cursor-pointer shrink-0"
+            >
+                <LucideMenu className="w-5 h-5" />
+            </button>
 
-            <div className="flex items-center gap-2 sm:gap-3">
-                <div className={`hidden sm:flex items-center px-3 py-1.5 rounded-full border text-xs font-semibold ${badge.className}`}>
+            <div className="flex-1 lg:flex-none" />
+
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                <div
+                    className={cn(
+                        "hidden sm:flex items-center px-3 py-1.5 rounded-full text-xs font-semibold",
+                        badge.className,
+                    )}
+                >
                     {badge.label}
                 </div>
 
                 <div className="relative notification-menu">
                     <button
+                        type="button"
                         onClick={(e) => {
                             e.stopPropagation();
                             setShowNotifications(!showNotifications);
                             setShowProfile(false);
                         }}
-                        className="relative p-2 rounded-xl hover:bg-background-primary transition-colors"
+                        className="relative p-2 rounded-xl bg-button-secondary text-heading hover:bg-border-light transition-colors duration-150"
                     >
                         <LucideBell className="w-5 h-5 text-muted" />
                         {unreadCount > 0 && (
@@ -107,9 +99,10 @@ const AdminHeader = () => {
                                 {notifications.map((n) => (
                                     <div
                                         key={n.id}
-                                        className={`px-4 py-3 hover:bg-background-primary/50 transition-colors border-b border-border-light/30 last:border-0 ${
-                                            n.unread ? "bg-accent/5" : ""
-                                        }`}
+                                        className={cn(
+                                            "px-4 py-3 hover:bg-background-secondary/50 transition-colors border-b border-border-light/30 last:border-0",
+                                            n.unread ? "bg-accent/5" : "",
+                                        )}
                                     >
                                         <p className="text-sm text-heading leading-snug">{n.text}</p>
                                         <p className="text-xs text-muted mt-0.5">{n.time}</p>
@@ -117,7 +110,12 @@ const AdminHeader = () => {
                                 ))}
                             </div>
                             <div className="px-4 py-2 border-t border-border-light/50">
-                                <button className="text-xs text-accent font-medium hover:underline">View all notifications</button>
+                                <button
+                                    type="button"
+                                    className="text-xs text-accent font-medium hover:underline"
+                                >
+                                    View all notifications
+                                </button>
                             </div>
                         </div>
                     )}
@@ -125,17 +123,18 @@ const AdminHeader = () => {
 
                 <div className="relative profile-menu">
                     <button
+                        type="button"
                         onClick={(e) => {
                             e.stopPropagation();
                             setShowProfile(!showProfile);
                             setShowNotifications(false);
                         }}
-                        className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-background-primary transition-colors"
+                        className="flex items-center gap-2 p-1.5 rounded-xl bg-button-secondary hover:bg-border-light transition-colors duration-150"
                     >
                         <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center">
                             <LucideUser className="w-4 h-4 text-accent" />
                         </div>
-                        <span className="hidden md:block text-sm font-medium text-heading">
+                        <span className="hidden md:block text-sm font-medium text-heading max-w-[120px] truncate">
                             {user?.name || "Admin"}
                         </span>
                     </button>
@@ -145,14 +144,20 @@ const AdminHeader = () => {
                             <div className="px-4 py-2 border-b border-border-light/50">
                                 <p className="text-sm font-semibold text-heading">{user?.name || "Admin"}</p>
                                 <p className="text-xs text-muted truncate">{user?.email}</p>
-                                <span className={`inline-block mt-1 px-2 py-0.5 rounded-full border text-[10px] font-semibold ${badge.className}`}>
+                                <span
+                                    className={cn(
+                                        "inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-semibold",
+                                        badge.className,
+                                    )}
+                                >
                                     {badge.label}
                                 </span>
                             </div>
                             <div className="border-t border-border-light/50 mt-1 pt-1">
                                 <button
+                                    type="button"
                                     onClick={handleLogout}
-                                    className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-2"
+                                    className="w-full px-4 py-2 text-left text-sm text-danger hover:bg-danger/5 transition-colors flex items-center gap-2"
                                 >
                                     <LucideLogOut className="w-4 h-4" />
                                     Sign out

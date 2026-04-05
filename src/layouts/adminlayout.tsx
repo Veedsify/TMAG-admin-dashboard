@@ -2,21 +2,20 @@ import { Outlet } from "react-router-dom";
 import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminHeader from "../components/admin/AdminHeader";
 import ProtectedRoute from "../components/guards/ProtectedRoute";
+import { MobileSidebarProvider } from "../context/MobileSidebarContext";
 
 const AdminLayout = () => {
     return (
         <ProtectedRoute>
-            <div className="min-h-screen bg-background-primary flex">
-                <AdminSidebar />
-                <div className="flex-1 flex flex-col lg:ml-64">
-                    <AdminHeader />
-                    <main className="flex-1 px-4 sm:px-6 lg:px-12 py-6 sm:py-8">
-                        <div className="max-w-7xl mx-auto">
-                            <Outlet />
-                        </div>
+            <MobileSidebarProvider>
+                <div className="min-h-screen bg-background-primary">
+                    <AdminSidebar />
+                    <main className="lg:ml-64 px-4 sm:px-6 lg:px-12 py-6 sm:py-8 max-w-7xl">
+                        <AdminHeader />
+                        <Outlet />
                     </main>
                 </div>
-            </div>
+            </MobileSidebarProvider>
         </ProtectedRoute>
     );
 };

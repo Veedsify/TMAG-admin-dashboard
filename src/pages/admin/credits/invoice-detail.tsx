@@ -73,7 +73,7 @@ const InvoiceDetail = () => {
                 <p className="text-sm text-muted mb-4">The invoice you're looking for doesn't exist.</p>
                 <Link
                     to="/admin/credits/invoices"
-                    className="px-4 py-2 bg-accent text-white rounded-xl text-sm font-semibold hover:bg-accent/90"
+                    className="px-4 py-2 bg-dark text-background-primary rounded-xl text-sm font-semibold hover:bg-darkest transition-colors duration-200"
                 >
                     Back to Invoices
                 </Link>
@@ -84,20 +84,20 @@ const InvoiceDetail = () => {
     return (
         <div className="space-y-6">
             {/* Header */}
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
                     <Link to="/admin/credits/invoices" className="p-2 rounded-xl hover:bg-white transition-colors">
                         <LucideArrowLeft className="w-5 h-5 text-muted" />
                     </Link>
                     <div>
-                        <h1 className="text-3xl font-serif text-heading mb-0.5">Invoice Details</h1>
-                        <p className="text-sm text-muted">Invoice #{invoice.id}</p>
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Invoice details</h1>
+                        <p className="text-sm text-muted mt-1">Invoice #{invoice.id}</p>
                     </div>
                 </div>
                 <button
                     onClick={handleDownloadPdf}
                     disabled={downloading}
-                    className="flex items-center gap-2 px-4 py-2.5 bg-accent text-white rounded-xl text-sm font-semibold hover:bg-accent/90 transition-colors disabled:opacity-50"
+                    className="flex items-center gap-2 px-4 py-2.5 bg-dark text-background-primary rounded-xl text-sm font-semibold hover:bg-darkest transition-colors duration-200 disabled:opacity-50"
                 >
                     {downloading ? (
                         <LucideLoader2 className="w-4 h-4 animate-spin" />
@@ -115,11 +115,11 @@ const InvoiceDetail = () => {
                     <div className="flex items-start justify-between mb-4">
                         <div>
                             <p className="text-xs text-muted tracking-widest uppercase">Travel Medicine</p>
-                            <h2 className="text-3xl font-serif font-bold text-accent">TMAG</h2>
+                            <h2 className="text-3xl font-serif text-accent">TMAG</h2>
                             <p className="text-xs text-muted tracking-widest uppercase">Global Advisory</p>
                         </div>
                         <div className="text-right">
-                            <h2 className="text-4xl font-serif font-bold text-heading">INVOICE</h2>
+                            <h2 className="text-4xl font-serif text-heading">INVOICE</h2>
                         </div>
                     </div>
 
@@ -239,7 +239,7 @@ const InvoiceDetail = () => {
                     <div className="px-8 py-6">
                         <div className="flex items-end justify-between">
                             <div>
-                                <p className="text-xl font-serif font-bold text-accent">Thank you for your business</p>
+                                <p className="text-xl font-serif text-accent">Thank you for your business</p>
                                 <p className="text-xs text-muted mt-1">Travel Medicine Advisory Global</p>
                                 <p className="text-xs text-muted">Professional travel health solutions</p>
                             </div>

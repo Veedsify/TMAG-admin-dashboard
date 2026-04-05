@@ -54,9 +54,9 @@ const ApiKeys = () => {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-serif text-heading mb-2">API Keys</h1>
-                <p className="text-sm text-muted">Manage API keys for integrating TMAG with your systems</p>
+            <div className="mb-8">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">API Keys</h1>
+                <p className="text-sm text-muted mt-1">Manage API keys for integrating TMAG with your systems</p>
             </div>
 
             <div className="bg-accent/5 border border-accent/20 rounded-2xl p-5 flex items-start gap-3">
@@ -111,7 +111,7 @@ const ApiKeys = () => {
                         </code>
                         <button
                             onClick={() => handleCopy(createdKey)}
-                            className="p-3 rounded-xl bg-accent text-white hover:bg-accent/90 transition-colors"
+                            className="p-3 rounded-xl bg-dark text-background-primary hover:bg-darkest transition-colors duration-200"
                         >
                             <LucideCopy className="w-4 h-4" />
                         </button>
@@ -129,7 +129,7 @@ const ApiKeys = () => {
                 <h2 className="text-base font-semibold text-heading">Generated API Keys</h2>
                 <button
                     onClick={() => setShowCreate(!showCreate)}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200"
                 >
                     <LucidePlus className="w-4 h-4" />
                     Create New Key
@@ -147,7 +147,7 @@ const ApiKeys = () => {
                                 value={newKeyName}
                                 onChange={(e) => setNewKeyName(e.target.value)}
                                 placeholder="e.g. Production Integration"
-                                className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
                             />
                         </div>
                         <div className="flex gap-3">
@@ -160,7 +160,7 @@ const ApiKeys = () => {
                             <button
                                 onClick={handleCreate}
                                 disabled={createKey.isPending}
-                                className="px-4 py-2.5 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50 flex items-center gap-2"
+                                className="px-4 py-2.5 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 disabled:opacity-50 flex items-center gap-2"
                             >
                                 {createKey.isPending ? <><LucideLoader2 className="w-4 h-4 animate-spin" /> Generating...</> : "Generate Key"}
                             </button>

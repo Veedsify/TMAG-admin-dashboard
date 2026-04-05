@@ -188,9 +188,9 @@ const Settings = () => {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-serif text-heading mb-2">Settings</h1>
-                <p className="text-sm text-muted">Manage your company and admin preferences</p>
+            <div className="mb-8">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Settings</h1>
+                <p className="text-sm text-muted mt-1">Manage your company and admin preferences</p>
             </div>
 
             <div className="flex gap-2 overflow-x-auto pb-1">
@@ -200,7 +200,7 @@ const Settings = () => {
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors ${
                             activeTab === tab.id
-                                ? "bg-accent text-white"
+                                ? "bg-dark text-background-primary"
                                 : "bg-white border border-border-light/50 text-muted hover:bg-background-primary"
                         }`}
                     >
@@ -222,26 +222,26 @@ const Settings = () => {
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                 <div>
                                     <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Company Name</label>
-                                    <input type="text" value={general.name} onChange={(e) => setGeneral({ ...general, name: e.target.value })} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors" />
+                                    <input type="text" value={general.name} onChange={(e) => setGeneral({ ...general, name: e.target.value })} className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors" />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Industry</label>
-                                    <select value={general.industry} onChange={(e) => setGeneral({ ...general, industry: e.target.value })} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors">
+                                    <select value={general.industry} onChange={(e) => setGeneral({ ...general, industry: e.target.value })} className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors">
                                         <option value="">Select industry...</option>
                                         {["Technology", "Healthcare", "Finance", "Manufacturing", "Consulting", "Other"].map((i) => <option key={i}>{i}</option>)}
                                     </select>
                                 </div>
                                 <div>
                                     <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Plan</label>
-                                    <input type="text" value={general.plan} onChange={(e) => setGeneral({ ...general, plan: e.target.value })} className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors" />
+                                    <input type="text" value={general.plan} onChange={(e) => setGeneral({ ...general, plan: e.target.value })} className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors" />
                                 </div>
                                 <div>
                                     <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Invite Code</label>
-                                    <input type="text" value={company?.company_code ?? ""} readOnly className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none cursor-default" />
+                                    <input type="text" value={company?.company_code ?? ""} readOnly className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none cursor-default" />
                                 </div>
                             </div>
                             <div className="flex justify-end pt-2">
-                                <button onClick={handleSaveGeneral} disabled={updateCompany.isPending} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50">
+                                <button onClick={handleSaveGeneral} disabled={updateCompany.isPending} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 disabled:opacity-50">
                                     {updateCompany.isPending ? <><LucideLoader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><LucideSave className="w-4 h-4" /> Save Changes</>}
                                 </button>
                             </div>
@@ -276,7 +276,7 @@ const Settings = () => {
                         ))}
                     </div>
                     <div className="flex justify-end pt-2">
-                        <button onClick={handleSaveNotifications} disabled={updateSettings.isPending} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50">
+                        <button onClick={handleSaveNotifications} disabled={updateSettings.isPending} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 disabled:opacity-50">
                             {updateSettings.isPending ? <><LucideLoader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><LucideSave className="w-4 h-4" /> Save Preferences</>}
                         </button>
                     </div>
@@ -295,7 +295,7 @@ const Settings = () => {
                                     value={passwordForm.currentPassword}
                                     onChange={(e) => setPasswordForm({ ...passwordForm, currentPassword: e.target.value })}
                                     placeholder="••••••••"
-                                    className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                    className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
                                 />
                             </div>
                             <div>
@@ -305,7 +305,7 @@ const Settings = () => {
                                     value={passwordForm.newPassword}
                                     onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
                                     placeholder="••••••••"
-                                    className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                    className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
                                 />
                             </div>
                             <div>
@@ -315,11 +315,11 @@ const Settings = () => {
                                     value={passwordForm.confirmPassword}
                                     onChange={(e) => setPasswordForm({ ...passwordForm, confirmPassword: e.target.value })}
                                     placeholder="••••••••"
-                                    className="w-full bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                    className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
                                 />
                             </div>
                         </div>
-                        <button onClick={handleUpdatePassword} disabled={updatePassword.isPending} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50">
+                        <button onClick={handleUpdatePassword} disabled={updatePassword.isPending} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 disabled:opacity-50">
                             {updatePassword.isPending ? <><LucideLoader2 className="w-4 h-4 animate-spin" /> Updating...</> : <><LucideSave className="w-4 h-4" /> Update Password</>}
                         </button>
                     </div>
@@ -362,7 +362,7 @@ const Settings = () => {
                                 <select
                                     value={preferences[item.key as keyof typeof preferences]}
                                     onChange={(e) => setPreferences({ ...preferences, [item.key]: e.target.value })}
-                                    className="bg-background-primary border border-border-light rounded-xl px-3 py-2 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                    className="bg-button-secondary border border-border-light rounded-xl px-3 py-2 text-sm text-heading outline-none focus:border-accent transition-colors"
                                 >
                                     {item.options.map((o) => <option key={o}>{o}</option>)}
                                 </select>
@@ -370,7 +370,7 @@ const Settings = () => {
                         ))}
                     </div>
                     <div className="flex justify-end pt-2">
-                        <button onClick={handleSavePreferences} disabled={updateSettings.isPending} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors disabled:opacity-50">
+                        <button onClick={handleSavePreferences} disabled={updateSettings.isPending} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 disabled:opacity-50">
                             {updateSettings.isPending ? <><LucideLoader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><LucideSave className="w-4 h-4" /> Save Preferences</>}
                         </button>
                     </div>

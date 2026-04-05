@@ -1021,6 +1021,14 @@ export function useUpdateBillingCurrency() {
 
 // ─── Admin Report Hooks ────────────────────────────────────────────
 
+export function useDashboardAnalytics(companyId?: number, options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: ["admin-reports", "dashboard-analytics", companyId],
+    queryFn: () => adminReportsApi.getDashboardAnalytics(companyId),
+    enabled: options?.enabled !== false && companyId != null && companyId > 0,
+  });
+}
+
 export function useUsageReport(companyId?: number) {
   return useQuery({
     queryKey: ["admin-reports", "usage", companyId],

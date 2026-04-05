@@ -690,6 +690,30 @@ export interface PlanHistoryDto {
   updatedAt: string;
 }
 
+export interface NamedCountDto {
+  name: string;
+  count: number;
+}
+
+export interface MonthCountDto {
+  month: string;
+  count: number;
+}
+
+export interface TopEmployeePlansDto {
+  name: string;
+  plansGenerated: number;
+  creditsUsed: number;
+}
+
+export interface DashboardAnalyticsDto {
+  plansByStatus: NamedCountDto[];
+  plansCreatedLastSixMonths: MonthCountDto[];
+  topDestinations: NamedCountDto[];
+  topEmployeesByPlans: TopEmployeePlansDto[];
+  creditRequestsByStatus: NamedCountDto[];
+}
+
 export interface ComplianceAuditDto {
   ledgerId: number;
   action: string;

@@ -82,20 +82,20 @@ const PlanDetails = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 mb-8">
                 <Link to="/admin/plans" className="p-2 rounded-xl hover:bg-white transition-colors">
                     <LucideArrowLeft className="w-5 h-5 text-muted" />
                 </Link>
-                <div className="flex-1">
-                    <h1 className="text-3xl font-serif text-heading mb-2">{plan.destination}</h1>
-                    <p className="text-sm text-muted mt-0.5">{plan.country} &middot; {plan.duration} day{plan.duration !== 1 ? "s" : ""}</p>
+                <div className="flex-1 min-w-0">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading truncate">{plan.destination}</h1>
+                    <p className="text-sm text-muted mt-1">{plan.country} &middot; {plan.duration} day{plan.duration !== 1 ? "s" : ""}</p>
                 </div>
                 <div className="flex gap-2">
                     <button onClick={() => window.print()} className="hidden sm:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-button-secondary text-heading font-semibold text-sm hover:bg-border-light transition-colors">
                         <LucidePrinter className="w-4 h-4" />
                         Print
                     </button>
-                    <button onClick={() => window.print()} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors">
+                    <button onClick={() => window.print()} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200">
                         <LucideDownload className="w-4 h-4" />
                         Download PDF
                     </button>

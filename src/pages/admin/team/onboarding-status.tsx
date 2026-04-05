@@ -68,10 +68,10 @@ const OnboardingStatus = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-3xl font-serif text-heading mb-2">Onboarding Status</h1>
-                    <p className="text-sm text-muted">Track employee onboarding and questionnaire completion</p>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Onboarding Status</h1>
+                    <p className="text-sm text-muted mt-1">Track employee onboarding and questionnaire completion</p>
                 </div>
             </div>
 
@@ -83,7 +83,7 @@ const OnboardingStatus = () => {
                             <LucideCheckCircle className="w-5 h-5 text-accent" />
                         </div>
                     </div>
-                    <p className="text-3xl font-serif text-heading">{completedCount}</p>
+                    <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{completedCount}</p>
                     <p className="text-xs text-muted mt-1">{members.length > 0 ? ((completedCount / members.length) * 100).toFixed(0) : 0}% of team</p>
                 </div>
                 <div className="bg-white rounded-2xl border border-border-light/50 p-5">
@@ -93,7 +93,7 @@ const OnboardingStatus = () => {
                             <LucideClock className="w-5 h-5 text-gold" />
                         </div>
                     </div>
-                    <p className="text-3xl font-serif text-heading">{inProgressCount}</p>
+                    <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{inProgressCount}</p>
                     <p className="text-xs text-muted mt-1">Need to complete</p>
                 </div>
                 <div className="bg-white rounded-2xl border border-border-light/50 p-5">
@@ -103,7 +103,7 @@ const OnboardingStatus = () => {
                             <LucideCircle className="w-5 h-5 text-muted" />
                         </div>
                     </div>
-                    <p className="text-3xl font-serif text-heading">{notStartedCount}</p>
+                    <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{notStartedCount}</p>
                     <p className="text-xs text-muted mt-1">Awaiting response</p>
                 </div>
             </div>
@@ -111,13 +111,13 @@ const OnboardingStatus = () => {
             <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
                 <div className="px-4 sm:px-6 py-4 border-b border-border-light/50 flex flex-col sm:flex-row gap-3">
                     <div className="flex-1 relative">
-                        <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                        <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
                         <input
                             type="text"
                             placeholder="Search by name or email..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2.5 bg-background-primary border border-border-light rounded-xl text-sm text-heading outline-none focus:border-accent transition-colors"
+                            className="w-full pl-9 pr-4 py-2.5 bg-button-secondary border border-border-light rounded-xl text-sm text-heading placeholder:text-brand-muted outline-none focus:border-accent transition-colors"
                         />
                     </div>
                     <div className="flex gap-2 flex-wrap">
@@ -126,7 +126,7 @@ const OnboardingStatus = () => {
                                 key={f}
                                 onClick={() => setFilter(f)}
                                 className={`px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                                    filter === f ? "bg-accent text-white" : "bg-button-secondary text-muted hover:bg-border-light"
+                                    filter === f ? "bg-dark text-background-primary" : "bg-button-secondary text-muted hover:bg-border-light"
                                 }`}
                             >
                                 {f === "all" ? "All" : f === "in_progress" ? "In Progress" : f === "not_started" ? "Not Started" : "Completed"}

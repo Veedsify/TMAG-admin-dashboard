@@ -1,6 +1,7 @@
 import { LucideUsers, LucideCoins, LucideFileText, LucideClipboardCheck, LucideArrowRight, LucideLoader2 } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useMyCompanies, useEmployees, useTravelPlans, useCreditRequests, useCompanyCreditHistory } from "../../api/hooks";
+import { useMyCompanies, useEmployees, useTravelPlans, useCreditRequests, useCompanyCreditHistory, useDashboardAnalytics } from "../../api/hooks";
+import DashboardAnalyticsCharts from "../../components/admin/DashboardAnalyticsCharts";
 
 const Dashboard = () => {
     const { data: companiesData } = useMyCompanies();
@@ -17,6 +18,7 @@ const Dashboard = () => {
         companyId ? { companyId } : undefined
     );
     const { data: creditPurchases } = useCompanyCreditHistory(companyId);
+    const { data: dashboardAnalytics, isLoading: analyticsLoading } = useDashboardAnalytics(companyId);
 
     const totalEmployees = employeesData?.pagination.total ?? 0;
     const totalCredits = company?.total_credits ?? 0;
@@ -60,9 +62,13 @@ const Dashboard = () => {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-serif text-heading mb-2">Dashboard</h1>
-                <p className="text-sm text-muted">Overview of your company's travel health management</p>
+            <div className="mb-8">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">
+                    Dashboard
+                </h1>
+                <p className="text-sm text-muted mt-1">
+                    Overview of your company&apos;s travel health management
+                </p>
             </div>
 
             {/* Stats Grid */}
@@ -71,47 +77,53 @@ const Dashboard = () => {
                     <Link
                         key={stat.label}
                         to={stat.href}
-                        className="bg-white rounded-2xl border border-border-light/50 p-6 hover:border-accent/30 transition-colors"
+                        className="bg-white rounded-2xl border border-border-light/50 p-4 sm:p-6 flex flex-col gap-3 hover:border-accent/30 transition-colors duration-150"
                     >
-                        <div className="flex items-center justify-between mb-4">
-                            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs uppercase tracking-wider text-muted font-semibold">
+                                {stat.label}
+                            </span>
+                            <div className="w-8 h-8 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                                 {stat.loading ? (
-                                    <LucideLoader2 className="w-5 h-5 text-accent animate-spin" />
+                                    <LucideLoader2 className="w-4 h-4 text-accent animate-spin" />
                                 ) : (
-                                    <stat.icon className="w-5 h-5 text-accent" />
+                                    <stat.icon className="w-4 h-4 text-accent" />
                                 )}
                             </div>
-                            <LucideArrowRight className="w-4 h-4 text-muted" />
                         </div>
-                        <p className="text-3xl font-serif text-heading mb-1">
-                            {stat.loading ? "-" : stat.value}
-                        </p>
-                        <p className="text-xs text-muted">{stat.label}</p>
+                        <span className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">
+                            {stat.loading ? "—" : stat.value}
+                        </span>
+                        <span className="text-xs text-muted flex items-center gap-1">
+                            View <LucideArrowRight className="w-3 h-3" />
+                        </span>
                     </Link>
                 ))}
             </div>
 
+            <DashboardAnalyticsCharts data={dashboardAnalytics} isLoading={analyticsLoading} />
+
             {/* Quick Actions */}
             <div className="bg-white rounded-2xl border border-border-light/50 p-6">
-                <h2 className="text-lg font-semibold text-heading mb-4">Quick Actions</h2>
+                <h2 className="text-base font-semibold text-heading mb-4">Quick Actions</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <Link
                         to="/admin/team/invite"
-                        className="p-4 rounded-xl border border-border-light hover:border-accent/50 transition-colors"
+                        className="p-4 rounded-xl border border-border-light/50 bg-background-primary/30 hover:border-accent/40 transition-colors duration-150"
                     >
                         <p className="text-sm font-semibold text-heading">Invite Team Members</p>
                         <p className="text-xs text-muted mt-1">Add new employees to your company</p>
                     </Link>
                     <Link
                         to="/admin/plans/create"
-                        className="p-4 rounded-xl border border-border-light hover:border-accent/50 transition-colors"
+                        className="p-4 rounded-xl border border-border-light/50 bg-background-primary/30 hover:border-accent/40 transition-colors duration-150"
                     >
                         <p className="text-sm font-semibold text-heading">Create Travel Plan</p>
                         <p className="text-xs text-muted mt-1">Generate a new health plan</p>
                     </Link>
                     <Link
                         to="/admin/credits"
-                        className="p-4 rounded-xl border border-border-light hover:border-accent/50 transition-colors"
+                        className="p-4 rounded-xl border border-border-light/50 bg-background-primary/30 hover:border-accent/40 transition-colors duration-150"
                     >
                         <p className="text-sm font-semibold text-heading">Purchase Credits</p>
                         <p className="text-xs text-muted mt-1">Add credits to your balance</p>
@@ -121,12 +133,15 @@ const Dashboard = () => {
 
             {/* Recent Activity */}
             <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
-                <div className="px-6 py-4 border-b border-border-light/50">
-                    <h2 className="text-lg font-semibold text-heading">Recent Activity</h2>
+                <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border-light/50">
+                    <h2 className="text-base font-semibold text-heading">Recent Activity</h2>
                 </div>
                 <div className="divide-y divide-border-light/50">
                     {recentActivity.map((activity, i) => (
-                        <div key={i} className="px-6 py-4 flex items-center justify-between">
+                        <div
+                            key={i}
+                            className="px-4 sm:px-6 py-4 flex items-center justify-between gap-3 hover:bg-background-secondary/50 transition-colors duration-150"
+                        >
                             <div>
                                 <p className="text-sm font-medium text-heading">{activity.action}</p>
                                 <p className="text-xs text-muted mt-0.5">{activity.user}</p>

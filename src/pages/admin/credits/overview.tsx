@@ -53,10 +53,10 @@ const Credits = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-serif text-heading mb-2">Credits & Billing</h1>
-                    <p className="text-sm text-muted">Manage your company's credit balance and billing</p>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Credits & Billing</h1>
+                    <p className="text-sm text-muted mt-1">Manage your company&apos;s credit balance and billing</p>
                 </div>
                 <Link
                     to="/admin/credits/invoices"
@@ -76,7 +76,7 @@ const Credits = () => {
                         </span>
                         <LucideCoins className="w-5 h-5 text-muted" />
                     </div>
-                    <p className="text-4xl font-serif text-heading">{isLoading ? "-" : totalCredits}</p>
+                    <p className="text-2xl sm:text-3xl md:text-4xl font-serif text-heading tabular-nums">{isLoading ? "—" : totalCredits}</p>
                 </div>
 
                 <div className="bg-white rounded-2xl border border-border-light/50 p-6">
@@ -86,7 +86,7 @@ const Credits = () => {
                         </span>
                         <LucideCoins className="w-5 h-5 text-muted" />
                     </div>
-                    <p className="text-4xl font-serif text-heading">{isLoading ? "-" : usedCredits}</p>
+                    <p className="text-2xl sm:text-3xl md:text-4xl font-serif text-heading tabular-nums">{isLoading ? "—" : usedCredits}</p>
                 </div>
 
                 <div className="bg-accent/5 border border-accent/20 rounded-2xl p-6">
@@ -96,13 +96,13 @@ const Credits = () => {
                         </span>
                         <LucideCoins className="w-5 h-5 text-accent" />
                     </div>
-                    <p className="text-4xl font-serif text-accent">{isLoading ? "-" : remainingCredits}</p>
+                    <p className="text-2xl sm:text-3xl md:text-4xl font-serif text-accent tabular-nums">{isLoading ? "—" : remainingCredits}</p>
                 </div>
             </div>
 
             {/* Purchase Credits */}
             <div className="bg-white rounded-2xl border border-border-light/50 p-6">
-                <h2 className="text-lg font-semibold text-heading mb-4">Purchase Credits</h2>
+                <h2 className="text-base font-semibold text-heading mb-4">Purchase Credits</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {creditPackages.map((credits, idx) => {
                         const quote = quotes[credits];
@@ -117,11 +117,11 @@ const Credits = () => {
                                 }`}
                             >
                                 {isPopular && (
-                                    <span className="absolute -top-2 right-4 px-2 py-0.5 bg-accent text-white text-xs font-semibold rounded-full">
+                                    <span className="absolute -top-2 right-4 px-2 py-0.5 bg-dark text-background-primary text-xs font-semibold rounded-full">
                                         Popular
                                     </span>
                                 )}
-                                <div className="text-3xl font-serif text-heading mb-2">{credits}</div>
+                                <div className="text-2xl sm:text-3xl font-serif text-heading tabular-nums mb-2">{credits}</div>
                                 <div className="text-sm text-muted mb-4">credits</div>
                                 {quote ? (
                                     <>
@@ -142,7 +142,7 @@ const Credits = () => {
                                 <button 
                                     onClick={() => handlePurchase(credits)}
                                     disabled={purchaseCredits.isPending || !quote}
-                                    className="w-full py-2.5 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                                    className="w-full py-2.5 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
                                 >
                                     {purchaseCredits.isPending ? <LucideLoader2 className="w-4 h-4 animate-spin" /> : <LucideExternalLink className="w-4 h-4" />}
                                     Pay Now

@@ -73,21 +73,21 @@ const CreditRequests = () => {
 
     return (
         <div className="space-y-6">
-            <div>
-                <h1 className="text-3xl font-serif text-heading mb-2">Credit Requests</h1>
-                <p className="text-sm text-muted">Review and manage employee credit requests</p>
+            <div className="mb-8">
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Credit Requests</h1>
+                <p className="text-sm text-muted mt-1">Review and manage employee credit requests</p>
             </div>
 
             <div className="bg-white rounded-2xl border border-border-light/50 p-4">
                 <div className="flex flex-col lg:flex-row gap-3">
                     <div className="flex-1 relative">
-                        <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
+                        <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
                         <input
                             type="text"
                             placeholder="Search by employee, reason, or credits..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-9 pr-4 py-2.5 bg-background-primary border border-border-light rounded-xl text-sm text-heading outline-none focus:border-accent transition-colors"
+                            className="w-full pl-9 pr-4 py-2.5 bg-button-secondary border border-border-light rounded-xl text-sm text-heading placeholder:text-brand-muted outline-none focus:border-accent transition-colors"
                         />
                     </div>
                     <div className="flex gap-2 flex-wrap">
@@ -96,7 +96,7 @@ const CreditRequests = () => {
                                 key={f}
                                 onClick={() => setStatusFilter(f)}
                                 className={`px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                                    statusFilter === f ? "bg-accent text-white" : "bg-button-secondary text-muted hover:bg-border-light"
+                                    statusFilter === f ? "bg-dark text-background-primary" : "bg-button-secondary text-muted hover:bg-border-light"
                                 }`}
                             >
                                 {f === "all" ? "All" : f.charAt(0) + f.slice(1).toLowerCase()}
@@ -112,7 +112,7 @@ const CreditRequests = () => {
                     <div className="flex gap-2">
                         <button
                             onClick={handleBulkApprove}
-                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-accent text-white font-semibold text-sm hover:bg-accent/90 transition-colors"
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200"
                         >
                             <LucideCheck className="w-4 h-4" />
                             Approve All
