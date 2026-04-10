@@ -75,6 +75,14 @@ import type {
   ApiKeyResponse,
   CreateApiKeyRequest,
   CreateApiKeyResponse,
+  // Company Plans
+  CompanyPlanResponse,
+  CreatePlanRequest,
+  UpdatePlanRequest,
+  // Company Admin Management
+  CompanyAdminUserCreateRequest,
+  CompanyAdminUserUpdateRequest,
+  CompanyTeamMember,
   // Settings
   CompanySettingsResponse,
   CompanySettingsUpdateRequest,
@@ -569,4 +577,64 @@ export const adminReportsApi = {
 
   getTeamReportCsv: (companyId?: number) =>
     api.get<string>("/company-admin/reports/team/csv", { params: companyId ? { companyId } : {}, responseType: 'text' }),
+};
+
+// ─── Company Plans (Admin) ─────────────────────────────────
+
+export const companyPlansApi = {
+  list: () =>
+    api.get<ApiResponse<CompanyPlanResponse[]>>("/company-admin/plans").then((r) => r.data.data),
+
+  get: (id: number) =>
+    api.get<ApiResponse<CompanyPlanResponse>>(`/company-admin/plans/${id}`).then((r) => r.data.data),
+
+  create: (data: CreatePlanRequest) =>
+    api.post<ApiResponse<CompanyPlanResponse>>("/company-admin/plans", data).then((r) => r.data.data),
+
+  update: (id: number, data: UpdatePlanRequest) =>
+    api.put<ApiResponse<CompanyPlanResponse>>(`/company-admin/plans/${id}`, data).then((r) => r.data.data),
+
+  delete: (id: number) =>
+    api.delete<ApiResponse<null>>(`/company-admin/plans/${id}`).then((r) => r.data.data),
+
+  downloadPdf: (id: number) =>
+    api.get(`/company-admin/plans/${id}/pdf`, { responseType: "blob" }).then((r) => r.data),
+};
+
+// ─── Company Admin Management ──────────────────────────────
+
+export const companyAdminManagementApi = {
+  viewTeamMembers: (companyId: number) =>
+    api.get<ApiResponse<CompanyTeamMember[]>>("/company-admin/team-members", { params: { companyId } })
+      .then((r) => r.data.data),
+
+  listUsers: (companyId: number) =>
+    api.get<ApiResponse<CompanyTeamMember[]>>("/company-admin/users", { params: { companyId } })
+      .then((r) => r.data.data),
+
+  createUser: (data: CompanyAdminUserCreateRequest) =>
+    api.post<ApiResponse<CompanyTeamMember>>("/company-admin/users", data).then((r) => r.data.data),
+
+  updateUser: (companyUserId: number, data: CompanyAdminUserUpdateRequest) =>
+    api.put<ApiResponse<CompanyTeamMember>>(`/company-admin/users/${companyUserId}`, data).then((r) => r.data.data),
+
+  deleteUser: (companyUserId: number) =>
+    api.delete<ApiResponse<null>>(`/company-admin/users/${companyUserId}`).then((r) => r.data.data),
+
+  restrictAccess: (companyUserId: number, restricted: boolean) =>
+    api.put<ApiResponse<{ user_id: number; restricted: boolean; is_active: boolean }>>(
+      `/company-admin/users/${companyUserId}/restrict-access`,
+      { restricted }
+    ).then((r) => r.data.data),
+
+  removeEmployee: (employeeId: number, companyId: number) =>
+    api.delete<ApiResponse<null>>(`/company-admin/employees/${employeeId}`, { params: { companyId } })
+      .then((r) => r.data.data),
+
+  exportCompanyData: (companyId: number) =>
+    api.get<ApiResponse<Record<string, unknown>>>("/company-admin/export/company-data", { params: { companyId } })
+      .then((r) => r.data.data),
+
+  deleteCompany: (companyId: number) =>
+    api.delete<ApiResponse<null>>(`/company-admin/companies/${companyId}`).then((r) => r.data.data),
 };

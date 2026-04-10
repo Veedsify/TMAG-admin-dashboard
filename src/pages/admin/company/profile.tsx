@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { LucideBuilding2, LucideSave, LucideCopy, LucideCheck, LucideLoader2 } from "lucide-react";
+import { LucideBuilding2, LucideSave, LucideCopy, LucideCheck, LucideLoader2, LucideShield, LucideKey, LucideUsers, LucideHeadphones } from "lucide-react";
 import toast from "react-hot-toast";
-import { useMyCompanies, useUpdateCompany, useCompanySettings, useUpdateBillingCurrency } from "../../../api/hooks";
+import { useMyCompanies, useUpdateCompany, useCompanySettings, useUpdateBillingCurrency, useCompanyPlans } from "../../../api/hooks";
 
 const BILLING_CURRENCIES = [
     { value: "NGN", label: "NGN — Nigerian Naira (₦)" },
@@ -10,11 +10,19 @@ const BILLING_CURRENCIES = [
     { value: "GBP", label: "GBP — British Pound (£)" },
 ];
 
+const PLAN_STYLES: Record<string, { bg: string; border: string; text: string }> = {
+    bronze: { bg: "bg-orange-50", border: "border-orange-200", text: "text-orange-700" },
+    silver: { bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-700" },
+    gold: { bg: "bg-yellow-50", border: "border-yellow-200", text: "text-yellow-700" },
+    diamond: { bg: "bg-accent/5", border: "border-accent/20", text: "text-accent" },
+};
+
 const CompanyProfile = () => {
     const [copied, setCopied] = useState(false);
     const { data: myCompanies, isLoading } = useMyCompanies();
     const updateCompany = useUpdateCompany();
     const updateBillingCurrency = useUpdateBillingCurrency();
+    const { data: plans } = useCompanyPlans();
     const company = myCompanies?.[0];
     const companyId = company?.id;
 
@@ -22,6 +30,8 @@ const CompanyProfile = () => {
 
     const [form, setForm] = useState({ name: "", industry: "", plan: "" });
     const [billingCurrency, setBillingCurrency] = useState("NGN");
+
+    const activePlan = plans?.find(p => p.code?.toLowerCase() === company?.plan?.toLowerCase());
 
     useEffect(() => {
         if (company) {
@@ -130,6 +140,65 @@ const CompanyProfile = () => {
                 </div>
             </div>
 
+            {/* Current Plan Card */}
+            <div className={`rounded-2xl border p-6 ${activePlan ? PLAN_STYLES[activePlan.code?.toLowerCase()]?.bg ?? "bg-white" : "bg-white"} ${activePlan ? PLAN_STYLES[activePlan.code?.toLowerCase()]?.border ?? "border-border-light/50" : "border-border-light/50"}`}>
+                <div className="flex items-start justify-between mb-4">
+                    <div>
+                        <h3 className="text-sm font-semibold text-heading mb-1">Current Plan</h3>
+                        <p className="text-xs text-muted">Your company subscription tier</p>
+                    </div>
+                    <span className={`text-xs font-semibold px-3 py-1 rounded-full uppercase ${activePlan ? PLAN_STYLES[activePlan.code?.toLowerCase()]?.bg ?? "bg-gray-100" : "bg-gray-100"} ${activePlan ? PLAN_STYLES[activePlan.code?.toLowerCase()]?.text ?? "text-gray-600" : "text-gray-600"}`}>
+                        {company?.plan ?? "No plan"}
+                    </span>
+                </div>
+                {activePlan ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div>
+                            <p className="text-xs text-muted mb-1">Signup Credits</p>
+                            <p className="text-lg font-serif text-heading">{activePlan.signupCredits}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-muted mb-1">Max Employees</p>
+                            <p className="text-lg font-serif text-heading">{activePlan.maxEmployees.toLocaleString()}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-muted mb-1">API Access</p>
+                            <p className="text-sm font-semibold">{activePlan.apiAccessEnabled ? <span className="text-green-600">Enabled</span> : <span className="text-muted">Disabled</span>}</p>
+                        </div>
+                        <div>
+                            <p className="text-xs text-muted mb-1">Custom Support</p>
+                            <p className="text-sm font-semibold">{activePlan.customSupportEnabled ? <span className="text-green-600">Enabled</span> : <span className="text-muted">Disabled</span>}</p>
+                        </div>
+                    </div>
+                ) : (
+                    <p className="text-sm text-muted">No plan information available. Contact support to set up your plan.</p>
+                )}
+                {activePlan && (
+                    <div className="mt-4 pt-4 border-t border-border-light/30 flex flex-wrap gap-3">
+                        {activePlan.apiAccessEnabled && (
+                            <span className="inline-flex items-center gap-1.5 text-xs text-heading bg-white/60 px-3 py-1.5 rounded-lg">
+                                <LucideKey className="w-3.5 h-3.5 text-accent" /> API Access
+                            </span>
+                        )}
+                        {activePlan.customSupportEnabled && (
+                            <span className="inline-flex items-center gap-1.5 text-xs text-heading bg-white/60 px-3 py-1.5 rounded-lg">
+                                <LucideHeadphones className="w-3.5 h-3.5 text-accent" /> Custom Support
+                            </span>
+                        )}
+                        {activePlan.multipleAdminAccountsEnabled && (
+                            <span className="inline-flex items-center gap-1.5 text-xs text-heading bg-white/60 px-3 py-1.5 rounded-lg">
+                                <LucideUsers className="w-3.5 h-3.5 text-accent" /> Multiple Admins
+                            </span>
+                        )}
+                        {activePlan.highEmployeeLimitEnabled && (
+                            <span className="inline-flex items-center gap-1.5 text-xs text-heading bg-white/60 px-3 py-1.5 rounded-lg">
+                                <LucideShield className="w-3.5 h-3.5 text-accent" /> 10,000+ Employees
+                            </span>
+                        )}
+                    </div>
+                )}
+            </div>
+
             {/* Credit Summary */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="bg-white rounded-2xl border border-border-light/50 p-5">
@@ -185,12 +254,19 @@ const CompanyProfile = () => {
                         <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
                             Plan
                         </label>
-                        <input
-                            type="text"
+                        <select
                             value={form.plan}
                             onChange={(e) => setForm({ ...form, plan: e.target.value })}
                             className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
-                        />
+                        >
+                            <option value="">Select plan...</option>
+                            {plans?.map((p) => (
+                                <option key={p.id} value={p.code?.toLowerCase()}>
+                                    {p.displayName} — {p.signupCredits} credits, {p.maxEmployees.toLocaleString()} employees
+                                </option>
+                            ))}
+                        </select>
+                        <p className="text-xs text-muted mt-1.5">To change your plan, contact sales or upgrade through your account settings.</p>
                     </div>
 
                 </div>

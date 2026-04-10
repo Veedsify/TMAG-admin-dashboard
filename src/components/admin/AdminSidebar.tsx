@@ -17,6 +17,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useMobileSidebar } from "../../context/MobileSidebarContext";
 import toast from "react-hot-toast";
 import { cn } from "../../lib/utils";
+import { useMyCompanies } from "../../api/hooks";
 
 const navItems = [
     { label: "Dashboard", href: "/admin", icon: LucideLayoutDashboard, end: true },
@@ -35,6 +36,9 @@ const AdminSidebar = () => {
     const { open, setOpen } = useMobileSidebar();
     const { user, logout } = useAuth();
     const navigate = useNavigate();
+    const { data: myCompanies } = useMyCompanies();
+    const companyPlan = myCompanies?.[0]?.plan?.toLowerCase();
+    const hasDiamondApiAccess = companyPlan === "diamond";
 
     const handleLogout = async () => {
         try {
@@ -71,7 +75,9 @@ const AdminSidebar = () => {
             </div>
 
             <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-                {navItems.map((item) => (
+                {navItems
+                    .filter((item) => item.href !== "/admin/api-keys" || hasDiamondApiAccess)
+                    .map((item) => (
                     <NavLink
                         key={item.href}
                         to={item.href}
@@ -89,7 +95,7 @@ const AdminSidebar = () => {
                         <item.icon className="w-4 h-4 shrink-0" />
                         {item.label}
                     </NavLink>
-                ))}
+                    ))}
             </nav>
 
             <div className="px-4 py-4 border-t border-white/6">

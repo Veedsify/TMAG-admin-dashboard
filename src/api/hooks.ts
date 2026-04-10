@@ -23,6 +23,8 @@ import {
   apiKeysApi,
   settingsApi,
   adminReportsApi,
+  companyPlansApi,
+  companyAdminManagementApi,
 } from "./api";
 import type {
   LoginRequest,
@@ -55,6 +57,10 @@ import type {
   QuestionnaireProgressRequest,
   CreateApiKeyRequest,
   CompanySettingsUpdateRequest,
+  CreatePlanRequest,
+  UpdatePlanRequest,
+  CompanyAdminUserCreateRequest,
+  CompanyAdminUserUpdateRequest,
 } from "./types";
 
 // ─── Query Keys ──────────────────────────────────────────────
@@ -345,7 +351,10 @@ export function useCreateEmployee() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateEmployeeRequest) => employeesApi.create(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.employees.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+      qc.invalidateQueries({ queryKey: ["admin-reports"] });
+    },
   });
 }
 
@@ -354,7 +363,10 @@ export function useUpdateEmployee() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateEmployeeRequest }) =>
       employeesApi.update(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.employees.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+      qc.invalidateQueries({ queryKey: ["admin-reports"] });
+    },
   });
 }
 
@@ -362,7 +374,10 @@ export function useDeleteEmployee() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => employeesApi.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.employees.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+      qc.invalidateQueries({ queryKey: ["admin-reports"] });
+    },
   });
 }
 
@@ -371,7 +386,10 @@ export function useAllocateEmployeeCredits() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: AllocateEmployeeCreditsRequest }) =>
       employeesApi.allocateCredits(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.employees.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+      qc.invalidateQueries({ queryKey: ["admin-reports"] });
+    },
   });
 }
 
@@ -380,7 +398,10 @@ export function useUpdateEmployeeStatus() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateEmployeeStatusRequest }) =>
       employeesApi.updateStatus(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.employees.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+      qc.invalidateQueries({ queryKey: ["admin-reports"] });
+    },
   });
 }
 
@@ -388,7 +409,10 @@ export function useInviteEmployee() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: InviteEmployeeRequest) => employeesApi.invite(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.employees.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+      qc.invalidateQueries({ queryKey: ["admin-reports"] });
+    },
   });
 }
 
@@ -425,7 +449,10 @@ export function useCreateTravelPlan() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateTravelPlanRequest) => travelPlansApi.create(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.travelPlans.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.travelPlans.all });
+      qc.invalidateQueries({ queryKey: ["admin-reports"] });
+    },
   });
 }
 
@@ -434,7 +461,10 @@ export function useUpdateTravelPlan() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateTravelPlanRequest }) =>
       travelPlansApi.update(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.travelPlans.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.travelPlans.all });
+      qc.invalidateQueries({ queryKey: ["admin-reports"] });
+    },
   });
 }
 
@@ -442,7 +472,10 @@ export function useDeleteTravelPlan() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => travelPlansApi.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.travelPlans.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.travelPlans.all });
+      qc.invalidateQueries({ queryKey: ["admin-reports"] });
+    },
   });
 }
 
@@ -499,7 +532,10 @@ export function useApproveCreditRequest() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => creditRequestsApi.approve(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.creditRequests.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.creditRequests.all });
+      qc.invalidateQueries({ queryKey: ["admin-reports"] });
+    },
   });
 }
 
@@ -507,7 +543,10 @@ export function useRejectCreditRequest() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (id: number) => creditRequestsApi.reject(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.creditRequests.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.creditRequests.all });
+      qc.invalidateQueries({ queryKey: ["admin-reports"] });
+    },
   });
 }
 
@@ -965,10 +1004,10 @@ export function useGetQuestionnaireProgress() {
 
 // ─── Company API Key Hooks ────────────────────────────────────
 
-export function useApiKeys(companyId: number) {
+export function useApiKeys(companyId?: number) {
   return useQuery({
     queryKey: ["api-keys", companyId],
-    queryFn: () => apiKeysApi.list(companyId),
+    queryFn: () => apiKeysApi.list(companyId as number),
     enabled: !!companyId,
   });
 }
@@ -1026,6 +1065,7 @@ export function useDashboardAnalytics(companyId?: number, options?: { enabled?: 
     queryKey: ["admin-reports", "dashboard-analytics", companyId],
     queryFn: () => adminReportsApi.getDashboardAnalytics(companyId),
     enabled: options?.enabled !== false && companyId != null && companyId > 0,
+    refetchInterval: 2 * 60 * 1000,
   });
 }
 
@@ -1033,6 +1073,8 @@ export function useUsageReport(companyId?: number) {
   return useQuery({
     queryKey: ["admin-reports", "usage", companyId],
     queryFn: () => adminReportsApi.getUsageReport(companyId),
+    enabled: companyId != null && companyId > 0,
+    refetchInterval: 2 * 60 * 1000,
   });
 }
 
@@ -1040,6 +1082,8 @@ export function usePlanHistoryReport(companyId?: number) {
   return useQuery({
     queryKey: ["admin-reports", "plans", companyId],
     queryFn: () => adminReportsApi.getPlanHistory(companyId),
+    enabled: companyId != null && companyId > 0,
+    refetchInterval: 2 * 60 * 1000,
   });
 }
 
@@ -1047,6 +1091,8 @@ export function useComplianceReport(companyId?: number) {
   return useQuery({
     queryKey: ["admin-reports", "compliance", companyId],
     queryFn: () => adminReportsApi.getComplianceReport(companyId),
+    enabled: companyId != null && companyId > 0,
+    refetchInterval: 2 * 60 * 1000,
   });
 }
 
@@ -1054,5 +1100,144 @@ export function useTeamReport(companyId?: number) {
   return useQuery({
     queryKey: ["admin-reports", "team", companyId],
     queryFn: () => adminReportsApi.getTeamReport(companyId),
+    enabled: companyId != null && companyId > 0,
+    refetchInterval: 2 * 60 * 1000,
+  });
+}
+
+// ─── Company Plan Hooks ────────────────────────────────────
+
+export function useCompanyPlans() {
+  return useQuery({
+    queryKey: ["company-plans"],
+    queryFn: () => companyPlansApi.list(),
+  });
+}
+
+export function useCompanyPlan(id: number) {
+  return useQuery({
+    queryKey: ["company-plans", id],
+    queryFn: () => companyPlansApi.get(id),
+    enabled: id > 0,
+  });
+}
+
+export function useCreateCompanyPlan() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreatePlanRequest) => companyPlansApi.create(data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["company-plans"] }),
+  });
+}
+
+export function useUpdateCompanyPlan() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: number; data: UpdatePlanRequest }) =>
+      companyPlansApi.update(id, data),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["company-plans"] }),
+  });
+}
+
+export function useDeleteCompanyPlan() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => companyPlansApi.delete(id),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["company-plans"] }),
+  });
+}
+
+export function useDownloadPlanPdf() {
+  return useMutation({
+    mutationFn: (id: number) => companyPlansApi.downloadPdf(id),
+  });
+}
+
+// ─── Company Admin Management Hooks ────────────────────────
+
+export function useCompanyTeamMembers(companyId?: number) {
+  return useQuery({
+    queryKey: ["company-team", companyId],
+    queryFn: () => companyAdminManagementApi.viewTeamMembers(companyId as number),
+    enabled: !!companyId,
+  });
+}
+
+export function useCreateCompanyAdminUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CompanyAdminUserCreateRequest) => companyAdminManagementApi.createUser(data),
+    onSuccess: (_, vars) => {
+      qc.invalidateQueries({ queryKey: ["company-team", vars.companyId] });
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+      qc.invalidateQueries({ queryKey: queryKeys.companyUsers.all });
+    },
+  });
+}
+
+export function useUpdateCompanyAdminUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ companyUserId, data }: { companyUserId: number; data: CompanyAdminUserUpdateRequest }) =>
+      companyAdminManagementApi.updateUser(companyUserId, data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["company-team"] });
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+      qc.invalidateQueries({ queryKey: queryKeys.companyUsers.all });
+    },
+  });
+}
+
+export function useDeleteCompanyAdminUser() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (companyUserId: number) => companyAdminManagementApi.deleteUser(companyUserId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["company-team"] });
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+      qc.invalidateQueries({ queryKey: queryKeys.companyUsers.all });
+    },
+  });
+}
+
+export function useRestrictUserAccess() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ companyUserId, restricted }: { companyUserId: number; restricted: boolean }) =>
+      companyAdminManagementApi.restrictAccess(companyUserId, restricted),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["company-team"] });
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+    },
+  });
+}
+
+export function useRemoveEmployee() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ employeeId, companyId }: { employeeId: number; companyId: number }) =>
+      companyAdminManagementApi.removeEmployee(employeeId, companyId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["company-team"] });
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+      qc.invalidateQueries({ queryKey: queryKeys.companies.all });
+    },
+  });
+}
+
+export function useExportCompanyData() {
+  return useMutation({
+    mutationFn: (companyId: number) => companyAdminManagementApi.exportCompanyData(companyId),
+  });
+}
+
+export function useDeleteCompanyAdmin() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (companyId: number) => companyAdminManagementApi.deleteCompany(companyId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.companies.all });
+      qc.invalidateQueries({ queryKey: queryKeys.companyUsers.all });
+    },
   });
 }

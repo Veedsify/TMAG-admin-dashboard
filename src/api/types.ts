@@ -120,8 +120,10 @@ export interface CompanyResponse {
   usedCredits: number;
   employeeCount: number;
   plan: string;
+  activePlanId?: number;
   companyCode: string;
   logoId?: number;
+  billingCurrency?: BillingCurrency;
   createdAt: string;
   updatedAt: string;
 }
@@ -551,6 +553,7 @@ export interface MyCompanyMembership {
   name: string;
   industry: string;
   plan: string;
+  active_plan_id?: number;
   company_code: string;
   total_credits: number;
   used_credits: number;
@@ -728,4 +731,76 @@ export interface ComplianceReportDto {
   audits: ComplianceAuditDto[];
   totalRecords: number;
   generatedAt: string;
+}
+
+// ─── Company Plan ───────────────────────────────────────────
+
+export type PlanCode = "BRONZE" | "SILVER" | "GOLD" | "DIAMOND";
+
+export interface CompanyPlanResponse {
+  id: number;
+  code: string;
+  displayName: string;
+  signupCredits: number;
+  maxEmployees: number;
+  customSupportEnabled: boolean;
+  apiAccessEnabled: boolean;
+  multipleAdminAccountsEnabled: boolean;
+  highEmployeeLimitEnabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePlanRequest {
+  code: PlanCode;
+  displayName: string;
+  signupCredits: number;
+  maxEmployees: number;
+  customSupportEnabled: boolean;
+  apiAccessEnabled: boolean;
+  multipleAdminAccountsEnabled: boolean;
+  highEmployeeLimitEnabled: boolean;
+}
+
+export interface UpdatePlanRequest extends Partial<CreatePlanRequest> {}
+
+// ─── Company Admin Management ──────────────────────────────
+
+export interface CompanyAdminUserCreateRequest {
+  companyId: number;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password?: string;
+  role: string;
+  department: string;
+  creditsAllocated: number;
+}
+
+export interface CompanyAdminUserUpdateRequest {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  role?: string;
+  department?: string;
+  employeeStatus?: string;
+  creditsAllocated?: number;
+}
+
+export interface CompanyAdminAccessRequest {
+  restricted: boolean;
+}
+
+export interface CompanyTeamMember {
+  company_user_id: number;
+  role: string;
+  company_id: number;
+  user_id: number;
+  name: string;
+  email: string;
+  is_active: boolean;
+  credits_allocated: number;
+  credits_used: number;
+  department: string;
+  employee_status: string;
 }

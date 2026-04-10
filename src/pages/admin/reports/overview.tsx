@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LucideDownload, LucideFileText, LucideUsers, LucideMapPin, LucideActivity, LucideLoader2 } from "lucide-react";
+import { LucideDownload, LucideFileText, LucideUsers, LucideMapPin, LucideActivity, LucideLoader2, LucideAlertCircle } from "lucide-react";
 import toast from "react-hot-toast";
 import { useMyCompanies, useUsageReport, usePlanHistoryReport, useTeamReport } from "../../../api/hooks";
 import { adminReportsApi } from "../../../api/api";
@@ -14,6 +14,35 @@ function downloadCSV(content: string, filename: string) {
     URL.revokeObjectURL(url);
 }
 
+function StatusBadge({ status }: { status: string | null }) {
+    if (!status) return <span className="text-xs text-muted">—</span>;
+    const s = status.toUpperCase();
+    const cls =
+        s === "COMPLETED" ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+        : s === "ACTIVE" ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+        : s === "PROCESSING" || s === "QUEUED" || s === "PENDING" ? "bg-amber-50 text-amber-700 border-amber-200"
+        : s === "FAILED" || s === "ERROR" ? "bg-red-50 text-red-700 border-red-200"
+        : s === "INACTIVE" ? "bg-gray-50 text-gray-500 border-gray-200"
+        : "bg-gray-50 text-gray-600 border-gray-200";
+    return (
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-md border text-xs font-medium ${cls}`}>
+            {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
+        </span>
+    );
+}
+
+function SkeletonRow({ cols }: { cols: number }) {
+    return (
+        <tr>
+            {Array.from({ length: cols }).map((_, i) => (
+                <td key={i} className="px-4 py-3">
+                    <div className="h-4 bg-border-light rounded animate-pulse" style={{ width: i === 0 ? "80%" : "60%" }} />
+                </td>
+            ))}
+        </tr>
+    );
+}
+
 const Reports = () => {
     const { data: myCompanies } = useMyCompanies();
     const company = myCompanies?.[0];
@@ -21,7 +50,7 @@ const Reports = () => {
 
     const { data: usageReport, isLoading: usageLoading } = useUsageReport(companyId);
     const { data: planHistory, isLoading: plansLoading } = usePlanHistoryReport(companyId);
-    useTeamReport(companyId);
+    const { data: teamReport, isLoading: teamLoading } = useTeamReport(companyId);
 
     const [exporting, setExporting] = useState<string | null>(null);
 
@@ -29,7 +58,7 @@ const Reports = () => {
 
     const totalPlans = usageReport?.totalPlansGenerated ?? 0;
     const totalEmployees = usageReport?.totalEmployees ?? 0;
-    const completedTrips = planHistory?.filter((p) => p.status === "COMPLETED").length ?? 0;
+    const completedTrips = planHistory?.filter((p) => p.status?.toUpperCase() === "COMPLETED").length ?? 0;
     const creditsUsed = usageReport?.totalCreditsUsed ?? 0;
 
     const stats = [
@@ -84,6 +113,8 @@ const Reports = () => {
         { id: "team", title: "Team Report", description: "Employee overview with onboarding status, role assignments, and credit allocation", icon: LucideUsers, format: ["CSV"] },
     ];
 
+    const employees = usageReport?.employees ?? teamReport?.employees ?? [];
+
     return (
         <div className="space-y-6">
             <div className="mb-8">
@@ -91,6 +122,7 @@ const Reports = () => {
                 <p className="text-sm text-muted mt-1">Generate and export company reports for compliance and oversight</p>
             </div>
 
+            {/* Summary stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {stats.map((stat) => (
                     <div key={stat.label} className="bg-white rounded-2xl border border-border-light/50 p-5">
@@ -107,6 +139,7 @@ const Reports = () => {
                 ))}
             </div>
 
+            {/* Report download cards */}
             <div>
                 <h2 className="text-base font-semibold text-heading mb-4">Available Reports</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -141,13 +174,126 @@ const Reports = () => {
                 </div>
             </div>
 
-            {/* Top Destinations from real data */}
+            {/* Employee activity table */}
+            <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                <div className="px-6 py-4 border-b border-border-light/50">
+                    <h2 className="text-base font-semibold text-heading">Employee Activity</h2>
+                    <p className="text-xs text-muted mt-0.5">Credit usage and plan generation per team member</p>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="border-b border-border-light/50">
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Employee</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Department</th>
+                                <th className="px-4 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Credits Used</th>
+                                <th className="px-4 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Allocated</th>
+                                <th className="px-4 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Plans</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Last Active</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border-light/30">
+                            {usageLoading || teamLoading ? (
+                                Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} cols={7} />)
+                            ) : employees.length === 0 ? (
+                                <tr>
+                                    <td colSpan={7} className="px-4 py-10 text-center">
+                                        <div className="flex flex-col items-center gap-2 text-muted">
+                                            <LucideAlertCircle className="w-5 h-5" />
+                                            <span className="text-sm">No employee activity data yet</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                employees.map((emp, i) => (
+                                    <tr key={i} className="hover:bg-background-primary/50 transition-colors">
+                                        <td className="px-4 py-3">
+                                            <div>
+                                                <p className="font-medium text-heading text-sm">{emp.employeeName ?? "—"}</p>
+                                                <p className="text-xs text-muted">{emp.employeeEmail ?? ""}</p>
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-3 text-sm text-body">{emp.department ?? "—"}</td>
+                                        <td className="px-4 py-3 text-right font-semibold text-heading tabular-nums">{emp.creditsUsed ?? 0}</td>
+                                        <td className="px-4 py-3 text-right text-muted tabular-nums">{emp.creditsAllocated ?? 0}</td>
+                                        <td className="px-4 py-3 text-right font-semibold text-heading tabular-nums">{emp.plansGenerated ?? 0}</td>
+                                        <td className="px-4 py-3"><StatusBadge status={emp.status ?? null} /></td>
+                                        <td className="px-4 py-3 text-xs text-muted">
+                                            {emp.lastActivityAt ? new Date(emp.lastActivityAt).toLocaleDateString() : "—"}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Plan history table */}
+            <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                <div className="px-6 py-4 border-b border-border-light/50">
+                    <h2 className="text-base font-semibold text-heading">Plan History</h2>
+                    <p className="text-xs text-muted mt-0.5">All travel plans generated by your team</p>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="border-b border-border-light/50">
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Destination</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Country</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Purpose</th>
+                                <th className="px-4 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Days</th>
+                                <th className="px-4 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Risk</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Employee</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Created</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border-light/30">
+                            {plansLoading ? (
+                                Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} cols={8} />)
+                            ) : !planHistory || planHistory.length === 0 ? (
+                                <tr>
+                                    <td colSpan={8} className="px-4 py-10 text-center">
+                                        <div className="flex flex-col items-center gap-2 text-muted">
+                                            <LucideMapPin className="w-5 h-5" />
+                                            <span className="text-sm">No travel plans generated yet</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ) : (
+                                planHistory.map((plan) => (
+                                    <tr key={plan.planId} className="hover:bg-background-primary/50 transition-colors">
+                                        <td className="px-4 py-3 font-medium text-heading">{plan.destination ?? "—"}</td>
+                                        <td className="px-4 py-3 text-body">{plan.country ?? "—"}</td>
+                                        <td className="px-4 py-3 text-body">{plan.purpose ?? "—"}</td>
+                                        <td className="px-4 py-3 text-right tabular-nums text-body">{plan.duration ?? "—"}</td>
+                                        <td className="px-4 py-3 text-right tabular-nums">
+                                            <span className={`font-semibold ${(plan.riskScore ?? 0) >= 7 ? "text-red-600" : (plan.riskScore ?? 0) >= 4 ? "text-amber-600" : "text-emerald-600"}`}>
+                                                {plan.riskScore ?? "—"}
+                                            </span>
+                                        </td>
+                                        <td className="px-4 py-3"><StatusBadge status={plan.status ?? null} /></td>
+                                        <td className="px-4 py-3 text-sm text-body">{plan.employeeName ?? "—"}</td>
+                                        <td className="px-4 py-3 text-xs text-muted">
+                                            {plan.createdAt ? new Date(plan.createdAt).toLocaleDateString() : "—"}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Top Destinations */}
             {planHistory && planHistory.length > 0 && (
                 <div className="bg-white rounded-2xl border border-border-light/50 p-6">
                     <h2 className="text-base font-semibold text-heading mb-4">Top Destinations</h2>
                     <div className="space-y-3">
                         {Object.entries(planHistory.reduce<Record<string, number>>((acc, p) => {
-                            acc[p.destination] = (acc[p.destination] || 0) + 1;
+                            if (p.destination) acc[p.destination] = (acc[p.destination] || 0) + 1;
                             return acc;
                         }, {}))
                             .sort((a, b) => b[1] - a[1])

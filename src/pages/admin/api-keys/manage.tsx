@@ -7,13 +7,14 @@ const ApiKeys = () => {
     const { data: myCompanies } = useMyCompanies();
     const company = myCompanies?.[0];
     const companyId = company?.id;
+    const hasDiamondApiAccess = company?.plan?.toLowerCase() === "diamond";
 
     const [showCreate, setShowCreate] = useState(false);
     const [newKeyName, setNewKeyName] = useState("");
     const [copied, setCopied] = useState<string | null>(null);
     const [createdKey, setCreatedKey] = useState<string | null>(null);
 
-    const { data: keys = [], isLoading } = useApiKeys(companyId!);
+    const { data: keys = [], isLoading } = useApiKeys(hasDiamondApiAccess ? companyId : undefined);
     const createKey = useCreateApiKey();
     const revokeKey = useRevokeApiKey();
 
@@ -30,8 +31,8 @@ const ApiKeys = () => {
         try {
             await revokeKey.mutateAsync({ id, companyId });
             toast.success(`${name} has been revoked`);
-        } catch {
-            toast.error("Failed to revoke API key");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || "Failed to revoke API key");
         }
     };
 
@@ -47,10 +48,30 @@ const ApiKeys = () => {
             setNewKeyName("");
             setShowCreate(false);
             toast.success(`API key "${result.key.name}" created`);
-        } catch {
-            toast.error("Failed to create API key");
+        } catch (error: any) {
+            toast.error(error?.response?.data?.message || "Failed to create API key");
         }
     };
+
+    if (!hasDiamondApiAccess) {
+        return (
+            <div className="space-y-6">
+                <div className="mb-8">
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">API Keys</h1>
+                    <p className="text-sm text-muted mt-1">Manage API keys for integrating TMAG with your systems</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-border-light/50 p-8">
+                    <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
+                        <LucideShield className="w-6 h-6 text-accent" />
+                    </div>
+                    <h2 className="text-lg font-semibold text-heading mb-2">Diamond plan required</h2>
+                    <p className="text-sm text-muted">
+                        API key management is available to companies on the Diamond plan only. Please upgrade your company plan to enable API access.
+                    </p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
