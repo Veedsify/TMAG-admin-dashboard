@@ -57,8 +57,6 @@ import type {
   QuestionnaireProgressRequest,
   CreateApiKeyRequest,
   CompanySettingsUpdateRequest,
-  CreatePlanRequest,
-  UpdatePlanRequest,
   CompanyAdminUserCreateRequest,
   CompanyAdminUserUpdateRequest,
 } from "./types";
@@ -246,7 +244,10 @@ export function useUpdateCompany() {
   return useMutation({
     mutationFn: ({ id, data }: { id: number; data: UpdateCompanyRequest }) =>
       companiesApi.update(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.companies.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.companies.all });
+      qc.invalidateQueries({ queryKey: queryKeys.companyUsers.mine() });
+    },
   });
 }
 
@@ -1053,6 +1054,7 @@ export function useUpdateBillingCurrency() {
       settingsApi.updateBillingCurrency(companyId, currency),
     onSuccess: (_, vars) => {
       qc.invalidateQueries({ queryKey: queryKeys.companies.all });
+      qc.invalidateQueries({ queryKey: queryKeys.companyUsers.mine() });
       qc.invalidateQueries({ queryKey: ["company-settings", vars.companyId] });
     },
   });
@@ -1105,12 +1107,13 @@ export function useTeamReport(companyId?: number) {
   });
 }
 
-// ─── Company Plan Hooks ────────────────────────────────────
+// ─── Credit Plan Hooks (Essential / Standard / Premium) ─────
 
 export function useCompanyPlans() {
   return useQuery({
     queryKey: ["company-plans"],
     queryFn: () => companyPlansApi.list(),
+    staleTime: 10 * 60 * 1000,
   });
 }
 
@@ -1119,37 +1122,6 @@ export function useCompanyPlan(id: number) {
     queryKey: ["company-plans", id],
     queryFn: () => companyPlansApi.get(id),
     enabled: id > 0,
-  });
-}
-
-export function useCreateCompanyPlan() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (data: CreatePlanRequest) => companyPlansApi.create(data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["company-plans"] }),
-  });
-}
-
-export function useUpdateCompanyPlan() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, data }: { id: number; data: UpdatePlanRequest }) =>
-      companyPlansApi.update(id, data),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["company-plans"] }),
-  });
-}
-
-export function useDeleteCompanyPlan() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: (id: number) => companyPlansApi.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["company-plans"] }),
-  });
-}
-
-export function useDownloadPlanPdf() {
-  return useMutation({
-    mutationFn: (id: number) => companyPlansApi.downloadPdf(id),
   });
 }
 

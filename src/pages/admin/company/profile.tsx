@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { LucideBuilding2, LucideSave, LucideCopy, LucideCheck, LucideLoader2, LucideShield, LucideKey, LucideUsers, LucideHeadphones } from "lucide-react";
+import { LucideBuilding2, LucideSave, LucideCopy, LucideCheck, LucideLoader2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { useMyCompanies, useUpdateCompany, useCompanySettings, useUpdateBillingCurrency, useCompanyPlans } from "../../../api/hooks";
 
@@ -11,10 +11,9 @@ const BILLING_CURRENCIES = [
 ];
 
 const PLAN_STYLES: Record<string, { bg: string; border: string; text: string }> = {
-    bronze: { bg: "bg-orange-50", border: "border-orange-200", text: "text-orange-700" },
-    silver: { bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-700" },
-    gold: { bg: "bg-yellow-50", border: "border-yellow-200", text: "text-yellow-700" },
-    diamond: { bg: "bg-accent/5", border: "border-accent/20", text: "text-accent" },
+    essential: { bg: "bg-gray-50", border: "border-gray-200", text: "text-gray-600" },
+    standard: { bg: "bg-accent/5", border: "border-accent/20", text: "text-accent" },
+    premium: { bg: "bg-amber-50", border: "border-amber-200", text: "text-amber-700" },
 };
 
 const CompanyProfile = () => {
@@ -26,9 +25,9 @@ const CompanyProfile = () => {
     const company = myCompanies?.[0];
     const companyId = company?.id;
 
-    const { data: settingsData } = useCompanySettings(companyId!);
+    const { data: settingsData } = useCompanySettings(companyId ?? 0);
 
-    const [form, setForm] = useState({ name: "", industry: "", plan: "" });
+    const [form, setForm] = useState({ name: "", industry: "" });
     const [billingCurrency, setBillingCurrency] = useState("NGN");
 
     const activePlan = plans?.find(p => p.code?.toLowerCase() === company?.plan?.toLowerCase());
@@ -38,7 +37,6 @@ const CompanyProfile = () => {
             setForm({
                 name: company.name ?? "",
                 industry: company.industry ?? "",
-                plan: company.plan ?? "",
             });
         }
     }, [company]);
@@ -53,6 +51,17 @@ const CompanyProfile = () => {
         }
     }, [company, settingsData]);
 
+    const hasProfileChanges =
+        !!company &&
+        (form.name.trim() !== (company.name ?? "") ||
+            form.industry !== (company.industry ?? ""));
+
+    const initialBillingCurrency =
+        ((settingsData?.settings?.pref_currency?.value as string) ||
+            company?.billing_currency ||
+            "NGN");
+    const hasCurrencyChanges = !!companyId && billingCurrency !== initialBillingCurrency;
+
     const handleCopyCode = () => {
         if (!company?.company_code) return;
         navigator.clipboard.writeText(company.company_code);
@@ -63,10 +72,14 @@ const CompanyProfile = () => {
 
     const handleSave = async () => {
         if (!company) return;
+        if (!form.name.trim()) {
+            toast.error("Company name is required");
+            return;
+        }
         try {
             await updateCompany.mutateAsync({
                 id: company.id,
-                data: { name: form.name, industry: form.industry, plan: form.plan },
+                data: { name: form.name.trim(), industry: form.industry },
             });
             toast.success("Company profile updated successfully");
         } catch (err: any) {
@@ -152,50 +165,25 @@ const CompanyProfile = () => {
                     </span>
                 </div>
                 {activePlan ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <p className="text-xs text-muted mb-1">Signup Credits</p>
-                            <p className="text-lg font-serif text-heading">{activePlan.signupCredits}</p>
-                        </div>
-                        <div>
-                            <p className="text-xs text-muted mb-1">Max Employees</p>
-                            <p className="text-lg font-serif text-heading">{activePlan.maxEmployees.toLocaleString()}</p>
+                            <p className="text-xs text-muted mb-1">Price per credit</p>
+                            <p className="text-lg font-serif text-heading">${activePlan.basePriceUsd} USD</p>
                         </div>
                         <div>
                             <p className="text-xs text-muted mb-1">API Access</p>
-                            <p className="text-sm font-semibold">{activePlan.apiAccessEnabled ? <span className="text-green-600">Enabled</span> : <span className="text-muted">Disabled</span>}</p>
-                        </div>
-                        <div>
-                            <p className="text-xs text-muted mb-1">Custom Support</p>
-                            <p className="text-sm font-semibold">{activePlan.customSupportEnabled ? <span className="text-green-600">Enabled</span> : <span className="text-muted">Disabled</span>}</p>
+                            <p className="text-sm font-semibold">
+                                {activePlan.code === "PREMIUM"
+                                    ? <span className="text-green-600">Enabled (Premium)</span>
+                                    : <span className="text-muted">Upgrade to Premium</span>}
+                            </p>
                         </div>
                     </div>
                 ) : (
                     <p className="text-sm text-muted">No plan information available. Contact support to set up your plan.</p>
                 )}
-                {activePlan && (
-                    <div className="mt-4 pt-4 border-t border-border-light/30 flex flex-wrap gap-3">
-                        {activePlan.apiAccessEnabled && (
-                            <span className="inline-flex items-center gap-1.5 text-xs text-heading bg-white/60 px-3 py-1.5 rounded-lg">
-                                <LucideKey className="w-3.5 h-3.5 text-accent" /> API Access
-                            </span>
-                        )}
-                        {activePlan.customSupportEnabled && (
-                            <span className="inline-flex items-center gap-1.5 text-xs text-heading bg-white/60 px-3 py-1.5 rounded-lg">
-                                <LucideHeadphones className="w-3.5 h-3.5 text-accent" /> Custom Support
-                            </span>
-                        )}
-                        {activePlan.multipleAdminAccountsEnabled && (
-                            <span className="inline-flex items-center gap-1.5 text-xs text-heading bg-white/60 px-3 py-1.5 rounded-lg">
-                                <LucideUsers className="w-3.5 h-3.5 text-accent" /> Multiple Admins
-                            </span>
-                        )}
-                        {activePlan.highEmployeeLimitEnabled && (
-                            <span className="inline-flex items-center gap-1.5 text-xs text-heading bg-white/60 px-3 py-1.5 rounded-lg">
-                                <LucideShield className="w-3.5 h-3.5 text-accent" /> 10,000+ Employees
-                            </span>
-                        )}
-                    </div>
+                {activePlan && activePlan.description && (
+                    <p className="text-xs text-muted mt-3 leading-relaxed">{activePlan.description}</p>
                 )}
             </div>
 
@@ -254,19 +242,13 @@ const CompanyProfile = () => {
                         <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
                             Plan
                         </label>
-                        <select
-                            value={form.plan}
-                            onChange={(e) => setForm({ ...form, plan: e.target.value })}
-                            className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
-                        >
-                            <option value="">Select plan...</option>
-                            {plans?.map((p) => (
-                                <option key={p.id} value={p.code?.toLowerCase()}>
-                                    {p.displayName} — {p.signupCredits} credits, {p.maxEmployees.toLocaleString()} employees
-                                </option>
-                            ))}
-                        </select>
-                        <p className="text-xs text-muted mt-1.5">To change your plan, contact sales or upgrade through your account settings.</p>
+                        <input
+                            type="text"
+                            value={activePlan?.displayName ?? company.plan ?? "No plan"}
+                            readOnly
+                            className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none"
+                        />
+                        <p className="text-xs text-muted mt-1.5">Plan changes are managed by billing or sales and are not editable here.</p>
                     </div>
 
                 </div>
@@ -274,7 +256,7 @@ const CompanyProfile = () => {
                 <div className="mt-6 pt-6 border-t border-border-light/50 flex justify-end">
                     <button
                         onClick={handleSave}
-                        disabled={updateCompany.isPending}
+                        disabled={updateCompany.isPending || !hasProfileChanges}
                         className="flex items-center gap-2 px-6 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 disabled:opacity-50"
                     >
                         {updateCompany.isPending ? (
@@ -309,7 +291,7 @@ const CompanyProfile = () => {
                     </div>
                     <button
                         onClick={handleSaveCurrency}
-                        disabled={updateBillingCurrency.isPending}
+                        disabled={updateBillingCurrency.isPending || !hasCurrencyChanges}
                         className="flex items-center gap-2 px-6 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 disabled:opacity-50 shrink-0"
                     >
                         {updateBillingCurrency.isPending ? (

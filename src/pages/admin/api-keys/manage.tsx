@@ -7,7 +7,7 @@ const ApiKeys = () => {
     const { data: myCompanies } = useMyCompanies();
     const company = myCompanies?.[0];
     const companyId = company?.id;
-    const hasDiamondApiAccess = company?.plan?.toLowerCase() === "diamond";
+    const hasDiamondApiAccess = company?.plan?.toLowerCase() === "premium";
 
     const [showCreate, setShowCreate] = useState(false);
     const [newKeyName, setNewKeyName] = useState("");
@@ -66,7 +66,7 @@ const ApiKeys = () => {
                     </div>
                     <h2 className="text-lg font-semibold text-heading mb-2">Diamond plan required</h2>
                     <p className="text-sm text-muted">
-                        API key management is available to companies on the Diamond plan only. Please upgrade your company plan to enable API access.
+                        API key management is available to companies on the Premium plan only. Please upgrade your company plan to Premium to enable API access.
                     </p>
                 </div>
             </div>

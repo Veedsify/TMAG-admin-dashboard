@@ -4,50 +4,46 @@ import Button from "../ui/Button";
 import AnimateIn from "../animations/AnimateIn";
 import StaggerGroup, { staggerItem } from "../animations/StaggerGroup";
 
-const companyPlans = [
+const creditPlans = [
     {
-        tier: "bronze",
-        name: "Bronze",
-        signupCredits: 100,
-        employeeLimit: "1–100 employees",
-        apiAccess: false,
-        customSupport: false,
-        multipleAdminAccounts: false,
-        tenThousandPlusEmployees: false,
-        description: "Great for small teams getting started with travel health planning.",
+        tier: "essential",
+        code: "ESSENTIAL",
+        name: "Essential",
+        priceUsd: 0,
+        description: "Generic destination health education for casual travellers. No personal data required.",
+        features: [
+            "Destination health risk overview",
+            "General food & water safety",
+            "Environmental considerations",
+            "Post-return awareness note",
+        ],
     },
     {
-        tier: "silver",
-        name: "Silver",
-        signupCredits: 200,
-        employeeLimit: "Up to 500 employees",
-        apiAccess: true,
-        customSupport: true,
-        multipleAdminAccounts: true,
-        tenThousandPlusEmployees: false,
-        description: "For growing teams that need integrations and stronger admin controls.",
+        tier: "standard",
+        code: "STANDARD",
+        name: "Standard",
+        priceUsd: 50,
+        description: "Fully personalised travel health report across 14 clinical decision trees.",
+        features: [
+            "Personalised health risk overview",
+            "Vaccination gap analysis",
+            "Emergency contacts & clinics",
+            "After-return symptom timeline",
+            "Next steps checklist",
+        ],
     },
     {
-        tier: "gold",
-        name: "Gold",
-        signupCredits: 500,
-        employeeLimit: "Up to 1,000 employees",
-        apiAccess: true,
-        customSupport: true,
-        multipleAdminAccounts: true,
-        tenThousandPlusEmployees: false,
-        description: "For larger organizations with high travel volume and compliance demands.",
-    },
-    {
-        tier: "diamond",
-        name: "Diamond",
-        signupCredits: 1000,
-        employeeLimit: "Up to 100,000 employees",
-        apiAccess: true,
-        customSupport: true,
-        multipleAdminAccounts: true,
-        tenThousandPlusEmployees: true,
-        description: "Enterprise scale with highest credits, full API access, and priority support.",
+        tier: "premium",
+        code: "PREMIUM",
+        name: "Premium",
+        priceUsd: 100,
+        description: "Everything in Standard plus clinical-grade extras for complex trips.",
+        features: [
+            "All Standard plan features",
+            "Pre-travel preparation checklist",
+            "Medication & supplies packing list",
+            "Doctor-ready clinical summary letter",
+        ],
     },
 ];
 
@@ -64,21 +60,22 @@ const PricingSection = () => {
                         pricing.
                     </h2>
                     <p className="text-sm text-muted mt-4 max-w-md mx-auto leading-relaxed">
-                        No hidden fees, no surprise charges. Pick the company plan
-                        that matches your team size.
+                        One credit = one travel health plan. Pick the tier that matches your team's reporting needs.
                     </p>
                 </AnimateIn>
 
-                <StaggerGroup className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6" stagger={0.15}>
-                    {companyPlans.map((plan) => (
+                <StaggerGroup className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto" stagger={0.15}>
+                    {creditPlans.map((plan) => (
                         <motion.div
                             variants={staggerItem}
                             key={plan.tier}
                             className={`relative rounded-3xl p-8 flex flex-col justify-between overflow-hidden ${
-                                plan.tier === "diamond" ? "" : "bg-background-primary"
+                                plan.tier === "standard" ? "" :
+                                plan.tier === "premium" ? "bg-background-primary border border-amber-200/60" :
+                                "bg-background-primary"
                             }`}
                         >
-                            {plan.tier === "diamond" && (
+                            {plan.tier === "standard" && (
                                 <div
                                     className="absolute inset-0"
                                     style={{
@@ -87,53 +84,47 @@ const PricingSection = () => {
                                     }}
                                 />
                             )}
-                            {plan.tier === "diamond" && (
+                            {plan.tier === "standard" && (
                                 <span className="absolute top-6 right-6 text-xs font-semibold text-white/80 bg-white/15 px-3 py-1 rounded-full">
-                                    Best for API teams
+                                    Most popular
+                                </span>
+                            )}
+                            {plan.tier === "premium" && (
+                                <span className="absolute top-6 right-6 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-3 py-1 rounded-full">
+                                    Best report
                                 </span>
                             )}
 
                             <div className="relative z-10">
-                                <h3
-                                    className={`text-lg font-semibold mb-1 ${plan.tier === "diamond" ? "text-white" : "text-heading"}`}
-                                >
+                                <h3 className={`text-lg font-semibold mb-1 ${plan.tier === "standard" ? "text-white" : "text-heading"}`}>
                                     {plan.name}
                                 </h3>
-                                <p
-                                    className={`text-sm mb-6 ${plan.tier === "diamond" ? "text-white/60" : "text-body"}`}
-                                >
+                                <p className={`text-sm mb-6 ${plan.tier === "standard" ? "text-white/60" : "text-body"}`}>
                                     {plan.description}
                                 </p>
-                                <div className="flex items-baseline gap-1 mb-8">
-                                    <span
-                                        className={`text-4xl font-serif ${plan.tier === "diamond" ? "text-white" : "text-heading"}`}
-                                    >
-                                        {plan.signupCredits}
-                                    </span>
-                                    <span className={`text-sm ${plan.tier === "diamond" ? "text-white/60" : "text-body"}`}>
-                                        signup credits
+                                <div className="flex items-baseline gap-1 mb-1">
+                                    <span className={`text-4xl font-serif ${plan.tier === "standard" ? "text-white" : plan.tier === "premium" ? "text-amber-700" : "text-heading"}`}>
+                                        {plan.priceUsd === 0 ? "Free" : `$${plan.priceUsd}`}
                                     </span>
                                 </div>
+                                <p className={`text-xs mb-8 ${plan.tier === "standard" ? "text-white/50" : "text-muted"}`}>
+                                    {plan.priceUsd === 0 ? "included at signup" : "per credit (USD)"}
+                                </p>
                                 <ul className="space-y-3 mb-8">
-                                    {[
-                                        `Employee limit: ${plan.employeeLimit}`,
-                                        `API access: ${plan.apiAccess ? "Included" : "Not included"}`,
-                                        `Custom support: ${plan.customSupport ? "Included" : "Not included"}`,
-                                        `Multiple admins: ${plan.multipleAdminAccounts ? "Included" : "Not included"}`,
-                                    ].map((f) => (
+                                    {plan.features.map((f) => (
                                         <li
                                             key={f}
-                                            className={`flex items-start gap-3 text-sm ${plan.tier === "diamond" ? "text-white" : "text-heading"}`}
+                                            className={`flex items-start gap-3 text-sm ${plan.tier === "standard" ? "text-white" : "text-heading"}`}
                                         >
                                             <LucideCheck
-                                                className={`w-4 h-4 mt-0.5 shrink-0 ${plan.tier === "diamond" ? "text-white/60" : "text-accent"}`}
+                                                className={`w-4 h-4 mt-0.5 shrink-0 ${plan.tier === "standard" ? "text-white/60" : plan.tier === "premium" ? "text-amber-600" : "text-accent"}`}
                                             />
                                             {f}
                                         </li>
                                     ))}
                                 </ul>
                             </div>
-                            {plan.tier === "diamond" ? (
+                            {plan.tier === "standard" ? (
                                 <Button
                                     variant="primary"
                                     className="relative z-10 self-stretch bg-white !text-dark hover:bg-white/90 text-center justify-center flex"
@@ -141,7 +132,11 @@ const PricingSection = () => {
                                     Talk to sales
                                 </Button>
                             ) : (
-                                <Button variant="secondary" icon={<LucideArrowRight />} className="self-start relative z-10">
+                                <Button
+                                    variant="secondary"
+                                    icon={<LucideArrowRight />}
+                                    className={`self-start relative z-10 ${plan.tier === "premium" ? "border-amber-300 text-amber-700 hover:bg-amber-50" : ""}`}
+                                >
                                     View plans
                                 </Button>
                             )}

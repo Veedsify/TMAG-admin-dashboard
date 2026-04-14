@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { LucideCoins, LucideFileText, LucideArrowRight, LucideLoader2, LucideExternalLink } from "lucide-react";
+import { LucideCoins, LucideFileText, LucideArrowRight, LucideLoader2, LucideExternalLink, LucideCreditCard } from "lucide-react";
 import { useMyCompanies, useCompanyAdminPurchaseCredits, useCompanyAdminCreditQuote, useCredits, useCompanySettings } from "../../../api/hooks";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -9,16 +9,19 @@ const Credits = () => {
     const company = companiesData?.[0];
     const companyId = company?.id;
 
-    const { data: settingsData } = useCompanySettings(companyId!);
+    const { data: settingsData } = useCompanySettings(companyId ?? 0);
     const billingCurrency = (settingsData?.settings?.pref_currency?.value as string) || "NGN";
 
     const { data: creditsData, isLoading } = useCredits(companyId ? { companyId, per_page: 10 } : undefined);
     const purchaseCredits = useCompanyAdminPurchaseCredits();
     const getQuote = useCompanyAdminCreditQuote();
 
-    const totalCredits = company?.total_credits ?? 0;
-    const usedCredits = company?.used_credits ?? 0;
-    const remainingCredits = totalCredits - usedCredits;
+    const companyTotals = company as
+        | { total_credits?: number; used_credits?: number; totalCredits?: number; usedCredits?: number }
+        | undefined;
+    const totalCredits = Number(companyTotals?.total_credits ?? companyTotals?.totalCredits ?? 0);
+    const usedCredits = Number(companyTotals?.used_credits ?? companyTotals?.usedCredits ?? 0);
+    const remainingCredits = Math.max(totalCredits - usedCredits, 0);
 
     const transactions = creditsData?.data || [];
 
@@ -126,7 +129,7 @@ const Credits = () => {
                                 {quote ? (
                                     <>
                                         <div className="text-2xl font-semibold text-heading mb-1">
-                                            {quote.currencySymbol}{quote.totalAmount}
+                                            {quote.currencySymbol}{quote.totalAmount.toLocaleString()}
                                         </div>
                                         {quote.discountAmount > 0 && (
                                             <div className="text-xs text-muted line-through mb-2">
@@ -142,9 +145,9 @@ const Credits = () => {
                                 <button 
                                     onClick={() => handlePurchase(credits)}
                                     disabled={purchaseCredits.isPending || !quote}
-                                    className="w-full py-2.5 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
+                                    className="w-full py-2.5 cursor-pointer rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
                                 >
-                                    {purchaseCredits.isPending ? <LucideLoader2 className="w-4 h-4 animate-spin" /> : <LucideExternalLink className="w-4 h-4" />}
+                                    {purchaseCredits.isPending ? <LucideLoader2 className="w-4 h-4 animate-spin" /> : <LucideCreditCard className="w-4 h-4" />}
                                     Pay Now
                                 </button>
                             </div>

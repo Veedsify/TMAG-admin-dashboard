@@ -224,6 +224,9 @@ export interface TravelPlanResponse {
   companyId?: number;
   employeeId?: number;
   userId?: number;
+  generatedPlan?: {
+    planJson?: unknown;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -733,20 +736,17 @@ export interface ComplianceReportDto {
   generatedAt: string;
 }
 
-// ─── Company Plan ───────────────────────────────────────────
+// ─── Credit Plan (Essential / Standard / Premium) ────────────
 
-export type PlanCode = "BRONZE" | "SILVER" | "GOLD" | "DIAMOND";
+export type PlanCode = "ESSENTIAL" | "STANDARD" | "PREMIUM";
 
 export interface CompanyPlanResponse {
   id: number;
-  code: string;
+  code: PlanCode;
   displayName: string;
-  signupCredits: number;
-  maxEmployees: number;
-  customSupportEnabled: boolean;
-  apiAccessEnabled: boolean;
-  multipleAdminAccountsEnabled: boolean;
-  highEmployeeLimitEnabled: boolean;
+  basePriceUsd: number;
+  description: string;
+  isDefault: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -754,12 +754,8 @@ export interface CompanyPlanResponse {
 export interface CreatePlanRequest {
   code: PlanCode;
   displayName: string;
-  signupCredits: number;
-  maxEmployees: number;
-  customSupportEnabled: boolean;
-  apiAccessEnabled: boolean;
-  multipleAdminAccountsEnabled: boolean;
-  highEmployeeLimitEnabled: boolean;
+  basePriceUsd: number;
+  description?: string;
 }
 
 export interface UpdatePlanRequest extends Partial<CreatePlanRequest> {}

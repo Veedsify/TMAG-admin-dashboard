@@ -77,8 +77,6 @@ import type {
   CreateApiKeyResponse,
   // Company Plans
   CompanyPlanResponse,
-  CreatePlanRequest,
-  UpdatePlanRequest,
   // Company Admin Management
   CompanyAdminUserCreateRequest,
   CompanyAdminUserUpdateRequest,
@@ -579,26 +577,14 @@ export const adminReportsApi = {
     api.get<string>("/company-admin/reports/team/csv", { params: companyId ? { companyId } : {}, responseType: 'text' }),
 };
 
-// ─── Company Plans (Admin) ─────────────────────────────────
+// ─── Credit Plans (Essential / Standard / Premium) ─────────
 
 export const companyPlansApi = {
   list: () =>
-    api.get<ApiResponse<CompanyPlanResponse[]>>("/company-admin/plans").then((r) => r.data.data),
+    api.get<ApiResponse<CompanyPlanResponse[]>>("/user-credit-plans").then((r) => r.data.data),
 
   get: (id: number) =>
-    api.get<ApiResponse<CompanyPlanResponse>>(`/company-admin/plans/${id}`).then((r) => r.data.data),
-
-  create: (data: CreatePlanRequest) =>
-    api.post<ApiResponse<CompanyPlanResponse>>("/company-admin/plans", data).then((r) => r.data.data),
-
-  update: (id: number, data: UpdatePlanRequest) =>
-    api.put<ApiResponse<CompanyPlanResponse>>(`/company-admin/plans/${id}`, data).then((r) => r.data.data),
-
-  delete: (id: number) =>
-    api.delete<ApiResponse<null>>(`/company-admin/plans/${id}`).then((r) => r.data.data),
-
-  downloadPdf: (id: number) =>
-    api.get(`/company-admin/plans/${id}/pdf`, { responseType: "blob" }).then((r) => r.data),
+    api.get<ApiResponse<CompanyPlanResponse>>(`/user-credit-plans/${id}`).then((r) => r.data.data),
 };
 
 // ─── Company Admin Management ──────────────────────────────
