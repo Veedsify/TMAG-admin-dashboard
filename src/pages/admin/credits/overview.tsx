@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { LucideCoins, LucideFileText, LucideArrowRight, LucideLoader2, LucideExternalLink, LucideCreditCard } from "lucide-react";
+import { LucideCoins, LucideFileText, LucideArrowRight, LucideLoader2, LucideCreditCard } from "lucide-react";
 import { useMyCompanies, useCompanyAdminPurchaseCredits, useCompanyAdminCreditQuote, useCredits, useCompanySettings } from "../../../api/hooks";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
@@ -113,11 +113,10 @@ const Credits = () => {
                         return (
                             <div
                                 key={credits}
-                                className={`relative p-6 rounded-xl border-2 transition-colors ${
-                                    isPopular
+                                className={`relative p-6 rounded-xl border-2 transition-colors ${isPopular
                                         ? "border-accent bg-accent/5"
                                         : "border-border-light hover:border-accent/50"
-                                }`}
+                                    }`}
                             >
                                 {isPopular && (
                                     <span className="absolute -top-2 right-4 px-2 py-0.5 bg-dark text-background-primary text-xs font-semibold rounded-full">
@@ -142,7 +141,7 @@ const Credits = () => {
                                         <LucideLoader2 className="w-4 h-4 text-muted animate-spin" />
                                     </div>
                                 )}
-                                <button 
+                                <button
                                     onClick={() => handlePurchase(credits)}
                                     disabled={purchaseCredits.isPending || !quote}
                                     className="w-full py-2.5 cursor-pointer rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 flex items-center justify-center gap-2 disabled:opacity-50"
@@ -198,9 +197,8 @@ const Credits = () => {
                                     </td>
                                     <td className="px-6 py-4">
                                         <span
-                                            className={`text-sm font-semibold ${
-                                                tx.amount > 0 ? "text-green-600" : "text-heading"
-                                            }`}
+                                            className={`text-sm font-semibold ${tx.amount > 0 ? "text-green-600" : "text-heading"
+                                                }`}
                                         >
                                             {tx.amount > 0 ? "+" : ""}
                                             {tx.amount}
