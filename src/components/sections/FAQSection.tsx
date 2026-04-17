@@ -17,7 +17,7 @@ const faqs = [
     },
     {
         question: "What if I have a chronic condition or take medications?",
-        answer: "You can enter your health profile including chronic conditions, current medications, and allergies. The AI factors these into every recommendation—from drug interactions with prophylactics to altitude and climate considerations.",
+        answer: "You can enter your health profile including chronic conditions, current medications, and allergies. The AI factors these into every recommendation from drug interactions with prophylactics to altitude and climate considerations.",
     },
     {
         question: "How does the Enterprise plan work?",
