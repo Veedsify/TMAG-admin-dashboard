@@ -1,8 +1,16 @@
 import { Link } from "react-router-dom";
 import { LucideCoins, LucideFileText, LucideArrowRight, LucideLoader2, LucideCreditCard } from "lucide-react";
 import { useMyCompanies, useCompanyAdminPurchaseCredits, useCompanyAdminCreditQuote, useCredits, useCompanySettings } from "../../../api/hooks";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
+import { AxiosError } from "axios";
+
+type Quotes = {
+    currencySymbol: string;
+    basePrice: number;
+    discountAmount: number;
+    totalAmount: number;
+}
 
 const Credits = () => {
     const { data: companiesData } = useMyCompanies();
@@ -25,8 +33,8 @@ const Credits = () => {
 
     const transactions = creditsData?.data || [];
 
-    const [quotes, setQuotes] = useState<Record<number, any>>({});
-    const creditPackages = [50, 100, 200];
+    const [quotes, setQuotes] = useState<Record<number, Quotes>>({});
+    const creditPackages = useMemo(() => [50, 100, 200], []);
 
     useEffect(() => {
         if (!companyId) return;
@@ -38,7 +46,7 @@ const Credits = () => {
                 console.error(`Failed to fetch quote for ${credits} credits`, err);
             }
         });
-    }, [companyId, billingCurrency]);
+    }, [companyId, billingCurrency, creditPackages, getQuote]);
 
     const handlePurchase = async (credits: number) => {
         if (!companyId) return;
@@ -49,8 +57,12 @@ const Credits = () => {
             } else {
                 toast.error("No payment link received");
             }
-        } catch (err: any) {
-            toast.error(err?.response?.data?.error || err?.response?.data?.message || "Purchase failed");
+        } catch (err) {
+            if (err instanceof AxiosError) {
+                toast.error(err.response?.data?.error || err.response?.data?.message || "Purchase failed");
+            } else {
+                toast.error("Purchase failed");
+            }
         }
     };
 

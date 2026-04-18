@@ -327,7 +327,7 @@ const PlanDetails = () => {
                             ) : (
                                 section.items.map((item, i) => (
                                     <div key={i} className="flex items-start gap-3">
-                                        <div className="w-1.5 h-1.5 rounded-full bg-border mt-2 flex-shrink-0" />
+                                        <div className="w-1.5 h-1.5 rounded-full bg-border mt-2 shrink-0" />
                                         <div className="flex-1 min-w-0">
                                             <p className="text-sm text-heading leading-snug">{item.label}</p>
                                             {item.detail && (
@@ -372,7 +372,7 @@ const PlanDetails = () => {
                         <div className="p-5 space-y-3">
                             {medicationsSection.items.map((item, i) => (
                                 <div key={i} className="flex items-start gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-border mt-2 flex-shrink-0" />
+                                    <div className="w-1.5 h-1.5 rounded-full bg-border mt-2 shrink-0" />
                                     <div className="flex-1 min-w-0">
                                         <p className="text-sm text-heading leading-snug">{item.label}</p>
                                         {item.detail && (
@@ -418,7 +418,7 @@ const PlanDetails = () => {
                         <div className="p-5 space-y-3">
                             {foodWaterSection.items.map((item, i) => (
                                 <div key={i} className="flex items-start gap-3">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-border mt-2 flex-shrink-0" />
+                                    <div className="w-1.5 h-1.5 rounded-full bg-border mt-2 shrink-0" />
                                     <p className="text-sm text-heading leading-snug">{item.label}</p>
                                 </div>
                             ))}
@@ -436,7 +436,7 @@ const PlanDetails = () => {
                     <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {safetySection.items.map((item, i) => (
                             <div key={i} className="flex items-start gap-3">
-                                <div className="w-1.5 h-1.5 rounded-full bg-border mt-2 flex-shrink-0" />
+                                <div className="w-1.5 h-1.5 rounded-full bg-border mt-2 shrink-0" />
                                 <p className="text-sm text-heading leading-snug">{item.label}</p>
                             </div>
                         ))}
