@@ -127,7 +127,7 @@ const PricingSection = () => {
                             {plan.tier === "standard" ? (
                                 <Button
                                     variant="primary"
-                                    className="relative z-10 self-stretch bg-white !text-dark hover:bg-white/90 text-center justify-center flex"
+                                    className="relative z-10 self-stretch bg-white text-dark! hover:bg-white/90 text-center justify-center flex"
                                 >
                                     Talk to sales
                                 </Button>
