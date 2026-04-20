@@ -1,13 +1,19 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { LucidePlus, LucideCopy, LucideTrash2, LucideCheck, LucideShield, LucideKey, LucideLoader2 } from "lucide-react";
 import toast from "react-hot-toast";
-import { useMyCompanies, useApiKeys, useCreateApiKey, useRevokeApiKey } from "../../../api/hooks";
+import { useMyCompanies, useApiKeys, useCreateApiKey, useRevokeApiKey, useCompanyPlans } from "../../../api/hooks";
 
 const ApiKeys = () => {
     const { data: myCompanies } = useMyCompanies();
     const company = myCompanies?.[0];
     const companyId = company?.id;
-    const hasDiamondApiAccess = company?.plan?.toLowerCase() === "premium";
+    const { data: plans } = useCompanyPlans();
+    const activePlan = useMemo(() => {
+        if (!company || !plans) return null;
+        return plans.find((plan) => plan.code.toLowerCase() === company.plan.toLocaleLowerCase()) || null;
+    }, [company, plans]);
+
+    const hasDiamondApiAccess = useMemo(() => activePlan?.serviceLevel === "PREMIUM", [activePlan]);
 
     const [showCreate, setShowCreate] = useState(false);
     const [newKeyName, setNewKeyName] = useState("");

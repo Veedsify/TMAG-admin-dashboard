@@ -6,8 +6,6 @@ import { useMyCompanies, useUpdateCompany, useCompanySettings, useUpdateBillingC
 const BILLING_CURRENCIES = [
     { value: "NGN", label: "NGN — Nigerian Naira (₦)" },
     { value: "USD", label: "USD — US Dollar ($)" },
-    { value: "EUR", label: "EUR — Euro (€)" },
-    { value: "GBP", label: "GBP — British Pound (£)" },
 ];
 
 const PLAN_STYLES: Record<string, { bg: string; border: string; text: string }> = {
@@ -168,15 +166,23 @@ const CompanyProfile = () => {
                     <div className="grid grid-cols-2 gap-4">
                         <div>
                             <p className="text-xs text-muted mb-1">Price per credit</p>
-                            <p className="text-lg font-serif text-heading">${activePlan.basePriceUsd} USD</p>
+                            <p className="text-lg font-serif text-heading">
+                                {company.billing_currency === "USD"
+                                    ? `$${activePlan.basePriceUsd.toFixed(2)}`
+                                    : `₦${activePlan.basePriceNgn.toLocaleString()}`}
+                            </p>
                         </div>
                         <div>
-                            <p className="text-xs text-muted mb-1">API Access</p>
-                            <p className="text-sm font-semibold">
-                                {activePlan.code === "PREMIUM"
-                                    ? <span className="text-green-600">Enabled (Premium)</span>
-                                    : <span className="text-muted">Upgrade to Premium</span>}
-                            </p>
+                            {activePlan.serviceLevel !== "PREMIUM" && (
+                                <>
+                                    <p className="text-xs text-muted mb-1">API Access</p>
+                                    <p className="text-sm font-semibold">
+                                        {activePlan.code === "PREMIUM"
+                                            ? <span className="text-green-600">Enabled (Premium)</span>
+                                            : <span className="text-muted">Upgrade to Premium</span>}
+                                    </p>
+                                </>
+                            )}
                         </div>
                     </div>
                 ) : (

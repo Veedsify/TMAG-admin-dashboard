@@ -17,7 +17,8 @@ import { useAuth } from "../../context/AuthContext";
 import { useMobileSidebar } from "../../context/MobileSidebarContext";
 import toast from "react-hot-toast";
 import { cn } from "../../lib/utils";
-import { useMyCompanies } from "../../api/hooks";
+import { useCompanyPlans, useMyCompanies } from "../../api/hooks";
+import { useMemo } from "react";
 
 const navItems = [
     { label: "Dashboard", href: "/admin", icon: LucideLayoutDashboard, end: true },
@@ -37,8 +38,15 @@ const AdminSidebar = () => {
     const { user, logout } = useAuth();
     const navigate = useNavigate();
     const { data: myCompanies } = useMyCompanies();
+    const { data: plans } = useCompanyPlans();
     const companyPlan = myCompanies?.[0]?.plan?.toLowerCase();
-    const hasDiamondApiAccess = companyPlan === "diamond";
+
+    const activePlan = useMemo(() => {
+        if (!companyPlan || !plans) return null;
+        return plans.find((plan) => plan.code.toLowerCase() === companyPlan) || null;
+    }, [companyPlan, plans]);
+
+    const hasDiamondApiAccess = useMemo(() => activePlan?.serviceLevel === "PREMIUM", [activePlan]);
 
     const handleLogout = async () => {
         try {
@@ -78,23 +86,23 @@ const AdminSidebar = () => {
                 {navItems
                     .filter((item) => item.href !== "/admin/api-keys" || hasDiamondApiAccess)
                     .map((item) => (
-                    <NavLink
-                        key={item.href}
-                        to={item.href}
-                        end={item.end}
-                        onClick={() => setOpen(false)}
-                        className={({ isActive }) =>
-                            cn(
-                                "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150",
-                                isActive
-                                    ? "bg-white/10 text-white"
-                                    : "text-white/45 hover:text-white hover:bg-white/4",
-                            )
-                        }
-                    >
-                        <item.icon className="w-4 h-4 shrink-0" />
-                        {item.label}
-                    </NavLink>
+                        <NavLink
+                            key={item.href}
+                            to={item.href}
+                            end={item.end}
+                            onClick={() => setOpen(false)}
+                            className={({ isActive }) =>
+                                cn(
+                                    "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150",
+                                    isActive
+                                        ? "bg-white/10 text-white"
+                                        : "text-white/45 hover:text-white hover:bg-white/4",
+                                )
+                            }
+                        >
+                            <item.icon className="w-4 h-4 shrink-0" />
+                            {item.label}
+                        </NavLink>
                     ))}
             </nav>
 

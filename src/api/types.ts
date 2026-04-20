@@ -744,6 +744,8 @@ export interface CompanyPlanResponse {
   id: number;
   code: PlanCode;
   displayName: string;
+  serviceLevel: string;
+  basePriceNgn: number;
   basePriceUsd: number;
   description: string;
   isDefault: boolean;
@@ -758,7 +760,7 @@ export interface CreatePlanRequest {
   description?: string;
 }
 
-export interface UpdatePlanRequest extends Partial<CreatePlanRequest> {}
+export interface UpdatePlanRequest extends Partial<CreatePlanRequest> { }
 
 // ─── Company Admin Management ──────────────────────────────
 
