@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { useVerifyCompanyCreditPurchase } from "../../../api/hooks";
 import { LucideCheckCircle, LucideXCircle, LucideLoader2 } from "lucide-react";
@@ -10,13 +10,16 @@ const PaymentCallback = () => {
     const [status, setStatus] = useState<PaymentStatus>("verifying");
     const [creditsPurchased, setCreditsPurchased] = useState(0);
     const [errorMessage, setErrorMessage] = useState("");
-    const verifyPurchase = useVerifyCompanyCreditPurchase();
+    const { mutateAsync: verifyPurchase } = useVerifyCompanyCreditPurchase();
+    const hasVerified = useRef(false);
 
     const txRef = searchParams.get("tx_ref");
     const flwStatus = searchParams.get("status");
     const transactionId = searchParams.get("transaction_id");
 
     useEffect(() => {
+        if (hasVerified.current) return;
+
         const verifyPayment = async () => {
             if (!txRef) {
                 setStatus("failed");
@@ -34,8 +37,10 @@ const PaymentCallback = () => {
                 return;
             }
 
+            hasVerified.current = true;
+
             try {
-                const result = await verifyPurchase.mutateAsync({
+                const result = await verifyPurchase({
                     txRef,
                     transactionId: transactionId || undefined,
                 });
