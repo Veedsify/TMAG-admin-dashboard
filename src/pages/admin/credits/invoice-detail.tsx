@@ -109,7 +109,7 @@ const InvoiceDetail = () => {
             </div>
 
             {/* Invoice Card */}
-            <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                 {/* Invoice Header */}
                 <div className="p-8 pb-6">
                     <div className="flex items-start justify-between mb-4">

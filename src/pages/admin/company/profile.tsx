@@ -195,22 +195,22 @@ const CompanyProfile = () => {
 
             {/* Credit Summary */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-white rounded-2xl border border-border-light/50 p-5">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-5">
                     <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-1">Total Credits</p>
                     <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{company.total_credits - company.used_credits}</p>
                 </div>
-                <div className="bg-white rounded-2xl border border-border-light/50 p-5">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-5">
                     <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-1">Used Credits</p>
                     <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{company.used_credits}</p>
                 </div>
-                <div className="bg-white rounded-2xl border border-border-light/50 p-5">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-5">
                     <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-1">Employees</p>
                     <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{company.employee_count}</p>
                 </div>
             </div>
 
             {/* Company Details Form */}
-            <div className="bg-white rounded-2xl border border-border-light/50 p-6">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                 <h2 className="text-base font-semibold text-heading mb-6">Company Details</h2>
                 <div className="space-y-5">
                     <div>
@@ -275,7 +275,7 @@ const CompanyProfile = () => {
             </div>
 
             {/* Billing Currency */}
-            <div className="bg-white rounded-2xl border border-border-light/50 p-6">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                 <h2 className="text-base font-semibold text-heading mb-1">Billing Currency</h2>
                 <p className="text-xs text-muted mb-6">
                     Sets the currency shown on all credit purchase cards for this company.

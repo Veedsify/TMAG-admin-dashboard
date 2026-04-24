@@ -76,7 +76,7 @@ const OnboardingStatus = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-white rounded-2xl border border-border-light/50 p-5">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-5">
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-muted uppercase tracking-wider">Completed</span>
                         <div className="w-9 h-9 rounded-xl bg-accent/10 flex items-center justify-center">
@@ -86,7 +86,7 @@ const OnboardingStatus = () => {
                     <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{completedCount}</p>
                     <p className="text-xs text-muted mt-1">{members.length > 0 ? ((completedCount / members.length) * 100).toFixed(0) : 0}% of team</p>
                 </div>
-                <div className="bg-white rounded-2xl border border-border-light/50 p-5">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-5">
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-muted uppercase tracking-wider">In Progress</span>
                         <div className="w-9 h-9 rounded-xl bg-gold/10 flex items-center justify-center">
@@ -96,7 +96,7 @@ const OnboardingStatus = () => {
                     <p className="text-2xl sm:text-3xl font-serif text-heading tabular-nums">{inProgressCount}</p>
                     <p className="text-xs text-muted mt-1">Need to complete</p>
                 </div>
-                <div className="bg-white rounded-2xl border border-border-light/50 p-5">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-5">
                     <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-semibold text-muted uppercase tracking-wider">Not Started</span>
                         <div className="w-9 h-9 rounded-xl bg-button-secondary flex items-center justify-center">
@@ -108,7 +108,7 @@ const OnboardingStatus = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                 <div className="px-4 sm:px-6 py-4 border-b border-border-light/50 flex flex-col sm:flex-row gap-3">
                     <div className="flex-1 relative">
                         <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />

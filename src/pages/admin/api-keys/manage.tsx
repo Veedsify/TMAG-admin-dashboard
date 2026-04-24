@@ -66,7 +66,7 @@ const ApiKeys = () => {
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">API Keys</h1>
                     <p className="text-sm text-muted mt-1">Manage API keys for integrating TMAG with your systems</p>
                 </div>
-                <div className="bg-white rounded-2xl border border-border-light/50 p-8">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-8">
                     <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center mb-4">
                         <LucideShield className="w-6 h-6 text-accent" />
                     </div>
@@ -96,7 +96,7 @@ const ApiKeys = () => {
 
             {/* Company Invite Code */}
             {company && (
-                <div className="bg-white rounded-2xl border border-border-light/50 p-6">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                     <div className="flex items-center gap-3 mb-4">
                         <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
                             <LucideKey className="w-5 h-5 text-accent" />
@@ -201,13 +201,13 @@ const ApiKeys = () => {
                     <LucideLoader2 className="w-6 h-6 text-accent animate-spin" />
                 </div>
             ) : keys.length === 0 && !createdKey ? (
-                <div className="bg-white rounded-2xl border border-border-light/50 p-12 text-center">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-12 text-center">
                     <LucideKey className="w-10 h-10 text-muted mx-auto mb-3" />
                     <p className="text-sm font-medium text-heading mb-1">No API keys yet</p>
                     <p className="text-xs text-muted">Create your first API key to start integrating with TMAG.</p>
                 </div>
             ) : (
-                <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full min-w-[560px]">
                             <thead>

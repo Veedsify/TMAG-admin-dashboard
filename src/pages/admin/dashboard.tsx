@@ -77,7 +77,7 @@ const Dashboard = () => {
                     <Link
                         key={stat.label}
                         to={stat.href}
-                        className="bg-white rounded-2xl border border-border-light/50 p-4 sm:p-6 flex flex-col gap-3 hover:border-accent/30 transition-colors duration-150"
+                        className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-4 sm:p-6 flex flex-col gap-3 hover:border-accent/30 transition-colors duration-150"
                     >
                         <div className="flex items-center justify-between">
                             <span className="text-xs uppercase tracking-wider text-muted font-semibold">
@@ -104,7 +104,7 @@ const Dashboard = () => {
             <DashboardAnalyticsCharts data={dashboardAnalytics} isLoading={analyticsLoading} />
 
             {/* Quick Actions */}
-            <div className="bg-white rounded-2xl border border-border-light/50 p-6">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                 <h2 className="text-base font-semibold text-heading mb-4">Quick Actions</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <Link
@@ -132,7 +132,7 @@ const Dashboard = () => {
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                 <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-border-light/50">
                     <h2 className="text-base font-semibold text-heading">Recent Activity</h2>
                 </div>

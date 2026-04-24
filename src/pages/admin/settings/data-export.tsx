@@ -147,7 +147,7 @@ const DataExport = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-border-light/50 p-6 space-y-5">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6 space-y-5">
                 <div className="flex items-center justify-between">
                     <h2 className="text-base font-semibold text-heading">Select Data to Export</h2>
                     <div className="flex gap-2">
@@ -185,7 +185,7 @@ const DataExport = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-border-light/50 p-6 space-y-5">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6 space-y-5">
                 <h2 className="text-base font-semibold text-heading">Export Format</h2>
                 <div className="grid grid-cols-2 gap-3">
                     {([
@@ -206,7 +206,7 @@ const DataExport = () => {
                 </div>
             </div>
 
-            <div className="bg-white rounded-2xl border border-border-light/50 p-6">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                 <h2 className="text-base font-semibold text-heading mb-3">Summary</h2>
                 <div className="flex items-center justify-between mb-4">
                     <span className="text-sm text-muted">{selected.length} data type(s) selected</span>

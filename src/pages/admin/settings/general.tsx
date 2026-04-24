@@ -211,7 +211,7 @@ const Settings = () => {
             </div>
 
             {activeTab === "general" && (
-                <div className="bg-white rounded-2xl border border-border-light/50 p-6 space-y-5">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6 space-y-5">
                     <h2 className="text-base font-semibold text-heading">Company Information</h2>
                     {companyLoading ? (
                         <div className="flex items-center justify-center py-8">
@@ -251,7 +251,7 @@ const Settings = () => {
             )}
 
             {activeTab === "notifications" && (
-                <div className="bg-white rounded-2xl border border-border-light/50 p-6 space-y-5">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6 space-y-5">
                     <h2 className="text-base font-semibold text-heading">Notification Preferences</h2>
                     <div className="space-y-4">
                         {[
@@ -285,7 +285,7 @@ const Settings = () => {
 
             {activeTab === "security" && (
                 <div className="space-y-4">
-                    <div className="bg-white rounded-2xl border border-border-light/50 p-6 space-y-5">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6 space-y-5">
                         <h2 className="text-base font-semibold text-heading">Password</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                             <div>
@@ -323,7 +323,7 @@ const Settings = () => {
                             {updatePassword.isPending ? <><LucideLoader2 className="w-4 h-4 animate-spin" /> Updating...</> : <><LucideSave className="w-4 h-4" /> Update Password</>}
                         </button>
                     </div>
-                    <div className="bg-white rounded-2xl border border-border-light/50 p-6 space-y-4">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6 space-y-4">
                         <div className="flex items-center justify-between">
                             <div>
                                 <h2 className="text-base font-semibold text-heading">Two-Factor Authentication</h2>
@@ -348,7 +348,7 @@ const Settings = () => {
             )}
 
             {activeTab === "preferences" && (
-                <div className="bg-white rounded-2xl border border-border-light/50 p-6 space-y-5">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6 space-y-5">
                     <h2 className="text-base font-semibold text-heading">Display Preferences</h2>
                     <div className="space-y-4">
                         {[
@@ -377,7 +377,7 @@ const Settings = () => {
                 </div>
             )}
 
-            <div className="bg-white rounded-2xl border border-border-light/50 p-6">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                 <h2 className="text-base font-semibold text-heading mb-3">Danger Zone</h2>
                 <div className="flex items-center justify-between p-4 rounded-xl bg-red-50 border border-red-100">
                     <div>

@@ -78,7 +78,7 @@ const CreditRequests = () => {
                 <p className="text-sm text-muted mt-1">Review and manage employee credit requests</p>
             </div>
 
-            <div className="bg-white rounded-2xl border border-border-light/50 p-4">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-4">
                 <div className="flex flex-col lg:flex-row gap-3">
                     <div className="flex-1 relative">
                         <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
@@ -128,7 +128,7 @@ const CreditRequests = () => {
                 </div>
             )}
 
-            <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full min-w-[560px]">
                         <thead>

@@ -98,7 +98,7 @@ const PaymentCallback = () => {
                         <h1 className="text-2xl font-serif text-heading mb-3">
                             Payment successful
                         </h1>
-                        <div className="bg-white rounded-2xl border border-border-light/50 p-6 mb-6">
+                        <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6 mb-6">
                             <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">
                                 Credits added
                             </p>

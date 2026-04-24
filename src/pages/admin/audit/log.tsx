@@ -125,14 +125,14 @@ const AuditLog = () => {
                     { label: "Plan Actions", value: logs.filter((l) => l.type === "plan").length, color: "text-heading" },
                     { label: "Billing Actions", value: logs.filter((l) => l.type === "billing").length, color: "text-green-600" },
                 ].map((stat) => (
-                    <div key={stat.label} className="bg-white rounded-2xl border border-border-light/50 p-5">
+                    <div key={stat.label} className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-5">
                         <p className="text-xs font-semibold text-muted uppercase tracking-wider mb-2">{stat.label}</p>
                         <p className={`text-2xl sm:text-3xl font-serif tabular-nums ${stat.color}`}>{stat.value}</p>
                     </div>
                 ))}
             </div>
 
-            <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                 <div className="px-4 sm:px-6 py-4 border-b border-border-light/50 flex flex-col sm:flex-row gap-3">
                     <div className="flex-1 relative">
                         <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />

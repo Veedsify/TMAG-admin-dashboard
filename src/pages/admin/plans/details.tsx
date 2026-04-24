@@ -251,7 +251,7 @@ const PlanDetails = () => {
                 </div>
             </div>
 
-            <div className={`bg-white rounded-2xl border ${borderColor} p-6`}>
+            <div className={`rounded-3xl bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] border ${borderColor} p-6`}>
                 <div className="flex flex-wrap gap-3">
                     <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold ${riskBg} ${riskColor}`}>
                         <span className={`w-2 h-2 rounded-full ${dotColor}`} />
@@ -277,7 +277,7 @@ const PlanDetails = () => {
             </div>
 
             {(generatedPlanJson?.reportTitle || generatedPlanJson?.travellerName || generatedPlanJson?.travelDates || generatedPlanJson?.tripAtGlance) && (
-                <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                     <div className="px-5 py-4 border-b border-border-light/50">
                         <h2 className="text-sm font-semibold text-heading">Trip Overview</h2>
                     </div>
@@ -293,7 +293,7 @@ const PlanDetails = () => {
             )}
 
             {(generatedPlanJson?.hardStop || generatedPlanJson?.medicalDisclaimer) && (
-                <div className="bg-white rounded-2xl border border-red-200 overflow-hidden">
+                <div className="rounded-3xl bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] border border-red-200 overflow-hidden">
                     <div className="px-5 py-4 border-b border-red-100 bg-red-50/50">
                         <h2 className="text-sm font-semibold text-red-700">Critical Advisory</h2>
                     </div>
@@ -316,7 +316,7 @@ const PlanDetails = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {primarySections.map((section) => (
-                    <div key={section.title} className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                    <div key={section.title} className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                         <div className="px-5 py-4 border-b border-border-light/50 flex items-center gap-2.5">
                             <section.icon className={`w-5 h-5 text-${section.color}`} />
                             <h2 className="text-sm font-semibold text-heading">{section.title}</h2>
@@ -350,7 +350,7 @@ const PlanDetails = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {generatedPlanJson?.malariaPrevention && (
-                    <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                         <div className="px-5 py-4 border-b border-border-light/50">
                             <h2 className="text-sm font-semibold text-heading">Malaria Prevention</h2>
                         </div>
@@ -364,7 +364,7 @@ const PlanDetails = () => {
                 )}
 
                 {medicationsSection.items.length > 0 && (
-                    <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                         <div className="px-5 py-4 border-b border-border-light/50 flex items-center gap-2.5">
                             <medicationsSection.icon className={`w-5 h-5 text-${medicationsSection.color}`} />
                             <h2 className="text-sm font-semibold text-heading">{medicationsSection.title}</h2>
@@ -392,7 +392,7 @@ const PlanDetails = () => {
                 )}
 
                 {generatedPlanJson?.flightHealth && (
-                    <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                         <div className="px-5 py-4 border-b border-border-light/50">
                             <h2 className="text-sm font-semibold text-heading">Flight Health</h2>
                         </div>
@@ -410,7 +410,7 @@ const PlanDetails = () => {
                 )}
 
                 {foodWaterSection.items.length > 0 && (
-                    <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                         <div className="px-5 py-4 border-b border-border-light/50 flex items-center gap-2.5">
                             <foodWaterSection.icon className={`w-5 h-5 text-${foodWaterSection.color}`} />
                             <h2 className="text-sm font-semibold text-heading">{foodWaterSection.title}</h2>
@@ -428,7 +428,7 @@ const PlanDetails = () => {
             </div>
 
             {safetySection.items.length > 0 && (
-                <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                     <div className="px-5 py-4 border-b border-border-light/50 flex items-center gap-2.5">
                         <safetySection.icon className={`w-5 h-5 text-${safetySection.color}`} />
                         <h2 className="text-sm font-semibold text-heading">{safetySection.title}</h2>
@@ -445,7 +445,7 @@ const PlanDetails = () => {
             )}
 
             {(generatedPlanJson?.itineraryGuidance || routeAdviceItems.length > 0) && (
-                <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                     <div className="px-5 py-4 border-b border-border-light/50">
                         <h2 className="text-sm font-semibold text-heading">Itinerary Guidance</h2>
                     </div>
@@ -466,7 +466,7 @@ const PlanDetails = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {(specialistReferralItems.length > 0 || medicalConditionItems.length > 0) && (
-                    <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                         <div className="px-5 py-4 border-b border-border-light/50">
                             <h2 className="text-sm font-semibold text-heading">Clinical Notes</h2>
                         </div>
@@ -492,7 +492,7 @@ const PlanDetails = () => {
                 )}
 
                 {(generatedPlanJson?.afterReturn?.within1Week || generatedPlanJson?.afterReturn?.within4Weeks || generatedPlanJson?.afterReturn?.beyond4Weeks || generatedPlanJson?.afterReturn?.redFlag) && (
-                    <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                         <div className="px-5 py-4 border-b border-border-light/50">
                             <h2 className="text-sm font-semibold text-heading">After Return Guidance</h2>
                         </div>
@@ -506,7 +506,7 @@ const PlanDetails = () => {
                 )}
 
                 {displayEmergencyContacts.length > 0 && (
-                    <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                         <div className="px-5 py-4 border-b border-border-light/50 flex items-center gap-2.5">
                             <LucidePhone className="w-5 h-5 text-accent" />
                             <h2 className="text-sm font-semibold text-heading">Emergency Contacts</h2>
@@ -523,7 +523,7 @@ const PlanDetails = () => {
                 )}
 
                 {(generatedPlanJson?.nextSteps ?? []).length > 0 && (
-                    <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                         <div className="px-5 py-4 border-b border-border-light/50">
                             <h2 className="text-sm font-semibold text-heading">Next Steps</h2>
                         </div>

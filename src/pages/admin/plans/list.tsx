@@ -57,7 +57,7 @@ const TravelPlans = () => {
                 </Link>
             </div>
 
-            <div className="bg-white rounded-2xl border border-border-light/50 p-4">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-4">
                 <div className="flex flex-col sm:flex-row gap-3">
                     <div className="flex-1 relative">
                         <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
@@ -90,7 +90,7 @@ const TravelPlans = () => {
                     <LucideLoader2 className="w-6 h-6 text-accent animate-spin" />
                 </div>
             ) : filtered.length === 0 ? (
-                <div className="bg-white rounded-2xl border border-border-light/50 p-12 text-center">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-12 text-center">
                     <div className="w-14 h-14 rounded-full bg-button-secondary flex items-center justify-center mx-auto mb-4">
                         <LucideMapPin className="w-7 h-7 text-muted" />
                     </div>
@@ -112,7 +112,7 @@ const TravelPlans = () => {
                             <Link
                                 key={plan.id}
                                 to={`/admin/plans/${plan.id}`}
-                                className="bg-white rounded-2xl border border-border-light/50 p-5 hover:border-accent/30 transition-all group"
+                                className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-5 hover:border-accent/30 transition-all group"
                             >
                                 <div className="flex items-start justify-between mb-3">
                                     <div className="flex items-center gap-2">

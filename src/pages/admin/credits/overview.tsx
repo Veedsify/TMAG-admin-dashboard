@@ -84,7 +84,7 @@ const Credits = () => {
 
             {/* Balance Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-white rounded-2xl border border-border-light/50 p-6">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                     <div className="flex items-center justify-between mb-4">
                         <span className="text-xs font-semibold text-muted uppercase tracking-wider">
                             Total Credits
@@ -94,7 +94,7 @@ const Credits = () => {
                     <p className="text-2xl sm:text-3xl md:text-4xl font-serif text-heading tabular-nums">{isLoading ? "—" : totalCredits}</p>
                 </div>
 
-                <div className="bg-white rounded-2xl border border-border-light/50 p-6">
+                <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                     <div className="flex items-center justify-between mb-4">
                         <span className="text-xs font-semibold text-muted uppercase tracking-wider">
                             Used
@@ -116,7 +116,7 @@ const Credits = () => {
             </div>
 
             {/* Purchase Credits */}
-            <div className="bg-white rounded-2xl border border-border-light/50 p-6">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                 <h2 className="text-base font-semibold text-heading mb-4">Purchase Credits</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {creditPackages.map((credits, idx) => {
@@ -168,7 +168,7 @@ const Credits = () => {
             </div>
 
             {/* Recent Transactions */}
-            <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                 <div className="px-6 py-4 border-b border-border-light/50 flex items-center justify-between">
                     <h2 className="text-lg font-semibold text-heading">Recent Transactions</h2>
                     <button className="text-sm text-accent font-medium hover:underline flex items-center gap-1">

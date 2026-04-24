@@ -67,7 +67,7 @@ const TeamMembers = () => {
             </div>
 
             {/* Search and Filters */}
-            <div className="bg-white rounded-2xl border border-border-light/50 p-4">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-4">
                 <div className="flex items-center gap-4">
                     <div className="flex-1 relative">
                         <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted pointer-events-none" />
@@ -89,7 +89,7 @@ const TeamMembers = () => {
             </div>
 
             {/* Members Table */}
-            <div className="bg-white rounded-2xl border border-border-light/50 overflow-x-auto">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-x-auto">
                 <table className="w-full">
                     <thead className="bg-background-primary border-b border-border-light/50">
                         <tr>

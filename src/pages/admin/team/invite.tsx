@@ -188,7 +188,7 @@ const InviteMembers = () => {
             </div>
 
             {/* Credits per invite */}
-            <div className="bg-white rounded-2xl border border-border-light/50 p-5">
+            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-5">
                 <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
                     Default Credits per Invite
                 </label>
@@ -237,7 +237,7 @@ const InviteMembers = () => {
 
             {inviteMethod === "single" && (
                 <div className="space-y-5">
-                    <div className="bg-white rounded-2xl border border-border-light/50 p-6">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                         <h2 className="text-lg font-semibold text-heading mb-4">Assign Role</h2>
                         <p className="text-xs text-muted mb-4">Choose the role for all members you're inviting</p>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -261,7 +261,7 @@ const InviteMembers = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl border border-border-light/50 overflow-hidden">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                         <div className="px-6 py-4 border-b border-border-light/50 flex items-center justify-between">
                             <h2 className="text-lg font-semibold text-heading">Member Details</h2>
                             <span className="text-xs text-muted">{invites.length} member(s)</span>
@@ -364,7 +364,7 @@ const InviteMembers = () => {
 
             {inviteMethod === "bulk" && (
                 <div className="space-y-5">
-                    <div className="bg-white rounded-2xl border border-border-light/50 p-6">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                         <h2 className="text-lg font-semibold text-heading mb-4">Default Role for CSV Members</h2>
                         <p className="text-xs text-muted mb-4">Role assigned to members where <code className="bg-background-primary px-1 rounded">role</code> column is absent in CSV</p>
                         <div className="flex flex-wrap gap-3">
@@ -385,7 +385,7 @@ const InviteMembers = () => {
                         </div>
                     </div>
 
-                    <div className="bg-white rounded-2xl border border-border-light/50 p-6">
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                         <div className="flex items-center justify-between mb-4">
                             <h2 className="text-lg font-semibold text-heading">Upload CSV File</h2>
                             <button
