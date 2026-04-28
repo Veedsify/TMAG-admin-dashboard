@@ -3,6 +3,7 @@ import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminHeader from "../components/admin/AdminHeader";
 import ProtectedRoute from "../components/guards/ProtectedRoute";
 import { MobileSidebarProvider } from "../context/MobileSidebarContext";
+import FooterSection from "../components/sections/FooterSection";
 
 const AdminLayout = () => {
     return (
@@ -13,6 +14,7 @@ const AdminLayout = () => {
                     <main className="lg:ml-64 px-4 sm:px-6 lg:px-12 py-6 sm:py-8 max-w-7xl">
                         <AdminHeader />
                         <Outlet />
+                        <FooterSection />
                     </main>
                 </div>
             </MobileSidebarProvider>
