@@ -46,7 +46,7 @@ const Credits = () => {
                 console.error(`Failed to fetch quote for ${credits} credits`, err);
             }
         });
-    }, [companyId, billingCurrency, creditPackages, getQuote]);
+    }, [companyId, billingCurrency, creditPackages]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handlePurchase = async (credits: number) => {
         if (!companyId) return;
