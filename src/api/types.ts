@@ -688,10 +688,23 @@ export interface PlanHistoryDto {
   destination: string;
   country: string;
   purpose: string;
+  tripType: string;
+  tripDetailsJson: string;
   duration: number;
   riskScore: number;
   status: string;
   employeeName: string;
+  medicalConsiderations: string;
+  vaccinations: string;
+  healthAlerts: string;
+  safetyAdvisories: string;
+  medications: string;
+  waterFood: string;
+  emergencyContacts: string;
+  generatedPlanStatus: string;
+  generatedPlanJson: string;
+  signedPdfUrl: string;
+  summaryPdfUrl: string;
   createdAt: string;
   updatedAt: string;
 }
