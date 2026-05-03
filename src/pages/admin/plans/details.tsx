@@ -15,6 +15,7 @@ import {
     LucideClock,
     LucideCheckCircle2,
     LucideLoader2,
+    LucideUsers,
 } from "lucide-react";
 import { useTravelPlan, useEmployee } from "../../../api/hooks";
 
@@ -273,6 +274,17 @@ const PlanDetails = () => {
                         <LucideMapPin className="w-4 h-4" />
                         {plan.purpose}
                     </div>
+                    {(plan as any).openToAllDoctors ? (
+                        <div className="flex items-center gap-2 text-sm text-muted">
+                            <LucideUsers className="w-4 h-4" />
+                            Open to all doctors
+                        </div>
+                    ) : (plan as any).assignedDoctors && (plan as any).assignedDoctors.length > 0 ? (
+                        <div className="flex items-center gap-2 text-sm text-muted">
+                            <LucideUsers className="w-4 h-4" />
+                            Assigned: {(plan as any).assignedDoctors.map((d: any) => `${d.firstName ?? ""} ${d.lastName ?? ""}`.trim()).join(", ")}
+                        </div>
+                    ) : null}
                 </div>
             </div>
 
