@@ -26,7 +26,7 @@ const navItems = [
     { label: "Company Profile", href: "/admin/company", icon: LucideBuilding2 },
     { label: "Team Members", href: "/admin/team", icon: LucideUsers },
     { label: "Employees", href: "/admin/employees", icon: LucideBriefcase },
-    { label: "Credits & Billing", href: "/admin/credits", icon: LucideCoins },
+    { label: "Billing & Seats", href: "/admin/credits", icon: LucideCoins },
     { label: "Travel Plans", href: "/admin/plans", icon: LucideFileText },
     { label: "Credit Requests", href: "/admin/requests", icon: LucideClipboardList },
     { label: "Reports", href: "/admin/reports", icon: LucideBarChart3 },

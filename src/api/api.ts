@@ -179,6 +179,55 @@ export const companyAdminCreditsApi = {
     }).then((r) => r.data.data),
 };
 
+// ─── Company admin · Seats (seat-based subscriptions) ─────────
+
+export const companyAdminSeatsApi = {
+  getSubscription: (companyId: number) =>
+    api.get<ApiResponse<import("./types").CompanySubscriptionSummary>>("/company-admin/seats/subscription", {
+      params: { companyId },
+    }).then((r) => r.data.data),
+
+  listEmployeeUsage: (companyId: number) =>
+    api.get<ApiResponse<import("./types").EmployeePlanUsage[]>>("/company-admin/seats/employees", {
+      params: { companyId },
+    }).then((r) => r.data.data),
+
+  getEmployeeUsage: (employeeId: number) =>
+    api.get<ApiResponse<import("./types").EmployeePlanUsage>>(`/company-admin/seats/employees/${employeeId}`)
+      .then((r) => r.data.data),
+
+  seatQuote: (companyId: number, additionalSeats: number) =>
+    api.get<ApiResponse<import("./types").SeatAddonQuote>>("/company-admin/seats/quote", {
+      params: { companyId, additionalSeats },
+    }).then((r) => r.data.data),
+
+  purchaseSeats: (data: { companyId: number; additionalSeats: number }) =>
+    api.post<ApiResponse<import("./types").SeatInitiateResult>>("/company-admin/seats/purchase", data)
+      .then((r) => r.data.data),
+
+  extraPlansQuote: (companyId: number, planCount: number) =>
+    api.get<ApiResponse<import("./types").ExtraPlansQuote>>("/company-admin/seats/extra-plans/quote", {
+      params: { companyId, planCount },
+    }).then((r) => r.data.data),
+
+  purchaseExtraPlans: (data: { companyId: number; planCount: number }) =>
+    api.post<ApiResponse<import("./types").SeatInitiateResult>>("/company-admin/seats/extra-plans/purchase", data)
+      .then((r) => r.data.data),
+
+  assignExtraPlans: (data: { companyId: number; employeeId: number; count: number }) =>
+    api.post<ApiResponse<import("./types").EmployeePlanUsage>>("/company-admin/seats/extra-plans/assign", data)
+      .then((r) => r.data.data),
+
+  renew: (data: { companyId: number }) =>
+    api.post<ApiResponse<import("./types").SeatInitiateResult>>("/company-admin/seats/renew", data)
+      .then((r) => r.data.data),
+
+  verify: (txRef: string, transactionId?: string) =>
+    api.get<ApiResponse<{ success: boolean; purchase: any }>>(`/company-admin/seats/verify/${txRef}`, {
+      params: transactionId ? { transaction_id: transactionId } : {},
+    }).then((r) => r.data.data),
+};
+
 // ─── Employees ───────────────────────────────────────────────
 
 export const employeesApi = {
