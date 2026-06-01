@@ -39,6 +39,8 @@ const Dashboard = () => {
     const totalCredits = company?.total_credits ?? 0;
     const usedCredits = company?.used_credits ?? 0;
     const remainingCredits = totalCredits - usedCredits;
+    const isSeat = company?.billing_model === "SEAT";
+    const seatsRemaining = company?.seats_remaining ?? 0;
     const activePlans = plansData?.data.filter(p => p.status === "COMPLETED" || p.status === "PROCESSING").length ?? 0;
     const pendingRequests = requestsData?.data.filter(r => r.status === "PENDING").length ?? 0;
 
@@ -70,7 +72,9 @@ const Dashboard = () => {
 
     const stats = [
         { label: "Total Team Members", value: totalEmployees, icon: LucideUsers, href: "/admin/team", loading: employeesLoading },
-        { label: "Credits Remaining", value: remainingCredits, icon: LucideCoins, href: "/admin/credits", loading: false },
+        isSeat
+            ? { label: "Seats Remaining", value: seatsRemaining, icon: LucideCoins, href: "/admin/credits", loading: false }
+            : { label: "Credits Remaining", value: remainingCredits, icon: LucideCoins, href: "/admin/credits", loading: false },
         { label: "Active Travel Plans", value: activePlans, icon: LucideFileText, href: "/admin/plans", loading: plansLoading },
         { label: "Pending Requests", value: pendingRequests, icon: LucideClipboardCheck, href: "/admin/requests", loading: requestsLoading },
     ];

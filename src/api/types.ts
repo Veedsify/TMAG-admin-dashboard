@@ -545,6 +545,90 @@ export interface MyCompanyMembership {
   role: string;
   credits_allocated: number;
   credits_used: number;
+  // ── Seat-based subscription (present when billing_model === "SEAT") ──
+  billing_model?: "CREDIT" | "SEAT";
+  seats_total?: number;
+  seats_used?: number;
+  seats_remaining?: number;
+  seat_tier?: string;
+  price_per_seat?: number;
+  total_annual_amount?: number;
+  renewal_date?: string;
+  subscription_status?: string;
+  subscription_expired?: boolean;
+  extra_plans_purchased?: number;
+  extra_plans_available?: number;
+}
+
+// ─── Seat-based subscription (company admin) ──────────────────
+
+export interface CompanySubscriptionSummary {
+  companyId: number;
+  companyName: string;
+  billingModel: string;
+  seatsTotal: number;
+  seatsUsed: number;
+  seatsRemaining: number;
+  pricingTier: string;
+  pricePerSeat: number;
+  currency: string;
+  currencySymbol: string;
+  totalAnnualAmount: number;
+  periodStart: string;
+  renewalDate: string;
+  status: string;
+  expired: boolean;
+  extraPlansPurchased: number;
+  extraPlansAssigned: number;
+  extraPlansAvailable: number;
+  includedPlansPerSeat: number;
+  extraPlanPrice: number;
+}
+
+export interface EmployeePlanUsage {
+  employeeId: number;
+  userId: number | null;
+  name: string;
+  email: string;
+  department: string | null;
+  status: string | null;
+  includedUsed: number;
+  includedLimit: number;
+  extraAllocated: number;
+  extraUsed: number;
+  totalRemaining: number;
+  allocationPeriodStart: string | null;
+}
+
+export interface SeatAddonQuote {
+  companyId: number;
+  companyName: string;
+  additionalSeats: number;
+  pricePerSeat: number;
+  totalAmount: number;
+  tier: string;
+  currency: string;
+  currencySymbol: string;
+}
+
+export interface ExtraPlansQuote {
+  companyId: number;
+  companyName: string;
+  planCount: number;
+  pricePerPlan: number;
+  totalAmount: number;
+  currency: string;
+  currencySymbol: string;
+}
+
+export interface SeatInitiateResult {
+  txRef: string;
+  paymentLink: string;
+  quantity: number;
+  amount: number;
+  currency: string;
+  currencySymbol: string;
+  purchaseId: number;
 }
 
 export interface CreateCompanyUserRequest {

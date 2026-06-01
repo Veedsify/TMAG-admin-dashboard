@@ -14,6 +14,7 @@ const TeamMembers = lazy(() => import("../pages/admin/team/members"));
 const InviteMembers = lazy(() => import("../pages/admin/team/invite"));
 const Credits = lazy(() => import("../pages/admin/credits/overview"));
 const PaymentCallback = lazy(() => import("../pages/admin/credits/callback"));
+const SeatPaymentCallback = lazy(() => import("../pages/admin/seats/callback"));
 const Invoices = lazy(() => import("../pages/admin/credits/invoices"));
 const InvoiceDetail = lazy(() => import("../pages/admin/credits/invoice-detail"));
 const TravelPlans = lazy(() => import("../pages/admin/plans/list"));
@@ -91,6 +92,10 @@ const router = createBrowserRouter([
             {
                 path: "credits/callback",
                 element: withSuspense(<PaymentCallback />),
+            },
+            {
+                path: "seats/callback",
+                element: withSuspense(<SeatPaymentCallback />),
             },
             {
                 path: "credits/invoices",

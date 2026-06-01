@@ -9,8 +9,9 @@ import {
     LucideX,
     LucideCoins,
     LucideUsers,
+    LucidePlusCircle,
 } from "lucide-react";
-import { useMyCompanies, useEmployees, useInviteEmployee, useAllocateEmployeeCredits, useUpdateEmployeeStatus, useDeleteEmployee } from "../../../api/hooks";
+import { useMyCompanies, useEmployees, useInviteEmployee, useAllocateEmployeeCredits, useUpdateEmployeeStatus, useDeleteEmployee, useEmployeePlanUsage, useAssignExtraPlans } from "../../../api/hooks";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 
@@ -32,17 +33,47 @@ const Employees = () => {
     const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
     const [allocatingFor, setAllocatingFor] = useState<number | null>(null);
     const [newCredits, setNewCredits] = useState("");
+    const [assigningFor, setAssigningFor] = useState<number | null>(null);
+    const [assignCount, setAssignCount] = useState("");
+
+    const isSeat = company?.billing_model === "SEAT";
 
     const { data: employeesData, isLoading } = useEmployees({
         companyId: companyIdNum,
         search: search || undefined,
     });
+    const { data: planUsage } = useEmployeePlanUsage(isSeat ? companyIdNum : undefined);
     const inviteEmployee = useInviteEmployee();
     const allocateCredits = useAllocateEmployeeCredits();
     const updateStatus = useUpdateEmployeeStatus();
     const deleteEmployee = useDeleteEmployee();
+    const assignExtraPlans = useAssignExtraPlans();
 
     const employees = employeesData?.data || [];
+    const usageByEmployee = new Map((planUsage ?? []).map((u) => [u.employeeId, u]));
+
+    const handleAssignExtraPlans = (id: number) => {
+        const count = parseInt(assignCount);
+        if (!companyIdNum) return;
+        if (isNaN(count) || count <= 0) {
+            toast.error("Please enter a valid number of plans");
+            return;
+        }
+        assignExtraPlans.mutate(
+            { companyId: companyIdNum, employeeId: id, count },
+            {
+                onSuccess: () => {
+                    setAssigningFor(null);
+                    setAssignCount("");
+                    toast.success("Extra plans assigned");
+                },
+                onError: (error) => {
+                    if (error instanceof AxiosError) toast.error(error?.response?.data?.message || error?.response?.data?.error || "Failed to assign plans");
+                    else toast.error("Failed to assign plans");
+                },
+            }
+        );
+    };
 
     const handleInvite = () => {
         if (!companyIdNum || !inviteName || !inviteEmail) return;
@@ -212,7 +243,7 @@ const Employees = () => {
                         <tr>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Employee</th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider hidden md:table-cell">Department</th>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Credits</th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{isSeat ? "Plan usage" : "Credits"}</th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider hidden sm:table-cell">Plans</th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
                             <th className="px-6 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
@@ -276,8 +307,48 @@ const Employees = () => {
                                     </td>
                                     <td className="px-6 py-4 text-sm text-body hidden md:table-cell">{emp.department}</td>
                                     <td className="px-6 py-4">
-                                        <span className="text-sm text-heading font-medium">{emp.creditsUsed}</span>
-                                        <span className="text-xs text-muted"> / {emp.creditsAllocated}</span>
+                                        {isSeat ? (() => {
+                                            const u = usageByEmployee.get(emp.id);
+                                            if (!u) return <span className="text-xs text-muted">—</span>;
+                                            return (
+                                                <div className="text-sm leading-tight">
+                                                    <div>
+                                                        <span className="text-heading font-medium">{u.includedUsed}</span>
+                                                        <span className="text-xs text-muted"> / {u.includedLimit} included</span>
+                                                    </div>
+                                                    {u.extraAllocated > 0 && (
+                                                        <div className="text-xs text-muted">{u.extraUsed} / {u.extraAllocated} extra</div>
+                                                    )}
+                                                </div>
+                                            );
+                                        })() : (
+                                            <>
+                                                <span className="text-sm text-heading font-medium">{emp.creditsUsed}</span>
+                                                <span className="text-xs text-muted"> / {emp.creditsAllocated}</span>
+                                            </>
+                                        )}
+                                        {assigningFor === emp.id && (
+                                            <div className="flex items-center gap-2 mt-2 max-w-xs">
+                                                <input
+                                                    type="number"
+                                                    value={assignCount}
+                                                    onChange={(e) => setAssignCount(e.target.value)}
+                                                    placeholder="Extra plans"
+                                                    className="border border-border-light rounded-lg px-3 py-1.5 text-sm text-heading outline-none focus:border-accent flex-1 min-w-0"
+                                                    autoFocus
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") handleAssignExtraPlans(emp.id);
+                                                        if (e.key === "Escape") { setAssigningFor(null); setAssignCount(""); }
+                                                    }}
+                                                />
+                                                <button onClick={() => handleAssignExtraPlans(emp.id)} disabled={assignExtraPlans.isPending} className="p-1.5 rounded-lg bg-accent/10 hover:bg-accent/20 text-accent transition-colors disabled:opacity-50">
+                                                    <LucideCheck className="w-4 h-4" />
+                                                </button>
+                                                <button onClick={() => { setAssigningFor(null); setAssignCount(""); }} className="p-1.5 rounded-lg hover:bg-button-secondary text-muted transition-colors">
+                                                    <LucideX className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        )}
                                     </td>
                                     <td className="px-6 py-4 text-sm text-body hidden sm:table-cell">{emp.plansGenerated}</td>
                                     <td className="px-6 py-4">
@@ -298,13 +369,23 @@ const Employees = () => {
                                             <>
                                                 <div className="fixed inset-0 z-10" onClick={() => setMenuOpenId(null)} />
                                                 <div className="absolute right-6 top-full mt-1 bg-white border border-border-light rounded-xl shadow-lg z-20 min-w-44 py-1">
-                                                    <button
-                                                        onClick={() => { setAllocatingFor(emp.id); setMenuOpenId(null); }}
-                                                        className="w-full text-left px-4 py-2 text-sm text-heading hover:bg-background-secondary transition-colors flex items-center gap-2 cursor-pointer"
-                                                    >
-                                                        <LucideCoins className="w-3.5 h-3.5" />
-                                                        Allocate credits
-                                                    </button>
+                                                    {isSeat ? (
+                                                        <button
+                                                            onClick={() => { setAssigningFor(emp.id); setMenuOpenId(null); }}
+                                                            className="w-full text-left px-4 py-2 text-sm text-heading hover:bg-background-secondary transition-colors flex items-center gap-2 cursor-pointer"
+                                                        >
+                                                            <LucidePlusCircle className="w-3.5 h-3.5" />
+                                                            Assign extra plans
+                                                        </button>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => { setAllocatingFor(emp.id); setMenuOpenId(null); }}
+                                                            className="w-full text-left px-4 py-2 text-sm text-heading hover:bg-background-secondary transition-colors flex items-center gap-2 cursor-pointer"
+                                                        >
+                                                            <LucideCoins className="w-3.5 h-3.5" />
+                                                            Allocate credits
+                                                        </button>
+                                                    )}
                                                     <button
                                                         onClick={() => {
                                                             updateStatus.mutate({ id: emp.id, data: { status: emp.status === "active" ? "inactive" : "active" } });

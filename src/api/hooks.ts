@@ -4,6 +4,7 @@ import {
   authApi,
   companiesApi,
   companyAdminCreditsApi,
+  companyAdminSeatsApi,
   employeesApi,
   travelPlansApi,
   creditRequestsApi,
@@ -303,6 +304,84 @@ export function useCompanyCreditHistory(companyId?: number) {
     queryKey: [...queryKeys.credits.all, "history", companyId],
     queryFn: () => companyAdminCreditsApi.getHistory(companyId),
     enabled: !!companyId,
+  });
+}
+
+// ─── Seat-based subscription hooks ────────────────────────────
+
+export function useCompanySubscription(companyId?: number) {
+  return useQuery({
+    queryKey: ["company-subscription", companyId],
+    queryFn: () => companyAdminSeatsApi.getSubscription(companyId as number),
+    enabled: !!companyId,
+  });
+}
+
+export function useEmployeePlanUsage(companyId?: number) {
+  return useQuery({
+    queryKey: ["employee-plan-usage", companyId],
+    queryFn: () => companyAdminSeatsApi.listEmployeeUsage(companyId as number),
+    enabled: !!companyId,
+  });
+}
+
+export function useSeatQuote() {
+  return useMutation({
+    mutationFn: ({ companyId, additionalSeats }: { companyId: number; additionalSeats: number }) =>
+      companyAdminSeatsApi.seatQuote(companyId, additionalSeats),
+  });
+}
+
+export function usePurchaseSeats() {
+  return useMutation({
+    mutationFn: (data: { companyId: number; additionalSeats: number }) =>
+      companyAdminSeatsApi.purchaseSeats(data),
+  });
+}
+
+export function useExtraPlansQuote() {
+  return useMutation({
+    mutationFn: ({ companyId, planCount }: { companyId: number; planCount: number }) =>
+      companyAdminSeatsApi.extraPlansQuote(companyId, planCount),
+  });
+}
+
+export function usePurchaseExtraPlans() {
+  return useMutation({
+    mutationFn: (data: { companyId: number; planCount: number }) =>
+      companyAdminSeatsApi.purchaseExtraPlans(data),
+  });
+}
+
+export function useAssignExtraPlans() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: { companyId: number; employeeId: number; count: number }) =>
+      companyAdminSeatsApi.assignExtraPlans(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["employee-plan-usage"] });
+      qc.invalidateQueries({ queryKey: ["company-subscription"] });
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+    },
+  });
+}
+
+export function useRenewSubscription() {
+  return useMutation({
+    mutationFn: (data: { companyId: number }) => companyAdminSeatsApi.renew(data),
+  });
+}
+
+export function useVerifySeatPurchase() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ txRef, transactionId }: { txRef: string; transactionId?: string }) =>
+      companyAdminSeatsApi.verify(txRef, transactionId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["company-subscription"] });
+      qc.invalidateQueries({ queryKey: ["employee-plan-usage"] });
+      qc.invalidateQueries({ queryKey: queryKeys.companies.all });
+    },
   });
 }
 
