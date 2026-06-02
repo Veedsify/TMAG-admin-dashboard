@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { LucideArrowLeft, LucideSearch, LucideFileText, LucideLoader2 } from "lucide-react";
 import { useInvoices } from "../../../api/hooks";
-import LaunchDiscountBanner from "../../../components/LaunchDiscountBanner";
 
 const Invoices = () => {
     const [search, setSearch] = useState("");
@@ -30,8 +29,6 @@ const Invoices = () => {
                     <p className="text-sm text-muted mt-1">View and download your billing history</p>
                 </div>
             </div>
-
-            <LaunchDiscountBanner variant="page" />
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-5">
@@ -73,9 +70,8 @@ const Invoices = () => {
                             <button
                                 key={f}
                                 onClick={() => setStatusFilter(f)}
-                                className={`px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${
-                                    statusFilter === f ? "bg-dark text-background-primary" : "bg-button-secondary text-muted hover:bg-border-light"
-                                }`}
+                                className={`px-3 py-2 rounded-xl text-xs font-semibold transition-colors ${statusFilter === f ? "bg-dark text-background-primary" : "bg-button-secondary text-muted hover:bg-border-light"
+                                    }`}
                             >
                                 {f.charAt(0).toUpperCase() + f.slice(1)}
                             </button>
@@ -89,7 +85,7 @@ const Invoices = () => {
                     </div>
                 ) : (
                     <div className="overflow-x-auto">
-                        <table className="w-full min-w-[540px]">
+                        <table className="w-full min-w-135">
                             <thead>
                                 <tr className="border-b border-border-light/50">
                                     {["Invoice", "Date", "Description", "Amount", "Status"].map((h) => (
@@ -111,9 +107,8 @@ const Invoices = () => {
                                             {inv.currency === "NGN" ? "₦" : "$"}{(inv.amount ?? 0).toLocaleString()}
                                         </td>
                                         <td className="px-6 py-4">
-                                            <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${
-                                                inv.status?.toLowerCase() === "paid" ? "bg-accent/10 text-accent" : "bg-gold/10 text-gold"
-                                            }`}>
+                                            <span className={`inline-flex px-2.5 py-1 rounded-full text-xs font-semibold ${inv.status?.toLowerCase() === "paid" ? "bg-accent/10 text-accent" : "bg-gold/10 text-gold"
+                                                }`}>
                                                 {inv.status ? inv.status.charAt(0).toUpperCase() + inv.status.slice(1).toLowerCase() : "Unknown"}
                                             </span>
                                         </td>

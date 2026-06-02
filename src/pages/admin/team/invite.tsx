@@ -22,13 +22,11 @@ const InviteMembers = () => {
     const { data: myCompanies } = useMyCompanies();
     const company = myCompanies?.[0];
     const companyId = company?.id ?? 0;
-    const availableCredits = (company?.total_credits ?? 0) - (company?.used_credits ?? 0);
     const inviteEmployee = useInviteEmployee();
 
     const [inviteMethod, setInviteMethod] = useState<"single" | "bulk">("single");
     const [selectedRole, setSelectedRole] = useState<Role>("Individual");
     const [bulkRole, setBulkRole] = useState<Role>("Individual");
-    const [defaultCredits, setDefaultCredits] = useState(5);
     const [invites, setInvites] = useState([{ firstName: "", lastName: "", email: "", department: "" }]);
     const [sending, setSending] = useState(false);
 
@@ -56,12 +54,6 @@ const InviteMembers = () => {
             toast.error("No company found. Please set up your company first.");
             return;
         }
-        const totalRequired = valid.length * defaultCredits;
-        if (totalRequired > availableCredits) {
-            toast.error(`Not enough credits. Need ${totalRequired}, but only ${availableCredits} available.`);
-            return;
-        }
-
         setSending(true);
         let successCount = 0;
         let failCount = 0;
@@ -69,11 +61,11 @@ const InviteMembers = () => {
         for (const invite of valid) {
             try {
                 await inviteEmployee.mutateAsync({
-                    name: `${invite.firstName} ${invite.lastName}`.trim(),
+                    firstName: invite.firstName.trim(),
+                    lastName: invite.lastName.trim(),
                     email: invite.email.trim(),
                     department: invite.department.trim() || "General",
                     role: selectedRole,
-                    creditsAllocated: defaultCredits,
                     companyId,
                 });
                 successCount++;
@@ -140,11 +132,11 @@ const InviteMembers = () => {
 
                 try {
                     await inviteEmployee.mutateAsync({
-                        name: `${firstName} ${lastName}`.trim() || email,
+                        firstName,
+                        lastName,
                         email,
                         department,
                         role,
-                        creditsAllocated: defaultCredits,
                         companyId,
                     });
                     successCount++;
@@ -187,26 +179,6 @@ const InviteMembers = () => {
                 <p className="text-sm text-muted mt-1">Add new employees to your company</p>
             </div>
 
-            {/* Credits per invite */}
-            <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-5">
-                <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
-                    Default Credits per Invite
-                </label>
-                <input
-                    type="number"
-                    min={1}
-                    max={availableCredits}
-                    value={defaultCredits}
-                    onChange={(e) => setDefaultCredits(Math.max(1, Math.min(availableCredits, Number(e.target.value))))}
-                    className="w-32 bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
-                />
-                <p className="text-xs text-muted mt-1.5">
-                    Each invited member receives this many credits upon signup &mdash;{" "}
-                    <span className={availableCredits <= 0 ? "text-red-500 font-semibold" : "font-semibold"}>
-                        {availableCredits} credits available
-                    </span>
-                </p>
-            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <button
@@ -267,7 +239,7 @@ const InviteMembers = () => {
                             <span className="text-xs text-muted">{invites.length} member(s)</span>
                         </div>
                         <div className="overflow-x-auto">
-                            <table className="w-full min-w-[540px]">
+                            <table className="w-full min-w-135">
                                 <thead>
                                     <tr className="border-b border-border-light/50">
                                         {["First Name", "Last Name", "Email", "Department", ""].map((h) => (
@@ -342,7 +314,7 @@ const InviteMembers = () => {
 
                     <div className="flex items-center justify-between gap-4">
                         <div className="flex items-center gap-2 p-3 bg-accent/5 border border-accent/20 rounded-xl">
-                            <LucideShield className="w-4 h-4 text-accent flex-shrink-0" />
+                            <LucideShield className="w-4 h-4 text-accent shrink-0" />
                             <span className="text-xs text-heading">
                                 All members will be invited as <span className="font-semibold">{selectedRole}</span> &mdash; you can change roles later
                             </span>

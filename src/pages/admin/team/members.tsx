@@ -16,7 +16,7 @@ import { useMyCompanies, useCompanyTeamMembers, useCompanyAdminAllocateCredits, 
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 
-const AVAILABLE_ROLES = ["Individual", "Admin", "Manager", "Viewer"];
+const AVAILABLE_ROLES = ["Individual", "Admin"];
 
 const TeamMembers = () => {
     const [searchQuery, setSearchQuery] = useState("");

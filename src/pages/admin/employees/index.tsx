@@ -10,12 +10,17 @@ import {
     LucideCoins,
     LucideUsers,
     LucidePlusCircle,
+    LucideUserCog,
+    LucideSend,
+    LucideCheckCircle,
+    LucideClock,
+    LucideCircle,
 } from "lucide-react";
-import { useMyCompanies, useEmployees, useInviteEmployee, useAllocateEmployeeCredits, useUpdateEmployeeStatus, useDeleteEmployee, useEmployeePlanUsage, useAssignExtraPlans } from "../../../api/hooks";
+import { useMyCompanies, useEmployees, useInviteEmployee, useAllocateEmployeeCredits, useUpdateEmployeeStatus, useDeleteEmployee, useEmployeePlanUsage, useAssignExtraPlans, useUpdateEmployee, useRemindOnboarding } from "../../../api/hooks";
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 
-const AVAILABLE_ROLES = ["Individual", "Admin", "Manager", "Viewer"];
+const AVAILABLE_ROLES = ["Individual", "Admin"];
 
 const Employees = () => {
     const navigate = useNavigate();
@@ -25,14 +30,15 @@ const Employees = () => {
 
     const [search, setSearch] = useState("");
     const [showInvite, setShowInvite] = useState(false);
-    const [inviteName, setInviteName] = useState("");
+    const [inviteFirstName, setInviteFirstName] = useState("");
+    const [inviteLastName, setInviteLastName] = useState("");
     const [inviteEmail, setInviteEmail] = useState("");
     const [inviteDept, setInviteDept] = useState("");
     const [inviteRole, setInviteRole] = useState("Individual");
-    const [inviteCredits, setInviteCredits] = useState("");
     const [menuOpenId, setMenuOpenId] = useState<number | null>(null);
     const [allocatingFor, setAllocatingFor] = useState<number | null>(null);
     const [newCredits, setNewCredits] = useState("");
+    const [changingRoleFor, setChangingRoleFor] = useState<number | null>(null);
     const [assigningFor, setAssigningFor] = useState<number | null>(null);
     const [assignCount, setAssignCount] = useState("");
 
@@ -48,6 +54,8 @@ const Employees = () => {
     const updateStatus = useUpdateEmployeeStatus();
     const deleteEmployee = useDeleteEmployee();
     const assignExtraPlans = useAssignExtraPlans();
+    const updateEmployee = useUpdateEmployee();
+    const remindOnboarding = useRemindOnboarding();
 
     const employees = employeesData?.data || [];
     const usageByEmployee = new Map((planUsage ?? []).map((u) => [u.employeeId, u]));
@@ -74,26 +82,25 @@ const Employees = () => {
             }
         );
     };
-
     const handleInvite = () => {
-        if (!companyIdNum || !inviteName || !inviteEmail) return;
+        if (!companyIdNum || !inviteFirstName || !inviteEmail) return;
         inviteEmployee.mutate(
             {
                 companyId: companyIdNum,
-                name: inviteName,
+                firstName: inviteFirstName,
+                lastName: inviteLastName,
                 email: inviteEmail,
                 department: inviteDept,
                 role: inviteRole,
-                creditsAllocated: parseInt(inviteCredits) || 0,
             },
             {
                 onSuccess: () => {
                     setShowInvite(false);
-                    setInviteName("");
+                    setInviteFirstName("");
+                    setInviteLastName("");
                     setInviteEmail("");
                     setInviteDept("");
                     setInviteRole("Individual");
-                    setInviteCredits("");
                     toast.success("Employee invited successfully");
                 },
                 onError: (error) => {
@@ -143,6 +150,67 @@ const Employees = () => {
         });
     };
 
+    const handleRoleChange = (id: number, newRole: string) => {
+        updateEmployee.mutate(
+            { id, data: { role: newRole } },
+            {
+                onSuccess: () => {
+                    toast.success("Role updated");
+                    setChangingRoleFor(null);
+                },
+                onError: () => toast.error("Failed to update role"),
+            }
+        );
+    };
+
+    const deriveOnboardingStatus = (status: string, creditsUsed: number, plansGenerated: number) => {
+        if (status === "active" && (creditsUsed > 0 || plansGenerated > 0)) return "completed";
+        if (status === "active") return "in_progress";
+        return "not_started";
+    };
+
+    const onboardingBadge = (emp: typeof employees[0]) => {
+        const status = deriveOnboardingStatus(emp.status, emp.creditsUsed, emp.plansGenerated);
+        switch (status) {
+            case "completed":
+                return (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-accent bg-accent/10 px-2.5 py-1 rounded-full">
+                        <LucideCheckCircle className="w-3.5 h-3.5" />
+                        Completed
+                    </span>
+                );
+            case "in_progress":
+                return (
+                    <span className="inline-flex items-center gap-1 text-xs font-semibold text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full">
+                        <LucideClock className="w-3.5 h-3.5" />
+                        In progress
+                    </span>
+                );
+            default:
+                return (
+                    <div className="flex items-center gap-1.5">
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted bg-button-secondary px-2.5 py-1 rounded-full">
+                            <LucideCircle className="w-3.5 h-3.5" />
+                            Not started
+                        </span>
+                        <button
+                            onClick={() => {
+                                remindOnboarding.mutate(emp.id, {
+                                    onSuccess: () => toast.success(`Reminder sent to ${emp.email}`),
+                                    onError: () => toast.error("Failed to send reminder"),
+                                });
+                            }}
+                            disabled={remindOnboarding.isPending}
+                            className="p-1 rounded-lg hover:bg-accent/10 text-accent transition-colors disabled:opacity-50 cursor-pointer"
+                            title="Send reminder"
+                        >
+                            <LucideSend className="w-3.5 h-3.5" />
+                        </button>
+                    </div>
+                );
+        }
+    };
+
     return (
         <div className="space-y-6">
             {/* Header */}
@@ -178,11 +246,17 @@ const Employees = () => {
             {showInvite && (
                 <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                     <h3 className="text-base font-semibold text-heading mb-4">Invite New Employee</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                         <input
-                            value={inviteName}
-                            onChange={(e) => setInviteName(e.target.value)}
-                            placeholder="Full name"
+                            value={inviteFirstName}
+                            onChange={(e) => setInviteFirstName(e.target.value)}
+                            placeholder="First name"
+                            className="bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading placeholder:text-border outline-none focus:border-accent transition-colors"
+                        />
+                        <input
+                            value={inviteLastName}
+                            onChange={(e) => setInviteLastName(e.target.value)}
+                            placeholder="Last name"
                             className="bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading placeholder:text-border outline-none focus:border-accent transition-colors"
                         />
                         <input
@@ -192,35 +266,28 @@ const Employees = () => {
                             type="email"
                             className="bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading placeholder:text-border outline-none focus:border-accent transition-colors"
                         />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <input
                             value={inviteDept}
                             onChange={(e) => setInviteDept(e.target.value)}
                             placeholder="Department (optional)"
                             className="bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading placeholder:text-border outline-none focus:border-accent transition-colors"
                         />
-                        <div className="flex gap-2">
-                            <select
-                                value={inviteRole}
-                                onChange={(e) => setInviteRole(e.target.value)}
-                                className="bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors flex-1"
-                            >
-                                {AVAILABLE_ROLES.map((r) => (
-                                    <option key={r} value={r}>{r}</option>
-                                ))}
-                            </select>
-                            <input
-                                value={inviteCredits}
-                                onChange={(e) => setInviteCredits(e.target.value)}
-                                placeholder="Credits"
-                                type="number"
-                                className="bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading placeholder:text-border outline-none focus:border-accent transition-colors w-28"
-                            />
-                        </div>
+                        <select
+                            value={inviteRole}
+                            onChange={(e) => setInviteRole(e.target.value)}
+                            className="bg-background-primary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                        >
+                            {AVAILABLE_ROLES.map((r) => (
+                                <option key={r} value={r}>{r}</option>
+                            ))}
+                        </select>
                     </div>
                     <div className="flex gap-3">
                         <button
                             onClick={handleInvite}
-                            disabled={inviteEmployee.isPending || !inviteName || !inviteEmail}
+                            disabled={inviteEmployee.isPending || !inviteFirstName || !inviteEmail}
                             className="flex items-center gap-2 py-2.5 px-5 rounded-xl bg-dark text-background-primary font-semibold text-sm cursor-pointer hover:bg-darkest transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             {inviteEmployee.isPending && <LucideLoader2 className="w-3.5 h-3.5 animate-spin" />}
@@ -245,14 +312,16 @@ const Employees = () => {
                             <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider hidden md:table-cell">Department</th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{isSeat ? "Plan usage" : "Credits"}</th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider hidden sm:table-cell">Plans</th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Role</th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Onboarding</th>
                             <th className="px-6 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border-light/50">
                         {isLoading ? (
                             <tr>
-                                <td colSpan={6} className="px-6 py-12 text-center">
+                                <td colSpan={8} className="px-6 py-12 text-center">
                                     <LucideLoader2 className="w-6 h-6 text-accent animate-spin mx-auto" />
                                 </td>
                             </tr>
@@ -352,11 +421,35 @@ const Employees = () => {
                                     </td>
                                     <td className="px-6 py-4 text-sm text-body hidden sm:table-cell">{emp.plansGenerated}</td>
                                     <td className="px-6 py-4">
+                                        {changingRoleFor === emp.id ? (
+                                            <div className="flex items-center gap-1">
+                                                <select
+                                                    defaultValue={emp.role || "Individual"}
+                                                    onChange={(e) => handleRoleChange(emp.id, e.target.value)}
+                                                    className="border border-border-light rounded-lg px-2 py-1 text-xs font-semibold text-heading outline-none focus:border-accent"
+                                                    autoFocus
+                                                    onBlur={() => setChangingRoleFor(null)}
+                                                >
+                                                    {AVAILABLE_ROLES.map((r) => (
+                                                        <option key={r} value={r}>{r}</option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        ) : (
+                                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-accent/10 text-accent">
+                                                {emp.role || "Individual"}
+                                            </span>
+                                        )}
+                                    </td>
+                                    <td className="px-6 py-4">
                                         <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${
                                             emp.status === "active" ? "text-accent bg-accent/10" : "text-muted bg-button-secondary"
                                         }`}>
                                             {emp.status}
                                         </span>
+                                    </td>
+                                    <td className="px-6 py-4">
+                                        {onboardingBadge(emp)}
                                     </td>
                                     <td className="px-6 py-4 relative text-right">
                                         <button
@@ -388,6 +481,28 @@ const Employees = () => {
                                                     )}
                                                     <button
                                                         onClick={() => {
+                                                            remindOnboarding.mutate(emp.id, {
+                                                                onSuccess: () => toast.success(`Reminder sent to ${emp.email}`),
+                                                                onError: () => toast.error("Failed to send reminder"),
+                                                            });
+                                                            setMenuOpenId(null);
+                                                        }}
+                                                        disabled={remindOnboarding.isPending}
+                                                        className="w-full text-left px-4 py-2 text-sm text-heading hover:bg-background-secondary transition-colors flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                                                    >
+                                                        <LucideSend className="w-3.5 h-3.5" />
+                                                        Send reminder
+                                                    </button>
+                                                    <div className="border-t border-border-light/50 my-1" />
+                                                    <button
+                                                        onClick={() => { setChangingRoleFor(emp.id); setMenuOpenId(null); }}
+                                                        className="w-full text-left px-4 py-2 text-sm text-heading hover:bg-background-secondary transition-colors flex items-center gap-2 cursor-pointer"
+                                                    >
+                                                        <LucideUserCog className="w-3.5 h-3.5" />
+                                                        Change role
+                                                    </button>
+                                                    <button
+                                                        onClick={() => {
                                                             updateStatus.mutate({ id: emp.id, data: { status: emp.status === "active" ? "inactive" : "active" } });
                                                             setMenuOpenId(null);
                                                         }}
@@ -410,7 +525,7 @@ const Employees = () => {
                         )}
                         {!isLoading && employees.length === 0 && (
                             <tr>
-                                <td colSpan={6} className="px-6 py-12 text-center">
+                                <td colSpan={8} className="px-6 py-12 text-center">
                                     <LucideUsers className="w-10 h-10 text-muted mx-auto mb-3" />
                                     <p className="text-base font-semibold text-heading mb-1">No employees found</p>
                                     <p className="text-sm text-muted mb-4">Invite your first employee to get started</p>

@@ -1,17 +1,14 @@
 import { lazy, Suspense, type ReactNode } from "react";
-import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
+import { createBrowserRouter, Navigate, RouterProvider } from "react-router-dom";
 
 // Layouts
 import AdminLayout from "../layouts/adminlayout";
 import AuthLayout from "../layouts/authlayouts";
 
-
 // Pages
 const Login = lazy(() => import("../pages/auth/login"));
 const Dashboard = lazy(() => import("../pages/admin/dashboard"));
 const CompanyProfile = lazy(() => import("../pages/admin/company/profile"));
-const TeamMembers = lazy(() => import("../pages/admin/team/members"));
-const InviteMembers = lazy(() => import("../pages/admin/team/invite"));
 const Credits = lazy(() => import("../pages/admin/credits/overview"));
 const PaymentCallback = lazy(() => import("../pages/admin/credits/callback"));
 const SeatPaymentCallback = lazy(() => import("../pages/admin/seats/callback"));
@@ -21,7 +18,6 @@ const TravelPlans = lazy(() => import("../pages/admin/plans/list"));
 const PlanDetails = lazy(() => import("../pages/admin/plans/details"));
 const CreditRequests = lazy(() => import("../pages/admin/requests/list"));
 const Reports = lazy(() => import("../pages/admin/reports/overview"));
-const OnboardingStatus = lazy(() => import("../pages/admin/team/onboarding-status"));
 const Settings = lazy(() => import("../pages/admin/settings/general"));
 const AuditLog = lazy(() => import("../pages/admin/audit/log"));
 const Employees = lazy(() => import("../pages/admin/employees/index"));
@@ -75,15 +71,15 @@ const router = createBrowserRouter([
             },
             {
                 path: "team",
-                element: withSuspense(<TeamMembers />),
+                element: <Navigate to="/admin/employees" replace />,
             },
             {
                 path: "team/invite",
-                element: withSuspense(<InviteMembers />),
+                element: <Navigate to="/admin/employees" replace />,
             },
             {
                 path: "team/onboarding",
-                element: withSuspense(<OnboardingStatus />),
+                element: <Navigate to="/admin/employees" replace />,
             },
             {
                 path: "credits",

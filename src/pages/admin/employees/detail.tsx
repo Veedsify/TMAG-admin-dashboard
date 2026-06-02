@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useEmployee, useTravelPlans } from "../../../api/hooks";
-import { LucideArrowLeft, LucideLoader2, LucideMapPin, LucideCoins, LucideClipboardList } from "lucide-react";
+import { useEmployee, useTravelPlans, useRemindOnboarding } from "../../../api/hooks";
+import { LucideArrowLeft, LucideLoader2, LucideMapPin, LucideCoins, LucideClipboardList, LucideSend } from "lucide-react";
+import toast from "react-hot-toast";
 
 const EmployeeDetail = () => {
     const { id } = useParams<{ id: string }>();
@@ -13,6 +14,8 @@ const EmployeeDetail = () => {
     const employeePlans = (plansData?.data || []).filter(
         (p) => p.employeeId === employeeId
     );
+    const remindOnboarding = useRemindOnboarding();
+
 
     if (isLoading) {
         return (
@@ -61,10 +64,22 @@ const EmployeeDetail = () => {
                         <p className="text-sm text-muted">{employee.email}</p>
                         <div className="flex items-center gap-3 mt-2">
                             <span className="text-xs text-body bg-button-secondary px-2.5 py-1 rounded-full">{employee.department}</span>
-                            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${employee.status === "active" ? "text-accent bg-accent/10" : "text-muted bg-button-secondary"
-                                }`}>
+                            <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${employee.status === "active" ? "text-accent bg-accent/10" : "text-muted bg-button-secondary"}`}>
                                 {employee.status}
                             </span>
+                            <button
+                                onClick={() => {
+                                    remindOnboarding.mutate(employee.id, {
+                                        onSuccess: () => toast.success(`Reminder sent to ${employee.email}`),
+                                        onError: () => toast.error("Failed to send reminder"),
+                                    });
+                                }}
+                                disabled={remindOnboarding.isPending}
+                                className="px-3 py-1.5 rounded-lg bg-accent/10 hover:bg-accent/20 text-accent text-xs font-semibold transition-colors flex items-center gap-1.5 cursor-pointer disabled:opacity-50 ml-2"
+                            >
+                                <LucideSend className="w-3 h-3" />
+                                Send reminder
+                            </button>
                         </div>
                     </div>
                 </div>

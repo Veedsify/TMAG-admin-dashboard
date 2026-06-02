@@ -173,6 +173,7 @@ export interface CreateEmployeeRequest {
   creditsUsed: number;
   creditsAllocated: number;
   plansGenerated: number;
+  role?: string;
 }
 
 export interface UpdateEmployeeRequest extends Partial<CreateEmployeeRequest> { }
@@ -186,11 +187,11 @@ export interface UpdateEmployeeStatusRequest {
 }
 
 export interface InviteEmployeeRequest {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
   department: string;
   role: string;
-  creditsAllocated: number;
   companyId: number;
 }
 

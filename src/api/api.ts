@@ -255,8 +255,11 @@ export const employeesApi = {
   updateStatus: (id: number, data: UpdateEmployeeStatusRequest) =>
     api.put<ApiResponse<EmployeeResponse>>(`/employees/${id}/status`, data).then((r) => r.data.data),
 
-  invite: (data: { name: string; email: string; department: string; creditsAllocated: number; companyId: number }) =>
+  invite: (data: { firstName: string; lastName: string; email: string; department: string; role: string; companyId: number }) =>
     api.post<ApiResponse<EmployeeResponse>>("/employees/invite", data).then((r) => r.data.data),
+
+  remindOnboarding: (id: number) =>
+    api.post<ApiResponse<null>>(`/employees/${id}/remind-onboarding`).then((r) => r.data),
 };
 
 // ─── Travel Plans ────────────────────────────────────────────

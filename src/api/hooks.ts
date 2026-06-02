@@ -497,6 +497,16 @@ export function useInviteEmployee() {
   });
 }
 
+export function useRemindOnboarding() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (id: number) => employeesApi.remindOnboarding(id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.employees.all });
+    },
+  });
+}
+
 // ─── Travel Plan Hooks ───────────────────────────────────────
 
 export function useTravelPlans(params?: PaginationParams) {

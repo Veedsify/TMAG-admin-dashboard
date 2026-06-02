@@ -1,7 +1,6 @@
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
     LucideBuilding2,
-    LucideUsers,
     LucideCoins,
     LucideFileText,
     LucideClipboardList,
@@ -20,11 +19,9 @@ import toast from "react-hot-toast";
 import { cn } from "../../lib/utils";
 import { useCompanyPlans, useMyCompanies } from "../../api/hooks";
 import { useMemo } from "react";
-
 const navItems = [
     { label: "Dashboard", href: "/admin", icon: LucideLayoutDashboard, end: true },
     { label: "Company Profile", href: "/admin/company", icon: LucideBuilding2 },
-    { label: "Team Members", href: "/admin/team", icon: LucideUsers },
     { label: "Employees", href: "/admin/employees", icon: LucideBriefcase },
     { label: "Billing & Seats", href: "/admin/credits", icon: LucideCoins },
     { label: "Travel Plans", href: "/admin/plans", icon: LucideFileText },
