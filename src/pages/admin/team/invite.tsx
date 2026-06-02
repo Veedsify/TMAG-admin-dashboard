@@ -51,7 +51,7 @@ const InviteMembers = () => {
             return;
         }
         if (companyId <= 0) {
-            toast.error("No company found. Please set up your company first.");
+            toast.error("No organization found. Please set up your organization first.");
             return;
         }
         setSending(true);
@@ -89,7 +89,7 @@ const InviteMembers = () => {
         const file = e.target.files?.[0];
         if (!file) return;
         if (companyId <= 0) {
-            toast.error("No company found. Please set up your company first.");
+            toast.error("No organization found. Please set up your organization first.");
             return;
         }
 
@@ -176,7 +176,7 @@ const InviteMembers = () => {
         <div className="space-y-6">
             <div className="mb-8">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Invite Team Members</h1>
-                <p className="text-sm text-muted mt-1">Add new employees to your company</p>
+                <p className="text-sm text-muted mt-1">Add new members to your organization</p>
             </div>
 
 
@@ -191,7 +191,7 @@ const InviteMembers = () => {
                 >
                     <LucideMail className="w-6 h-6 text-accent mb-2" />
                     <p className="text-sm font-semibold text-heading">Manual Entry</p>
-                    <p className="text-xs text-muted mt-1">Invite one or more employees manually</p>
+                    <p className="text-xs text-muted mt-1">Invite one or more members manually</p>
                 </button>
                 <button
                     onClick={() => setInviteMethod("bulk")}

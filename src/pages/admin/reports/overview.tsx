@@ -63,7 +63,7 @@ const Reports = () => {
 
     const stats = [
         { label: "Total Plans", value: totalPlans, icon: LucideMapPin },
-        { label: "Total Employees", value: totalEmployees, icon: LucideUsers },
+        { label: "Total Members", value: totalEmployees, icon: LucideUsers },
         { label: "Completed Trips", value: completedTrips, icon: LucideFileText },
         { label: "Credits Used", value: creditsUsed, icon: LucideActivity },
     ];
@@ -108,9 +108,9 @@ const Reports = () => {
     };
 
     const reports = [
-        { id: "usage", title: "Usage Report", description: "Credit consumption, plans generated, and employee activity across all team members", icon: LucideActivity, format: ["CSV"] },
+        { id: "usage", title: "Usage Report", description: "Credit consumption, plans generated, and member activity across all team members", icon: LucideActivity, format: ["CSV"] },
         { id: "plans", title: "Plan History", description: "All generated travel plans with destinations, risk scores, vaccination details, and dates", icon: LucideMapPin, format: ["CSV"] },
-        { id: "team", title: "Team Report", description: "Employee overview with onboarding status, role assignments, and credit allocation", icon: LucideUsers, format: ["CSV"] },
+        { id: "team", title: "Team Report", description: "Member overview with onboarding status, role assignments, and credit allocation", icon: LucideUsers, format: ["CSV"] },
     ];
 
     const employees = usageReport?.employees ?? teamReport?.employees ?? [];
@@ -119,7 +119,7 @@ const Reports = () => {
         <div className="space-y-6">
             <div className="mb-8">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Reports & Analytics</h1>
-                <p className="text-sm text-muted mt-1">Generate and export company reports for compliance and oversight</p>
+                <p className="text-sm text-muted mt-1">Generate and export organization reports for compliance and oversight</p>
             </div>
 
             {/* Summary stats */}
@@ -177,14 +177,14 @@ const Reports = () => {
             {/* Employee activity table */}
             <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] overflow-hidden">
                 <div className="px-6 py-4 border-b border-border-light/50">
-                    <h2 className="text-base font-semibold text-heading">Employee Activity</h2>
+                    <h2 className="text-base font-semibold text-heading">Member Activity</h2>
                     <p className="text-xs text-muted mt-0.5">Credit usage and plan generation per team member</p>
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="border-b border-border-light/50">
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Employee</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Member</th>
                                 <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Department</th>
                                 <th className="px-4 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Credits Used</th>
                                 <th className="px-4 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Allocated</th>
@@ -201,7 +201,7 @@ const Reports = () => {
                                     <td colSpan={7} className="px-4 py-10 text-center">
                                         <div className="flex flex-col items-center gap-2 text-muted">
                                             <LucideAlertCircle className="w-5 h-5" />
-                                            <span className="text-sm">No employee activity data yet</span>
+                                            <span className="text-sm">No member activity data yet</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -246,7 +246,7 @@ const Reports = () => {
                                 <th className="px-4 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Days</th>
                                 <th className="px-4 py-3 text-right text-xs font-semibold text-muted uppercase tracking-wider">Risk</th>
                                 <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
-                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Employee</th>
+                                <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Member</th>
                                 <th className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Created</th>
                             </tr>
                         </thead>

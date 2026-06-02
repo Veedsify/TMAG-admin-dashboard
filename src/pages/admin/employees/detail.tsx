@@ -7,7 +7,7 @@ function employeeDisplayName(name: string | null | undefined, email: string | nu
     const trimmedName = name?.trim();
     if (trimmedName) return trimmedName;
     const emailName = email?.split("@", 1)[0]?.trim();
-    return emailName || "Unnamed employee";
+    return emailName || "Unnamed member";
 }
 
 
@@ -36,9 +36,9 @@ const EmployeeDetail = () => {
     if (!employee) {
         return (
             <div className="flex flex-col items-center justify-center py-20">
-                <p className="text-lg font-serif text-heading mb-4">Employee not found</p>
+                <p className="text-lg font-serif text-heading mb-4">Member not found</p>
                 <button onClick={() => navigate("/admin/employees")} className="text-accent font-medium hover:underline cursor-pointer flex items-center gap-2">
-                    <LucideArrowLeft className="w-4 h-4" /> Back to employees
+                    <LucideArrowLeft className="w-4 h-4" /> Back to members
                 </button>
             </div>
         );

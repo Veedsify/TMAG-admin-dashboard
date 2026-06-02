@@ -134,7 +134,7 @@ const Dashboard = () => {
                         className="p-4 rounded-xl border border-border-light/50 bg-background-primary/30 hover:border-accent/40 transition-colors duration-150"
                     >
                         <p className="text-sm font-semibold text-heading">Invite Team Members</p>
-                        <p className="text-xs text-muted mt-1">Add new employees to your company</p>
+                        <p className="text-xs text-muted mt-1">Add new members to your organization</p>
                     </Link>
                     <Link
                         to="/admin/credits"

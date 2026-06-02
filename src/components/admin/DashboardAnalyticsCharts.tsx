@@ -84,7 +84,7 @@ const DashboardAnalyticsCharts = ({ data, isLoading }: DashboardAnalyticsChartsP
     return (
         <div className="space-y-4 mb-6">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                <ChartCard title="Plans by status" description="All travel plans for your company">
+                <ChartCard title="Plans by status" description="All travel plans for your organization">
                     {hasPositiveCount(statusData) ? (
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>

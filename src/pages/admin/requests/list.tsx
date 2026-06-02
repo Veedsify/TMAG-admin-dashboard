@@ -75,7 +75,7 @@ const CreditRequests = () => {
         <div className="space-y-6">
             <div className="mb-8">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Credit Requests</h1>
-                <p className="text-sm text-muted mt-1">Review and manage employee credit requests</p>
+                <p className="text-sm text-muted mt-1">Review and manage member credit requests</p>
             </div>
 
             <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-4">
@@ -84,7 +84,7 @@ const CreditRequests = () => {
                         <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
                         <input
                             type="text"
-                            placeholder="Search by employee, reason, or credits..."
+                            placeholder="Search by member, reason, or credits..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full pl-9 pr-4 py-2.5 bg-button-secondary border border-border-light rounded-xl text-sm text-heading placeholder:text-brand-muted outline-none focus:border-accent transition-colors"
@@ -141,7 +141,7 @@ const CreditRequests = () => {
                                         className="w-4 h-4 rounded border-border text-accent focus:ring-accent cursor-pointer"
                                     />
                                 </th>
-                                {["Employee", "Credits Requested", "Reason", "Status", "Submitted", "Actions"].map((h) => (
+                                {["Member", "Credits Requested", "Reason", "Status", "Submitted", "Actions"].map((h) => (
                                     <th key={h} className="px-4 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{h}</th>
                                 ))}
                             </tr>
@@ -169,7 +169,7 @@ const CreditRequests = () => {
                                                 <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0">
                                                     <span className="text-xs font-semibold text-accent">{(req.employeeName || "?").split(" ").map((n: string) => n[0]).join("")}</span>
                                                 </div>
-                                                <span className="text-sm font-medium text-heading">{req.employeeName || `Employee #${req.employeeId}`}</span>
+                                                <span className="text-sm font-medium text-heading">{req.employeeName || `Member #${req.employeeId}`}</span>
                                             </div>
                                         </td>
                                         <td className="px-4 py-4">

@@ -21,8 +21,8 @@ import { useCompanyPlans, useMyCompanies } from "../../api/hooks";
 import { useMemo } from "react";
 const navItems = [
     { label: "Dashboard", href: "/admin", icon: LucideLayoutDashboard, end: true },
-    { label: "Company Profile", href: "/admin/company", icon: LucideBuilding2 },
-    { label: "Employees", href: "/admin/employees", icon: LucideBriefcase },
+    { label: "Organization Profile", href: "/admin/company", icon: LucideBuilding2 },
+    { label: "Members", href: "/admin/employees", icon: LucideBriefcase },
     { label: "Billing & Seats", href: "/admin/credits", icon: LucideCoins },
     { label: "Travel Plans", href: "/admin/plans", icon: LucideFileText },
     { label: "Credit Requests", href: "/admin/requests", icon: LucideClipboardList },
@@ -69,7 +69,7 @@ const AdminSidebar = () => {
                         TMAG
                     </span>
                     <span className="text-[10px] text-white/40 uppercase tracking-widest">
-                        Company admin
+                        Organization admin
                     </span>
                 </Link>
                 <button

@@ -71,7 +71,7 @@ const OnboardingStatus = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Onboarding Status</h1>
-                    <p className="text-sm text-muted mt-1">Track employee onboarding and questionnaire completion</p>
+                    <p className="text-sm text-muted mt-1">Track member onboarding and questionnaire completion</p>
                 </div>
             </div>
 
@@ -186,7 +186,7 @@ const OnboardingStatus = () => {
                                             <div className="w-12 h-12 rounded-full bg-button-secondary flex items-center justify-center mx-auto mb-3">
                                                 <LucideUserPlus className="w-6 h-6 text-muted" />
                                             </div>
-                                            <p className="text-sm text-muted">{members.length === 0 ? "No team members yet. Invite your first employee." : "No team members match your filters"}</p>
+                                            <p className="text-sm text-muted">{members.length === 0 ? "No team members yet. Invite your first member." : "No team members match your filters"}</p>
                                         </td>
                                     </tr>
                                 )}

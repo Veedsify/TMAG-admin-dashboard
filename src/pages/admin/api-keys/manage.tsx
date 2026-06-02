@@ -102,8 +102,8 @@ const ApiKeys = () => {
                             <LucideKey className="w-5 h-5 text-accent" />
                         </div>
                         <div>
-                            <h2 className="text-base font-semibold text-heading">Company Invite Code</h2>
-                            <p className="text-xs text-muted">Use this code to onboard employees to your company</p>
+                            <h2 className="text-base font-semibold text-heading">Organization Invite Code</h2>
+                            <p className="text-xs text-muted">Use this code to onboard members to your organization</p>
                         </div>
                     </div>
                     <div className="flex items-center gap-3">

@@ -1086,7 +1086,7 @@ export function useRevokeApiKey() {
   });
 }
 
-// ─── Company Settings Hooks ────────────────────────────────────
+// ─── Organization Settings Hooks ────────────────────────────────────
 
 export function useCompanySettings(companyId: number) {
   return useQuery({
@@ -1182,7 +1182,7 @@ export function useCompanyPlan(id: number) {
   });
 }
 
-// ─── Company Admin Management Hooks ────────────────────────
+// ─── Organization Admin Management Hooks ────────────────────────
 
 export function useCompanyTeamMembers(companyId?: number) {
   return useQuery({

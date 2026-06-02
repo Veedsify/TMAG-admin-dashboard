@@ -72,7 +72,7 @@ export interface AuthResponse {
   user: CompanyAdminUser;
 }
 
-// ─── Company Admin Auth ─────────────────────────────────────
+// ─── Organization Admin Auth ─────────────────────────────────────
 
 export type CompanyAdminRole = "super_admin" | "client_admin" | "support_admin";
 
@@ -561,7 +561,7 @@ export interface MyCompanyMembership {
   extra_plans_available?: number;
 }
 
-// ─── Seat-based subscription (company admin) ──────────────────
+// ─── Seat-based subscription (organization admin) ──────────────────
 
 export interface CompanySubscriptionSummary {
   companyId: number;
@@ -710,7 +710,7 @@ export interface QuestionnaireProgressRequest {
   questionIndex: number;
 }
 
-// ─── Company Settings ───────────────────────────────────────
+// ─── Organization Settings ───────────────────────────────────────
 
 export interface CompanySettingValue {
   value: boolean | string | number;
@@ -840,7 +840,7 @@ export interface CreatePlanRequest {
 
 export interface UpdatePlanRequest extends Partial<CreatePlanRequest> { }
 
-// ─── Company Admin Management ──────────────────────────────
+// ─── Organization Admin Management ──────────────────────────────
 
 export interface CompanyAdminUserCreateRequest {
   companyId: number;

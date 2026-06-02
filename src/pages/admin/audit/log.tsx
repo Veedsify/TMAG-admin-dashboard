@@ -57,7 +57,7 @@ const AuditLog = () => {
         logs.push({
             id: `req-${req.id}`,
             action: `Credit request ${statusLabel}`,
-            actor: req.status?.toLowerCase() === "pending" ? "Employee" : "Admin",
+            actor: req.status?.toLowerCase() === "pending" ? "Member" : "Admin",
             target: `${req.creditsRequested} credits`,
             time: new Date(req.submittedAt || req.createdAt).toLocaleDateString(),
             sortDate: new Date(req.submittedAt || req.createdAt).getTime(),
@@ -114,7 +114,7 @@ const AuditLog = () => {
         <div className="space-y-6">
             <div className="mb-8">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Audit Log</h1>
-                <p className="text-sm text-muted mt-1">Track all admin and HR actions within your company account</p>
+                <p className="text-sm text-muted mt-1">Track all admin and HR actions within your organization account</p>
             </div>
 
             <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">

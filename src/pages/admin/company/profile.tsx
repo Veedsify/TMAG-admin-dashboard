@@ -121,7 +121,7 @@ const CompanyProfile = () => {
     const handleSave = async () => {
         if (!company) return;
         if (!formName.trim()) {
-            toast.error("Company name is required");
+            toast.error("Organization name is required");
             return;
         }
         try {
@@ -130,9 +130,9 @@ const CompanyProfile = () => {
                 data: { name: formName.trim(), industry: formIndustry },
             });
             setProfileDraft({});
-            toast.success("Company profile updated successfully");
+            toast.success("Organization profile updated successfully");
         } catch (err: unknown) {
-            toast.error(getErrorMessage(err, "Failed to update company profile"));
+            toast.error(getErrorMessage(err, "Failed to update organization profile"));
         }
     };
 
@@ -151,7 +151,7 @@ const CompanyProfile = () => {
         return (
             <div className="flex flex-col items-center justify-center py-20">
                 <LucideLoader2 className="w-8 h-8 text-accent animate-spin mb-3" />
-                <p className="text-sm text-muted">Loading company profile...</p>
+                <p className="text-sm text-muted">Loading organization profile...</p>
             </div>
         );
     }
@@ -160,8 +160,8 @@ const CompanyProfile = () => {
         return (
             <div className="flex flex-col items-center justify-center py-20">
                 <LucideBuilding2 className="w-12 h-12 text-muted mb-3" />
-                <p className="text-lg font-serif text-heading mb-2">No company found</p>
-                <p className="text-sm text-muted">You&apos;re not linked to any company yet.</p>
+                <p className="text-lg font-serif text-heading mb-2">No organization found</p>
+                <p className="text-sm text-muted">You&apos;re not linked to any organization yet.</p>
             </div>
         );
     }
@@ -175,7 +175,7 @@ const CompanyProfile = () => {
         : [
             { label: "Credits remaining", value: formatNumber(remainingCredits), icon: <LucideCoins className="w-4 h-4" /> },
             { label: "Credits used", value: formatNumber(usedCredits), icon: <LucideCreditCard className="w-4 h-4" /> },
-            { label: "Employees", value: formatNumber(company.employee_count), icon: <LucideUsers className="w-4 h-4" /> },
+            { label: "Members", value: formatNumber(company.employee_count), icon: <LucideUsers className="w-4 h-4" /> },
         ];
 
     return (
@@ -212,7 +212,7 @@ const CompanyProfile = () => {
                             <div className="mb-3 flex items-center justify-between gap-3">
                                 <div>
                                     <p className="text-xs font-semibold uppercase tracking-[0.2em] text-background-primary/50">Invite code</p>
-                                    <p className="text-xs text-background-primary/65">Share with employees only</p>
+                                    <p className="text-xs text-background-primary/65">Share with members only</p>
                                 </div>
                                 <LucideKey className="w-4 h-4 text-background-primary/60" />
                             </div>
@@ -225,7 +225,7 @@ const CompanyProfile = () => {
                                     onClick={handleCopyCode}
                                     disabled={!company.company_code}
                                     className="rounded-xl bg-background-primary p-3 text-accent transition-colors hover:bg-background-secondary disabled:cursor-not-allowed disabled:opacity-50"
-                                    aria-label="Copy company invite code"
+                                    aria-label="Copy organization invite code"
                                 >
                                     {copied ? (
                                         <LucideCheck className="w-5 h-5" />
@@ -257,8 +257,8 @@ const CompanyProfile = () => {
                         <div className="border-b border-border-light/60 bg-background-secondary/60 px-5 py-4 sm:px-6">
                             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                                 <div>
-                                    <h2 className="text-base font-semibold text-heading">Company details</h2>
-                                    <p className="text-xs text-muted">Keep the workspace identity clear for employees and billing records.</p>
+                                    <h2 className="text-base font-semibold text-heading">Organization details</h2>
+                                    <p className="text-xs text-muted">Keep the workspace identity clear for members and billing records.</p>
                                 </div>
                                 {hasProfileChanges && (
                                     <span className="w-fit rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">
@@ -474,7 +474,7 @@ const CompanyProfile = () => {
                                     { label: "Available", value: formatNumber(remainingCredits) },
                                     { label: "Used", value: formatNumber(usedCredits) },
                                     { label: "Purchased total", value: formatNumber(totalCredits) },
-                                    { label: "Employees", value: formatNumber(company.employee_count) },
+                                    { label: "Members", value: formatNumber(company.employee_count) },
                                 ].map((item) => (
                                     <div key={item.label} className="flex items-center justify-between rounded-2xl bg-background-primary/60 px-4 py-3">
                                         <span className="text-xs font-semibold uppercase tracking-wider text-muted">{item.label}</span>

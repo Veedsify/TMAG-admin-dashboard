@@ -31,7 +31,7 @@ function employeeDisplayName(name: string | null | undefined, email: string | nu
     const trimmedName = name?.trim();
     if (trimmedName) return trimmedName;
     const emailName = email?.split("@", 1)[0]?.trim();
-    return emailName || "Unnamed employee";
+    return emailName || "Unnamed member";
 }
 
 function employeeInitial(name: string | null | undefined, email: string | null | undefined) {
@@ -120,13 +120,13 @@ const Employees = () => {
                     setInviteEmail("");
                     setInviteDept("");
                     setInviteRole("Individual");
-                    toast.success("Employee invited successfully");
+                    toast.success("Member invited successfully");
                 },
                 onError: (error) => {
                     if (error instanceof AxiosError) {
-                        toast.error(error?.response?.data?.error || "Failed to invite employee");
+                        toast.error(error?.response?.data?.error || "Failed to invite member");
                     } else {
-                        toast.error("Failed to invite employee");
+                        toast.error("Failed to invite member");
                     }
                 },
             }
@@ -182,10 +182,10 @@ const Employees = () => {
     const handleRemoveEmployee = (id: number) => {
         deleteEmployee.mutate(id, {
             onSuccess: () => {
-                toast.success("Employee removed");
+                toast.success("Member removed");
                 setMenuOpenId(null);
             },
-            onError: () => toast.error("Failed to remove employee"),
+            onError: () => toast.error("Failed to remove member"),
         });
     };
 
@@ -255,15 +255,15 @@ const Employees = () => {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
-                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Employees</h1>
-                    <p className="text-sm text-muted mt-1">Manage your company&apos;s employees, invite new members, and allocate credits</p>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Members</h1>
+                    <p className="text-sm text-muted mt-1">Manage your organization&apos;s members, invite new members, and allocate credits</p>
                 </div>
                 <button
                     onClick={() => setShowInvite(true)}
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 self-start cursor-pointer"
                 >
                     <LucideUserPlus className="w-4 h-4" />
-                    Invite Employee
+                    Invite Member
                 </button>
             </div>
 
@@ -273,7 +273,7 @@ const Employees = () => {
                     <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted pointer-events-none" />
                     <input
                         type="text"
-                        placeholder="Search employees by name or email..."
+                        placeholder="Search members by name or email..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 bg-button-secondary border border-border-light rounded-xl text-sm text-heading placeholder:text-brand-muted outline-none focus:border-accent transition-colors"
@@ -284,7 +284,7 @@ const Employees = () => {
             {/* Invite form */}
             {showInvite && (
                 <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
-                    <h3 className="text-base font-semibold text-heading mb-4">Invite New Employee</h3>
+                    <h3 className="text-base font-semibold text-heading mb-4">Invite New Member</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                         <input
                             value={inviteFirstName}
@@ -348,7 +348,7 @@ const Employees = () => {
                     <table className="w-full min-w-[980px]">
                         <thead className="bg-background-primary border-b border-border-light/50">
                         <tr>
-                            <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Employee</th>
+                            <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Member</th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Department</th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">{isSeat ? "Plan usage" : "Credits"}</th>
                             <th className="px-6 py-3 text-left text-xs font-semibold text-muted uppercase tracking-wider">Plans</th>
@@ -509,14 +509,14 @@ const Employees = () => {
                             <tr>
                                 <td colSpan={8} className="px-6 py-12 text-center">
                                     <LucideUsers className="w-10 h-10 text-muted mx-auto mb-3" />
-                                    <p className="text-base font-semibold text-heading mb-1">No employees found</p>
-                                    <p className="text-sm text-muted mb-4">Invite your first employee to get started</p>
+                                    <p className="text-base font-semibold text-heading mb-1">No members found</p>
+                                    <p className="text-sm text-muted mb-4">Invite your first member to get started</p>
                                     <button
                                         onClick={() => setShowInvite(true)}
                                         className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors cursor-pointer"
                                     >
                                         <LucideUserPlus className="w-4 h-4" />
-                                        Invite Employee
+                                        Invite Member
                                     </button>
                                 </td>
                             </tr>

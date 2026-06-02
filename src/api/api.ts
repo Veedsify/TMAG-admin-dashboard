@@ -75,7 +75,7 @@ import type {
   CreateApiKeyResponse,
   // Company Plans
   CompanyPlanResponse,
-  // Company Admin Management
+  // Organization Admin Management
   CompanyAdminUserCreateRequest,
   CompanyAdminUserUpdateRequest,
   CompanyAdminCreditAllocationRequest,
@@ -156,7 +156,7 @@ export const companiesApi = {
     api.post<ApiResponse<CompanyResponse>>(`/companies/${id}/purchase-credits`, data).then((r) => r.data.data),
 };
 
-// ─── Company Admin Credits ───────────────────────────────────────────────
+// ─── Organization Admin Credits ───────────────────────────────────────────────
 
 export const companyAdminCreditsApi = {
   getQuote: (companyId: number, credits: number) =>
@@ -179,7 +179,7 @@ export const companyAdminCreditsApi = {
     }).then((r) => r.data.data),
 };
 
-// ─── Company admin · Seats (seat-based subscriptions) ─────────
+// ─── Organization admin · Seats (seat-based subscriptions) ─────────
 
 export const companyAdminSeatsApi = {
   getSubscription: (companyId: number) =>
@@ -570,7 +570,7 @@ export const apiKeysApi = {
       .then((r) => r.data.data),
 };
 
-// ─── Company Settings ─────────────────────────────────────────
+// ─── Organization Settings ─────────────────────────────────────────
 
 export const settingsApi = {
   get: (companyId: number) =>
@@ -631,7 +631,7 @@ export const companyPlansApi = {
     api.get<ApiResponse<CompanyPlanResponse>>(`/user-credit-plans/${id}`).then((r) => r.data.data),
 };
 
-// ─── Company Admin Management ──────────────────────────────
+// ─── Organization Admin Management ──────────────────────────────
 
 export const companyAdminManagementApi = {
   viewTeamMembers: (companyId: number) =>
