@@ -316,7 +316,7 @@ const InviteMembers = () => {
                         <div className="flex items-center gap-2 p-3 bg-accent/5 border border-accent/20 rounded-xl">
                             <LucideShield className="w-4 h-4 text-accent shrink-0" />
                             <span className="text-xs text-heading">
-                                All members will be invited as <span className="font-semibold">{selectedRole}</span> &mdash; you can change roles later
+                                All members will be invited as <span className="font-semibold">{selectedRole}</span> you can change roles later
                             </span>
                         </div>
                         <button
