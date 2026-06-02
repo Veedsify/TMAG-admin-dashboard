@@ -20,7 +20,7 @@ import { useMyCompanies, useEmployees, useInviteEmployee, useAllocateEmployeeCre
 import { AxiosError } from "axios";
 import toast from "react-hot-toast";
 
-const AVAILABLE_ROLES = ["Individual", "Admin"];
+const AVAILABLE_ROLES = ["Individual", "HR", "Administrator"];
 
 function employeeDisplayName(name: string | null | undefined, email: string | null | undefined) {
     const trimmedName = name?.trim();
@@ -438,7 +438,7 @@ const Employees = () => {
                                         {changingRoleFor === emp.id ? (
                                             <div className="flex items-center gap-1">
                                                 <select
-                                                    defaultValue={emp.role || "Individual"}
+                                                    defaultValue={emp.role === "Admin" ? "Administrator" : emp.role || "Individual"}
                                                     onChange={(e) => handleRoleChange(emp.id, e.target.value)}
                                                     className="border border-border-light rounded-lg px-2 py-1 text-xs font-semibold text-heading outline-none focus:border-accent"
                                                     autoFocus

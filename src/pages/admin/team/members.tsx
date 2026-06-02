@@ -16,7 +16,7 @@ import { useMyCompanies, useCompanyTeamMembers, useCompanyAdminAllocateCredits, 
 import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 
-const AVAILABLE_ROLES = ["Individual", "Admin"];
+const AVAILABLE_ROLES = ["Individual", "HR", "Administrator"];
 
 const TeamMembers = () => {
     const [searchQuery, setSearchQuery] = useState("");
@@ -241,7 +241,7 @@ const TeamMembers = () => {
                                         {changingRoleFor === member.company_user_id ? (
                                             <div className="flex items-center gap-1">
                                                 <select
-                                                    defaultValue={member.role || "Individual"}
+                                                    defaultValue={member.role === "Admin" ? "Administrator" : member.role || "Individual"}
                                                     onChange={(e) => handleRoleChange(member.company_user_id, e.target.value)}
                                                     className="border border-border-light rounded-lg px-2 py-1 text-xs font-semibold text-heading outline-none focus:border-accent"
                                                     autoFocus
