@@ -22,6 +22,18 @@ import toast from "react-hot-toast";
 
 const AVAILABLE_ROLES = ["Individual", "Admin"];
 
+function employeeDisplayName(name: string | null | undefined, email: string | null | undefined) {
+    const trimmedName = name?.trim();
+    if (trimmedName) return trimmedName;
+    const emailName = email?.split("@", 1)[0]?.trim();
+    return emailName || "Unnamed employee";
+}
+
+function employeeInitial(name: string | null | undefined, email: string | null | undefined) {
+    return employeeDisplayName(name, email).charAt(0).toUpperCase();
+}
+
+
 const Employees = () => {
     const navigate = useNavigate();
     const { data: companiesData } = useMyCompanies();
@@ -326,7 +338,9 @@ const Employees = () => {
                                 </td>
                             </tr>
                         ) : (
-                            employees.map((emp) => (
+                            employees.map((emp) => {
+                                const displayName = employeeDisplayName(emp.name, emp.email);
+                                return (
                                 <tr key={emp.id} className="hover:bg-background-primary/50 transition-colors">
                                     <td className="px-6 py-4">
                                         <button
@@ -334,11 +348,11 @@ const Employees = () => {
                                             className="flex items-center gap-3 text-left cursor-pointer group"
                                         >
                                             <div className="w-8 h-8 rounded-full bg-button-secondary flex items-center justify-center text-xs font-semibold text-heading shrink-0">
-                                                {emp.name.charAt(0)}
+                                                {employeeInitial(emp.name, emp.email)}
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium text-heading group-hover:text-accent transition-colors">{emp.name}</p>
-                                                <p className="text-xs text-muted">{emp.email}</p>
+                                                <p className="text-sm font-medium text-heading group-hover:text-accent transition-colors">{displayName}</p>
+                                                <p className="text-xs text-muted">{emp.email || "No email on file"}</p>
                                             </div>
                                         </button>
                                         {allocatingFor === emp.id && (
@@ -521,7 +535,8 @@ const Employees = () => {
                                         )}
                                     </td>
                                 </tr>
-                            ))
+                                );
+                            })
                         )}
                         {!isLoading && employees.length === 0 && (
                             <tr>

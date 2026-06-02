@@ -3,6 +3,14 @@ import { useEmployee, useTravelPlans, useRemindOnboarding } from "../../../api/h
 import { LucideArrowLeft, LucideLoader2, LucideMapPin, LucideCoins, LucideClipboardList, LucideSend } from "lucide-react";
 import toast from "react-hot-toast";
 
+function employeeDisplayName(name: string | null | undefined, email: string | null | undefined) {
+    const trimmedName = name?.trim();
+    if (trimmedName) return trimmedName;
+    const emailName = email?.split("@", 1)[0]?.trim();
+    return emailName || "Unnamed employee";
+}
+
+
 const EmployeeDetail = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
@@ -36,6 +44,8 @@ const EmployeeDetail = () => {
         );
     }
 
+    const displayName = employeeDisplayName(employee.name, employee.email);
+    const displayEmail = employee.email || "No email on file";
     const creditUsagePercent = employee.creditsAllocated > 0
         ? Math.round((employee.creditsUsed / employee.creditsAllocated) * 100)
         : 0;
@@ -48,8 +58,8 @@ const EmployeeDetail = () => {
                     <LucideArrowLeft className="w-5 h-5 text-muted" />
                 </button>
                 <div className="flex-1 min-w-0">
-                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading truncate">{employee.name}</h1>
-                    <p className="text-sm text-muted mt-1">{employee.email}</p>
+                    <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading truncate">{displayName}</h1>
+                    <p className="text-sm text-muted mt-1">{displayEmail}</p>
                 </div>
             </div>
 
@@ -57,11 +67,11 @@ const EmployeeDetail = () => {
             <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6">
                 <div className="flex items-start gap-4">
                     <div className="w-14 h-14 rounded-2xl bg-button-secondary flex items-center justify-center text-xl font-semibold text-heading shrink-0">
-                        {employee.name.charAt(0)}
+                        {displayName.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1">
-                        <h2 className="text-xl font-serif text-heading">{employee.name}</h2>
-                        <p className="text-sm text-muted">{employee.email}</p>
+                        <h2 className="text-xl font-serif text-heading">{displayName}</h2>
+                        <p className="text-sm text-muted">{displayEmail}</p>
                         <div className="flex items-center gap-3 mt-2">
                             <span className="text-xs text-body bg-button-secondary px-2.5 py-1 rounded-full">{employee.department}</span>
                             <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${employee.status === "active" ? "text-accent bg-accent/10" : "text-muted bg-button-secondary"}`}>
