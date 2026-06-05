@@ -1086,6 +1086,14 @@ export function useRevokeApiKey() {
   });
 }
 
+export function useRotateApiKey() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, companyId }: { id: number; companyId: number }) => apiKeysApi.rotate(id, companyId),
+    onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: ["api-keys", vars.companyId] }),
+  });
+}
+
 // ─── Organization Settings Hooks ────────────────────────────────────
 
 export function useCompanySettings(companyId: number) {

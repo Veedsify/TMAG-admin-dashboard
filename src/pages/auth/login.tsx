@@ -16,8 +16,20 @@ const Login = () => {
         setError("");
         setLoading(true);
         try {
-            await login(email, password);
-            navigate("/admin");
+            const outcome = await login(email, password);
+            if (outcome.status === "2fa_setup") {
+                navigate("/auth/2fa/setup", {
+                    state: { challengeToken: outcome.challengeToken, method: outcome.method },
+                });
+            } else if (outcome.status === "2fa_verify") {
+                navigate("/auth/2fa/verify", {
+                    state: { challengeToken: outcome.challengeToken, method: outcome.method },
+                });
+            } else if (outcome.passwordExpired) {
+                navigate("/auth/change-password");
+            } else {
+                navigate("/admin");
+            }
         } catch (err: unknown) {
             const errData = (err as { response?: { data?: { error?: string; message?: string }; status?: number } })?.response;
             const msg = errData?.data?.message ?? "Invalid credentials or insufficient permissions";

@@ -193,7 +193,7 @@ const CompanyProfile = () => {
                                 <div className="mb-3 flex flex-wrap items-center gap-2">
                                     <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-background-primary/90">
                                         <LucideShield className="w-3.5 h-3.5" />
-                                        Company profile
+                                        Organization profile
                                     </span>
                                     <span className={`inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${planStyle.border} ${planStyle.bg} ${planStyle.text}`}>
                                         {planName}
@@ -271,7 +271,7 @@ const CompanyProfile = () => {
                         <div className="space-y-5 p-5 sm:p-6">
                             <div>
                                 <label className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">
-                                    Company Name
+                                    Organization Name
                                 </label>
                                 <input
                                     type="text"
@@ -317,7 +317,7 @@ const CompanyProfile = () => {
                             <div className="rounded-2xl border border-border-light/60 bg-background-primary/50 p-4">
                                 <p className="text-sm font-semibold text-heading">Plan changes are managed by billing</p>
                                 <p className="mt-1 text-xs leading-relaxed text-muted">
-                                    This page edits company profile fields only. Subscription tier changes are handled through billing or sales workflows.
+                                    This page edits organization profile fields only. Subscription tier changes are handled through billing or sales workflows.
                                 </p>
                             </div>
                         </div>
@@ -345,7 +345,7 @@ const CompanyProfile = () => {
                             <div>
                                 <h2 className="text-base font-semibold text-heading">Billing currency</h2>
                                 <p className="text-xs text-muted">
-                                    Controls the currency shown on credit purchase cards for this company.
+                                    Controls the currency shown on credit purchase cards for this organization.
                                 </p>
                             </div>
                             <span className="w-fit rounded-full bg-button-secondary px-3 py-1 text-xs font-semibold text-heading">

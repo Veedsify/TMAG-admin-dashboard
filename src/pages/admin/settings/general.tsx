@@ -28,6 +28,7 @@ const settingKeyMap = {
     distanceUnit: "pref_distance_unit",
     temperatureUnit: "pref_temperature_unit",
     currency: "pref_currency",
+    passwordExpiry: "password_expiry_days",
 } as const;
 
 const Settings = () => {
@@ -65,6 +66,7 @@ const Settings = () => {
         newPassword: "",
         confirmPassword: "",
     });
+    const [passwordExpiryDays, setPasswordExpiryDays] = useState(90);
 
     useEffect(() => {
         if (company) {
@@ -93,6 +95,7 @@ const Settings = () => {
                 temperatureUnit: (s[settingKeyMap.temperatureUnit]?.value as string) || "Fahrenheit (°F)",
                 currency: (s[settingKeyMap.currency]?.value as string) || "USD ($)",
             });
+            setPasswordExpiryDays(Number(s[settingKeyMap.passwordExpiry]?.value) || 90);
         }
     }, [settingsData]);
 
@@ -108,8 +111,9 @@ const Settings = () => {
                 },
             });
             toast.success("Organization settings saved successfully");
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message || "Failed to save settings");
+        } catch (err: unknown) {
+            const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+            toast.error(msg || "Failed to save settings");
         }
     };
 
@@ -176,13 +180,32 @@ const Settings = () => {
         }
         try {
             await updatePassword.mutateAsync({
-                OldPassword: passwordForm.currentPassword,
-                NewPassword: passwordForm.newPassword,
+                current_password: passwordForm.currentPassword,
+                new_password: passwordForm.newPassword,
             });
             toast.success("Password updated successfully");
             setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-        } catch (err: any) {
-            toast.error(err?.response?.data?.message || "Failed to update password");
+        } catch (err: unknown) {
+            const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+            toast.error(msg || "Failed to update password");
+        }
+    };
+
+    const handleSavePasswordExpiry = async () => {
+        if (!companyId) return;
+        if (passwordExpiryDays < 30 || passwordExpiryDays > 365) {
+            toast.error("Password expiry must be between 30 and 365 days");
+            return;
+        }
+        try {
+            await updateSettings.mutateAsync({
+                companyId,
+                settings: { [settingKeyMap.passwordExpiry]: { value: String(passwordExpiryDays), type: "NUMBER" } },
+            });
+            toast.success("Password expiry policy updated");
+        } catch (err: unknown) {
+            const msg = (err as { response?: { data?: { message?: string } } })?.response?.data?.message;
+            toast.error(msg || "Failed to update password expiry");
         }
     };
 
@@ -343,6 +366,33 @@ const Settings = () => {
                                 <p className="text-xs text-muted">Your account is protected with an additional security layer.</p>
                             </div>
                         )}
+                    </div>
+                    <div className="rounded-3xl border border-border-light/60 bg-white backdrop-blur-md shadow-[0_2px_8px_-2px_rgba(10,20,18,0.04),0_8px_28px_-18px_rgba(10,20,18,0.07)] p-6 space-y-4">
+                        <div>
+                            <h2 className="text-base font-semibold text-heading">Password Expiry</h2>
+                            <p className="text-xs text-muted mt-0.5">Members must reset their password after this many days (30–365).</p>
+                        </div>
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                            <div className="sm:w-48">
+                                <label htmlFor="password-expiry-days" className="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Expiry (days)</label>
+                                <input
+                                    id="password-expiry-days"
+                                    type="number"
+                                    min={30}
+                                    max={365}
+                                    value={passwordExpiryDays}
+                                    onChange={(e) => setPasswordExpiryDays(Number(e.target.value))}
+                                    className="w-full bg-button-secondary border border-border-light rounded-xl px-4 py-3 text-sm text-heading outline-none focus:border-accent transition-colors"
+                                />
+                            </div>
+                            <button
+                                onClick={handleSavePasswordExpiry}
+                                disabled={updateSettings.isPending}
+                                className="flex items-center gap-2 px-6 py-3 rounded-xl bg-dark text-background-primary font-semibold text-sm hover:bg-darkest transition-colors duration-200 disabled:opacity-50"
+                            >
+                                {updateSettings.isPending ? <><LucideLoader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><LucideSave className="w-4 h-4" /> Save Policy</>}
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

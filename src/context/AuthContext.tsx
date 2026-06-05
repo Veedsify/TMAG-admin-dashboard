@@ -8,6 +8,7 @@ import {
 } from "react";
 import api, { getAuthCookie, removeAuthCookie, setAuthCookie } from "../api/axios";
 import { queryclient } from "../lib/queryclient";
+import type { CompanyAdminUser } from "../api/types";
 
 
 // ─── Types ───────────────────────────────────────────────────
@@ -25,11 +26,30 @@ export interface AdminUser {
     permissions: string[];
 }
 
+/** Result of `login()` so the login page can branch the flow. */
+export type LoginOutcome =
+    | { status: "authenticated"; user: AdminUser; passwordExpired: boolean }
+    | { status: "2fa_setup"; challengeToken: string; method: string }
+    | { status: "2fa_verify"; challengeToken: string; method: string };
+
+/** Shape persisted by both the normal login and the 2FA-verify result. */
+export interface AuthSessionData {
+    token: string;
+    exp: number;
+    user: CompanyAdminUser;
+    password_expired?: boolean;
+}
+
 interface AuthContextValue {
     user: AdminUser | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    login: (email: string, password: string) => Promise<AdminUser>;
+    passwordExpired: boolean;
+    login: (email: string, password: string) => Promise<LoginOutcome>;
+    /** Finalize a session from a 2FA-verify result; returns whether the password is expired. */
+    completeAuth: (data: AuthSessionData) => boolean;
+    /** Clear the expired flag after a forced password change succeeds. */
+    clearPasswordExpired: () => void;
     logout: () => Promise<void>;
 }
 
@@ -40,6 +60,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [user, setUser] = useState<AdminUser | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [passwordExpired, setPasswordExpired] = useState(false);
 
     // Revalidate session on mount / page reload via GET /company-admin/auth/me
     const getCurrentUser = useCallback(async () => {
@@ -52,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const res = await api.get("/company-admin/auth/me");
             const d = res.data.data;
             setUser(buildAdminUser(d));
+            setPasswordExpired(d.password_expired === true);
         } catch {
             removeAuthCookie();
             setUser(null);
@@ -64,15 +86,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         void getCurrentUser();
     }, [getCurrentUser]);
 
-    const login = useCallback(async (email: string, password: string): Promise<AdminUser> => {
+    // Persist a fully-authenticated session (normal login or 2FA verify).
+    const finalizeSession = useCallback((d: AuthSessionData): boolean => {
+        setAuthCookie(d.token, d.exp);
+        setUser(buildAdminUser(d.user));
+        const expired = d.password_expired === true;
+        setPasswordExpired(expired);
+        return expired;
+    }, []);
+
+    const login = useCallback(async (email: string, password: string): Promise<LoginOutcome> => {
         const res = await api.post("/company-admin/auth/login", { email, password });
         const d = res.data.data;
-        setAuthCookie(d.token, d.exp);
+        if (d.two_factor_setup_required === true) {
+            return { status: "2fa_setup", challengeToken: d.challenge_token, method: d.two_factor_method };
+        }
+        if (d.two_factor_required === true) {
+            return { status: "2fa_verify", challengeToken: d.challenge_token, method: d.two_factor_method };
+        }
+        const expired = finalizeSession(d);
+        return { status: "authenticated", user: buildAdminUser(d.user), passwordExpired: expired };
+    }, [finalizeSession]);
 
-        const adminUser = buildAdminUser(d.user);
-        setUser(adminUser);
-        return adminUser;
-    }, []);
+    const completeAuth = useCallback((d: AuthSessionData): boolean => finalizeSession(d), [finalizeSession]);
+
+    const clearPasswordExpired = useCallback(() => setPasswordExpired(false), []);
 
     const logout = useCallback(async () => {
         try {
@@ -82,6 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         removeAuthCookie();
         setUser(null);
+        setPasswordExpired(false);
         queryclient.clear();
     }, []);
 
@@ -91,7 +130,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 user,
                 isAuthenticated: user !== null,
                 isLoading,
+                passwordExpired,
                 login,
+                completeAuth,
+                clearPasswordExpired,
                 logout,
             }}
         >
@@ -108,7 +150,7 @@ export const useAuth = (): AuthContextValue => {
 
 // ─── Helpers ─────────────────────────────────────────────────
 
-function buildAdminUser(d: Record<string, unknown>): AdminUser {
+function buildAdminUser(d: CompanyAdminUser): AdminUser {
     return {
         id: d.id as number,
         name: (d.name as string) ?? "",

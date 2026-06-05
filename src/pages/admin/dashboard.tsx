@@ -87,7 +87,7 @@ const Dashboard = () => {
                     Dashboard
                 </h1>
                 <p className="text-sm text-muted mt-1">
-                    Overview of your company&apos;s travel health management
+                    Overview of your organization&apos;s travel health management
                 </p>
             </div>
 

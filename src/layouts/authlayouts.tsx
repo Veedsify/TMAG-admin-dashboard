@@ -1,8 +1,10 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const AuthLayout = () => {
-    const { isAuthenticated, isLoading } = useAuth();
+    const { isAuthenticated, isLoading, passwordExpired } = useAuth();
+    const location = useLocation();
+    const onChangePassword = location.pathname === "/auth/change-password";
 
     if (isLoading) {
         return (
@@ -21,8 +23,13 @@ const AuthLayout = () => {
         );
     }
 
-    // Already logged in — go to admin dashboard
-    if (isAuthenticated) {
+    // Authenticated but the password expired: force the change-password page only.
+    if (isAuthenticated && passwordExpired && !onChangePassword) {
+        return <Navigate to="/auth/change-password" replace />;
+    }
+
+    // Already logged in (and password OK) — go to admin dashboard.
+    if (isAuthenticated && !passwordExpired) {
         return <Navigate to="/admin" replace />;
     }
 
