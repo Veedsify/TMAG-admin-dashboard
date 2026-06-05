@@ -146,7 +146,7 @@ const InvoiceDetail = () => {
                             <p className="text-xs font-bold text-heading uppercase tracking-wider mb-2">Bill To</p>
                             <p className="text-lg font-semibold text-heading">{company?.name || "Customer"}</p>
                             {invoice.companyId && (
-                                <p className="text-xs text-muted mt-1">Company #{invoice.companyId}</p>
+                                <p className="text-xs text-muted mt-1">Organization #{invoice.companyId}</p>
                             )}
                         </div>
                         <div className="text-right space-y-1">

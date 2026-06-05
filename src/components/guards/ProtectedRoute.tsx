@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 const ALLOWED_ROLES = ["super_admin", "client_admin"];
 
 const ProtectedRoute = ({ children }: { children: ReactNode }) => {
-    const { user, isAuthenticated, isLoading } = useAuth();
+    const { user, isAuthenticated, isLoading, passwordExpired } = useAuth();
 
     if (isLoading) {
         return (
@@ -26,6 +26,11 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 
     if (!isAuthenticated) {
         return <Navigate to="/auth/login" replace />;
+    }
+
+    // Password expired: only the forced change-password page is reachable.
+    if (passwordExpired) {
+        return <Navigate to="/auth/change-password" replace />;
     }
 
     if (user && !ALLOWED_ROLES.includes(user.role)) {

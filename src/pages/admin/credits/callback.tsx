@@ -111,7 +111,7 @@ const PaymentCallback = () => {
                             </p>
                         </div>
                         <p className="text-sm text-muted mb-6">
-                            Your credits have been added to your company account.
+                            Your credits have been added to your organization account.
                         </p>
                         <Link
                             to="/admin/credits"

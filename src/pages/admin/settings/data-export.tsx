@@ -20,7 +20,7 @@ function toCSV(headers: string[], rows: string[][]): string {
 }
 
 const dataTypes = [
-    { id: "employees", label: "Employee Data", desc: "Names, emails, departments, roles, and credit allocations", icon: LucideUsers },
+    { id: "employees", label: "Member Data", desc: "Names, emails, departments, roles, and credit allocations", icon: LucideUsers },
     { id: "plans", label: "Travel Plans", desc: "All generated travel health plans with recommendations", icon: LucideMapPin },
     { id: "requests", label: "Credit Requests", desc: "All credit requests and their approval status", icon: LucideActivity },
     { id: "billing", label: "Billing History", desc: "Invoices, credit purchases, and transactions", icon: LucideFileText },
@@ -135,7 +135,7 @@ const DataExport = () => {
                 </Link>
                 <div>
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Data Export</h1>
-                    <p className="text-sm text-muted mt-1">Export all company data for compliance or offboarding</p>
+                    <p className="text-sm text-muted mt-1">Export all organization data for compliance or offboarding</p>
                 </div>
             </div>
 
@@ -143,7 +143,7 @@ const DataExport = () => {
                 <LucideDownload className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
                 <div>
                     <p className="text-sm font-semibold text-heading mb-0.5">GDPR Compliance</p>
-                    <p className="text-xs text-muted">You have the right to export all personal and company data. Exports are generated instantly from your live data.</p>
+                    <p className="text-xs text-muted">You have the right to export all personal and organization data. Exports are generated instantly from your live data.</p>
                 </div>
             </div>
 

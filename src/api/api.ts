@@ -7,6 +7,12 @@ import type {
   // Auth
   LoginRequest,
   AuthResponse,
+  AuthSessionResult,
+  TwoFactorSetupResult,
+  TwoFactorSetupRequest,
+  TwoFactorVerifyRequest,
+  TwoFactorChallengeRequest,
+  TwoFactorMethod,
   CompanyAdminUser,
   // Company
   CompanyResponse,
@@ -41,6 +47,11 @@ import type {
   // Credit
   CreditResponse,
   CreateCreditRequest,
+  CreditPurchaseResult,
+  CreditVerifyResult,
+  CreditQuoteResponse,
+  SeatPurchaseResult,
+  OnboardingProgressResponse,
   // Notification
   NotificationResponse,
   CreateNotificationRequest,
@@ -75,7 +86,7 @@ import type {
   CreateApiKeyResponse,
   // Company Plans
   CompanyPlanResponse,
-  // Company Admin Management
+  // Organization Admin Management
   CompanyAdminUserCreateRequest,
   CompanyAdminUserUpdateRequest,
   CompanyAdminCreditAllocationRequest,
@@ -115,6 +126,19 @@ export const authApi = {
 
   getCurrentUser: () =>
     api.get<ApiResponse<CompanyAdminUser>>("/company-admin/auth/me").then((r) => r.data.data),
+
+  // ─── Two-factor authentication ──────────────────────────────
+  // Shared setup endpoint; the challenge token (or an active session) authorizes it.
+  twoFactorSetup: (data: TwoFactorSetupRequest) =>
+    api.post<ApiResponse<TwoFactorSetupResult>>("/auth/2fa/setup", data).then((r) => r.data.data),
+
+  // (Re)send the email OTP for an in-flight challenge.
+  twoFactorChallenge: (data: TwoFactorChallengeRequest) =>
+    api.post<ApiResponse<{ method: TwoFactorMethod }>>("/company-admin/auth/2fa/challenge", data).then((r) => r.data.data),
+
+  // Verify the code (TOTP / email OTP / backup) and mint the session.
+  twoFactorVerify: (data: TwoFactorVerifyRequest) =>
+    api.post<ApiResponse<AuthSessionResult>>("/company-admin/auth/2fa/verify", data).then((r) => r.data.data),
 };
 
 // ─── Companies ───────────────────────────────────────────────
@@ -156,30 +180,30 @@ export const companiesApi = {
     api.post<ApiResponse<CompanyResponse>>(`/companies/${id}/purchase-credits`, data).then((r) => r.data.data),
 };
 
-// ─── Company Admin Credits ───────────────────────────────────────────────
+// ─── Organization Admin Credits ───────────────────────────────────────────────
 
 export const companyAdminCreditsApi = {
   getQuote: (companyId: number, credits: number) =>
-    api.post<ApiResponse<any>>("/company-admin/credits/quote", null, { params: { companyId, credits } }).then((r) => r.data.data),
+    api.post<ApiResponse<CreditQuoteResponse>>("/company-admin/credits/quote", null, { params: { companyId, credits } }).then((r) => r.data.data),
   
   purchase: (data: { credits: number; companyId: number }) =>
-    api.post<ApiResponse<any>>("/company-admin/credits/purchase", data).then((r) => r.data.data),
+    api.post<ApiResponse<CreditPurchaseResult>>("/company-admin/credits/purchase", data).then((r) => r.data.data),
 
   verify: (txRef: string, transactionId?: string) =>
-    api.get<ApiResponse<{ success: boolean; purchase: any }>>(`/company-admin/credits/verify/${txRef}`, {
+    api.get<ApiResponse<CreditVerifyResult>>(`/company-admin/credits/verify/${txRef}`, {
       params: transactionId ? { transaction_id: transactionId } : {},
     }).then((r) => r.data.data),
 
   getPurchase: (txRef: string) =>
-    api.get<ApiResponse<any>>(`/company-admin/credits/${txRef}`).then((r) => r.data.data),
+    api.get<ApiResponse<CreditPurchaseResult>>(`/company-admin/credits/${txRef}`).then((r) => r.data.data),
 
   getHistory: (companyId?: number) =>
-    api.get<ApiResponse<any[]>>("/company-admin/credits/history", {
+    api.get<ApiResponse<CreditPurchaseResult[]>>("/company-admin/credits/history", {
       params: companyId ? { companyId } : {},
     }).then((r) => r.data.data),
 };
 
-// ─── Company admin · Seats (seat-based subscriptions) ─────────
+// ─── Organization admin · Seats (seat-based subscriptions) ─────────
 
 export const companyAdminSeatsApi = {
   getSubscription: (companyId: number) =>
@@ -223,7 +247,7 @@ export const companyAdminSeatsApi = {
       .then((r) => r.data.data),
 
   verify: (txRef: string, transactionId?: string) =>
-    api.get<ApiResponse<{ success: boolean; purchase: any }>>(`/company-admin/seats/verify/${txRef}`, {
+    api.get<ApiResponse<SeatPurchaseResult>>(`/company-admin/seats/verify/${txRef}`, {
       params: transactionId ? { transaction_id: transactionId } : {},
     }).then((r) => r.data.data),
 };
@@ -551,7 +575,7 @@ export const onboardingApi = {
     api.post<ApiResponse<null>>("/onboarding/progress", data).then((r) => r.data.data),
 
   getProgress: () =>
-    api.get<ApiResponse<any>>("/onboarding/progress").then((r) => r.data.data),
+    api.get<ApiResponse<OnboardingProgressResponse>>("/onboarding/progress").then((r) => r.data.data),
 };
 
 // ─── Company API Keys ─────────────────────────────────────────
@@ -565,12 +589,16 @@ export const apiKeysApi = {
     api.post<ApiResponse<CreateApiKeyResponse>>("/company-admin/api-keys", data)
       .then((r) => r.data.data),
 
+  rotate: (id: number, companyId: number) =>
+    api.put<ApiResponse<CreateApiKeyResponse>>(`/company-admin/api-keys/${id}/rotate`, null, { params: { companyId } })
+      .then((r) => r.data.data),
+
   revoke: (id: number, companyId: number) =>
     api.delete<ApiResponse<null>>(`/company-admin/api-keys/${id}`, { params: { companyId } })
       .then((r) => r.data.data),
 };
 
-// ─── Company Settings ─────────────────────────────────────────
+// ─── Organization Settings ─────────────────────────────────────────
 
 export const settingsApi = {
   get: (companyId: number) =>
@@ -631,7 +659,7 @@ export const companyPlansApi = {
     api.get<ApiResponse<CompanyPlanResponse>>(`/user-credit-plans/${id}`).then((r) => r.data.data),
 };
 
-// ─── Company Admin Management ──────────────────────────────
+// ─── Organization Admin Management ──────────────────────────────
 
 export const companyAdminManagementApi = {
   viewTeamMembers: (companyId: number) =>

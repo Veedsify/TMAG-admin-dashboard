@@ -50,7 +50,7 @@ const SeatBilling = ({ companyId }: { companyId: number }) => {
         return <div className="flex items-center justify-center py-20"><LucideLoader2 className="w-6 h-6 text-accent animate-spin" /></div>;
     }
     if (!sub) {
-        return <p className="text-sm text-muted">No active subscription found for this company.</p>;
+        return <p className="text-sm text-muted">No active subscription found for this organization.</p>;
     }
 
     return (
@@ -121,7 +121,7 @@ const SeatBilling = ({ companyId }: { companyId: number }) => {
                 {/* Additional seats */}
                 <div className={cardClass}>
                     <h2 className="text-base font-semibold text-heading mb-1">Buy additional seats</h2>
-                    <p className="text-xs text-muted mb-4">Each seat adds one employee and {sub.includedPlansPerSeat} plans/year at your current tier ({symbol}{sub.pricePerSeat?.toLocaleString()}/seat).</p>
+                    <p className="text-xs text-muted mb-4">Each seat adds one member and {sub.includedPlansPerSeat} plans/year at your current tier ({symbol}{sub.pricePerSeat?.toLocaleString()}/seat).</p>
                     <div className="flex items-center gap-3">
                         <input type="number" min={1} value={seatQty} onChange={(e) => setSeatQty(Math.max(1, Number(e.target.value)))} className="w-24 rounded-xl border border-border-light px-3 py-2 text-sm" />
                         <span className="text-sm text-muted">seats</span>
@@ -156,7 +156,7 @@ const SeatBilling = ({ companyId }: { companyId: number }) => {
                     </button>
                 </div>
             </div>
-            <p className="text-xs text-muted">Assign purchased extra plans to employees from the Employees page.</p>
+            <p className="text-xs text-muted">Assign purchased extra plans to members from the Members page.</p>
         </div>
     );
 };
@@ -232,7 +232,7 @@ const CreditBilling = () => {
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Credits & Billing</h1>
-                    <p className="text-sm text-muted mt-1">Manage your company&apos;s credit balance and billing</p>
+                    <p className="text-sm text-muted mt-1">Manage your organization&apos;s credit balance and billing</p>
                 </div>
                 <Link
                     to="/admin/credits/invoices"

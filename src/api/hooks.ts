@@ -1086,7 +1086,15 @@ export function useRevokeApiKey() {
   });
 }
 
-// ─── Company Settings Hooks ────────────────────────────────────
+export function useRotateApiKey() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, companyId }: { id: number; companyId: number }) => apiKeysApi.rotate(id, companyId),
+    onSuccess: (_, vars) => qc.invalidateQueries({ queryKey: ["api-keys", vars.companyId] }),
+  });
+}
+
+// ─── Organization Settings Hooks ────────────────────────────────────
 
 export function useCompanySettings(companyId: number) {
   return useQuery({
@@ -1182,7 +1190,7 @@ export function useCompanyPlan(id: number) {
   });
 }
 
-// ─── Company Admin Management Hooks ────────────────────────
+// ─── Organization Admin Management Hooks ────────────────────────
 
 export function useCompanyTeamMembers(companyId?: number) {
   return useQuery({

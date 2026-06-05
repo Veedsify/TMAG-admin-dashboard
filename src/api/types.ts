@@ -66,13 +66,54 @@ export interface ResetPasswordRequest {
   new_password: string;
 }
 
-export interface AuthResponse {
+export type TwoFactorMethod = "EMAIL_OTP" | "TOTP";
+
+/** Successful, fully-authenticated login / 2FA-verify result. */
+export interface AuthSessionResult {
   token: string;
   exp: number;
   user: CompanyAdminUser;
+  password_expired?: boolean;
 }
 
-// ─── Company Admin Auth ─────────────────────────────────────
+/** Pending-2FA challenge result returned by login before a session is issued. */
+export interface AuthChallengeResult {
+  two_factor_setup_required?: boolean;
+  two_factor_required?: boolean;
+  two_factor_method?: TwoFactorMethod;
+  challenge_token?: string;
+  password_expired?: boolean;
+  id?: number;
+  email?: string;
+}
+
+/** `POST /company-admin/auth/login` returns ONE of these. */
+export type AuthResponse = AuthSessionResult | AuthChallengeResult;
+
+/** Shared `POST /auth/2fa/setup` result. `secret`/`otpauthUri` are non-null for TOTP only. */
+export interface TwoFactorSetupResult {
+  method: TwoFactorMethod;
+  secret: string | null;
+  otpauthUri: string | null;
+  backupCodes: string[];
+}
+
+export interface TwoFactorSetupRequest {
+  challenge_token?: string;
+  method: TwoFactorMethod;
+}
+
+export interface TwoFactorVerifyRequest {
+  challenge_token: string;
+  code: string;
+  backup?: boolean;
+}
+
+export interface TwoFactorChallengeRequest {
+  challenge_token: string;
+}
+
+// ─── Organization Admin Auth ─────────────────────────────────────
 
 export type CompanyAdminRole = "super_admin" | "client_admin" | "support_admin";
 
@@ -176,7 +217,7 @@ export interface CreateEmployeeRequest {
   role?: string;
 }
 
-export interface UpdateEmployeeRequest extends Partial<CreateEmployeeRequest> { }
+export type UpdateEmployeeRequest = Partial<CreateEmployeeRequest>;
 
 export interface AllocateEmployeeCreditsRequest {
   creditsAllocated: number;
@@ -257,7 +298,7 @@ export interface CreateCreditRequestRequest {
   submittedAt?: string;
 }
 
-export interface UpdateCreditRequestRequest extends Partial<CreateCreditRequestRequest> { }
+export type UpdateCreditRequestRequest = Partial<CreateCreditRequestRequest>;
 
 // ─── Health Profile ──────────────────────────────────────────
 
@@ -284,7 +325,7 @@ export interface CreateHealthProfileRequest {
   emergency_contact_phone: string;
 }
 
-export interface UpdateHealthProfileRequest extends Partial<CreateHealthProfileRequest> { }
+export type UpdateHealthProfileRequest = Partial<CreateHealthProfileRequest>;
 
 // ─── Country ─────────────────────────────────────────────────
 
@@ -323,7 +364,7 @@ export interface CreateCountryRequest {
   isActive: boolean;
 }
 
-export interface UpdateCountryRequest extends Partial<CreateCountryRequest> { }
+export type UpdateCountryRequest = Partial<CreateCountryRequest>;
 
 // ─── Country Health Alert ────────────────────────────────────
 
@@ -404,7 +445,7 @@ export interface CreateNotificationRequest {
   isRead: boolean;
 }
 
-export interface UpdateNotificationRequest extends Partial<CreateNotificationRequest> { }
+export type UpdateNotificationRequest = Partial<CreateNotificationRequest>;
 
 // ─── Pricing Plan ────────────────────────────────────────────
 
@@ -515,8 +556,8 @@ export interface UpdateProfileRequest {
 }
 
 export interface UpdateProfilePasswordRequest {
-  OldPassword: string;
-  NewPassword: string;
+  current_password: string;
+  new_password: string;
 }
 
 
@@ -561,7 +602,7 @@ export interface MyCompanyMembership {
   extra_plans_available?: number;
 }
 
-// ─── Seat-based subscription (company admin) ──────────────────
+// ─── Seat-based subscription (organization admin) ──────────────────
 
 export interface CompanySubscriptionSummary {
   companyId: number;
@@ -670,6 +711,9 @@ export interface ApiKeyResponse {
   name: string;
   keyPrefix: string;
   status: "ACTIVE" | "REVOKED";
+  /** CSV of `read` / `write` / `admin` (hierarchical: read < write < admin). */
+  scopes: string;
+  usageCount: number;
   lastUsedAt: string | null;
   expiresAt: string | null;
   createdAt: string;
@@ -679,6 +723,8 @@ export interface CreateApiKeyRequest {
   name: string;
   companyId: number;
   expiresAt?: string;
+  /** CSV e.g. "read", "read,write", "read,write,admin". */
+  scopes: string;
 }
 
 export interface CreateApiKeyResponse {
@@ -710,7 +756,7 @@ export interface QuestionnaireProgressRequest {
   questionIndex: number;
 }
 
-// ─── Company Settings ───────────────────────────────────────
+// ─── Organization Settings ───────────────────────────────────────
 
 export interface CompanySettingValue {
   value: boolean | string | number;
@@ -838,9 +884,9 @@ export interface CreatePlanRequest {
   description?: string;
 }
 
-export interface UpdatePlanRequest extends Partial<CreatePlanRequest> { }
+export type UpdatePlanRequest = Partial<CreatePlanRequest>;
 
-// ─── Company Admin Management ──────────────────────────────
+// ─── Organization Admin Management ──────────────────────────────
 
 export interface CompanyAdminUserCreateRequest {
   companyId: number;
@@ -885,4 +931,50 @@ export interface CompanyTeamMember {
   credits_used: number;
   department: string;
   employee_status: string;
+}
+
+// Credit Purchase Types
+export interface CreditPurchaseResult {
+  id: number;
+  txRef: string;
+  creditsPurchased: number;
+  currencySymbol: string;
+  amountPaid: number;
+  amount: number;
+  paidAt: string;
+  createdAt: string;
+  paymentLink?: string;
+  status?: string;
+  failedReason?: string;
+}
+
+export interface CreditVerifyResult {
+  success: boolean;
+  purchase: CreditPurchaseResult;
+}
+
+export interface SeatPurchaseResult {
+  success: boolean;
+  purchase: {
+    status: string;
+    purpose: string;
+    quantity: number;
+    paymentLink?: string;
+  };
+}
+
+// Quote and Progress Response Types
+export interface CreditQuoteResponse {
+  currencySymbol: string;
+  basePrice: number;
+  discountAmount: number;
+  totalAmount: number;
+  originalTotalAmount?: number | null;
+  launchDiscountAmount?: number | null;
+}
+
+export interface OnboardingProgressResponse {
+  currentStep: number;
+  completedSteps: number[];
+  answers: Record<string, unknown>;
 }

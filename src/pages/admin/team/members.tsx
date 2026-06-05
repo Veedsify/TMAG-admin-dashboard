@@ -77,7 +77,7 @@ const TeamMembers = () => {
             return;
         }
         if (!companyId) {
-            toast.error("Company not found");
+            toast.error("Organization not found");
             return;
         }
         allocateCredits.mutate(
@@ -101,7 +101,7 @@ const TeamMembers = () => {
 
     const handleRoleChange = (companyUserId: number, newRole: string) => {
         if (!companyId) {
-            toast.error("Company not found");
+            toast.error("Organization not found");
             return;
         }
         updateCompanyUser.mutate(
@@ -131,7 +131,7 @@ const TeamMembers = () => {
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Team Members</h1>
-                    <p className="text-sm text-muted mt-1">Manage your company&apos;s team members and roles</p>
+                    <p className="text-sm text-muted mt-1">Manage your organization&apos;s team members and roles</p>
                 </div>
                 <Link
                     to="/admin/team/invite"

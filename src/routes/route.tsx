@@ -7,6 +7,9 @@ import AuthLayout from "../layouts/authlayouts";
 
 // Pages
 const Login = lazy(() => import("../pages/auth/login"));
+const TwoFactorSetup = lazy(() => import("../pages/auth/2fa-setup"));
+const TwoFactorVerify = lazy(() => import("../pages/auth/2fa-verify"));
+const ChangePassword = lazy(() => import("../pages/auth/change-password"));
 const Dashboard = lazy(() => import("../pages/admin/dashboard"));
 const CompanyProfile = lazy(() => import("../pages/admin/company/profile"));
 const Credits = lazy(() => import("../pages/admin/credits/overview"));
@@ -55,6 +58,9 @@ const router = createBrowserRouter([
         children: [
             { index: true, element: <Navigate to="/auth/login" replace /> },
             { path: "login", element: withSuspense(<Login />) },
+            { path: "2fa/setup", element: withSuspense(<TwoFactorSetup />) },
+            { path: "2fa/verify", element: withSuspense(<TwoFactorVerify />) },
+            { path: "change-password", element: withSuspense(<ChangePassword />) },
         ],
     },
     {

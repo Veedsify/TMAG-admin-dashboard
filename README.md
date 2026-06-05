@@ -1,6 +1,6 @@
-# TMAG Company Admin Dashboard
+# TMAG Organization Admin Dashboard
 
-The Company Admin Dashboard is the React portal for company administrators and HR teams. It helps organizations manage company profiles, employees, credits, travel plans, requests, invoices, compliance reports, audit history, API keys, settings, and data exports.
+The Organization Admin Dashboard is the React portal for organization administrators and HR teams. It helps organizations manage organization profiles, members, credits, travel plans, requests, invoices, compliance reports, audit history, API keys, settings, and data exports.
 
 ## Stack
 
@@ -54,7 +54,7 @@ Do not commit `.env` files or real secrets.
 
 ## Main route areas
 
-- `/auth/login` company admin login.
+- `/auth/login` organization admin login.
 - `/admin` dashboard overview.
 - `/admin/company` company profile.
 - `/admin/team`, `/admin/team/invite`, and `/admin/team/onboarding` team management.
@@ -76,7 +76,7 @@ admin-dashboard/
 │   ├── context/      # Auth and mobile sidebar contexts
 │   ├── layouts/      # Admin and auth layouts
 │   ├── lib/          # Query client and utilities
-│   ├── pages/        # Company admin route pages
+│   ├── pages/        # Organization admin route pages
 │   ├── routes/       # React Router provider and routes
 │   └── stores/       # Sidebar state
 ├── package.json
@@ -87,7 +87,7 @@ admin-dashboard/
 
 - API base defaults to `http://localhost:8080/api`.
 - Requests send `X-Api-Key: VITE_API_KEY`.
-- Company admin authentication uses backend routes under `/api/v1/company-admin/auth/*`.
+- Organization admin authentication uses backend routes under `/api/v1/company-admin/auth/*`.
 - Auth stores the JWT in the `company_admin_access_token` cookie.
 - Non-auth `401` responses clear the cookie and redirect to `/auth/login`.
 

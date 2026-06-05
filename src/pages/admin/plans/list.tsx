@@ -46,7 +46,7 @@ const TravelPlans = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                 <div>
                     <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-heading">Travel Plans</h1>
-                    <p className="text-sm text-muted mt-1">View and manage all employee travel health plans</p>
+                    <p className="text-sm text-muted mt-1">View and manage all member travel health plans</p>
                 </div>
             </div>
 
@@ -56,7 +56,7 @@ const TravelPlans = () => {
                         <LucideSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted pointer-events-none" />
                         <input
                             type="text"
-                            placeholder="Search by destination, country, or employee..."
+                            placeholder="Search by destination, country, or member..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full pl-9 pr-4 py-2.5 bg-button-secondary border border-border-light rounded-xl text-sm text-heading placeholder:text-brand-muted outline-none focus:border-accent transition-colors"
@@ -89,7 +89,7 @@ const TravelPlans = () => {
                     </div>
                     <p className="text-base font-semibold text-heading mb-1">No travel plans found</p>
                     <p className="text-sm text-muted mb-4">Try adjusting your search or filters</p>
-                    <p className="text-sm text-muted">Plans can be created by employees through their dashboard or by a support agent.</p>
+                    <p className="text-sm text-muted">Plans can be created by members through their dashboard or by a support agent.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
